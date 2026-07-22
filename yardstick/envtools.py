@@ -20,6 +20,13 @@ def load_env() -> None:
     load_dotenv(ENV_PATH, override=True)
 
 
+def first_line(exc: BaseException) -> str:
+    """First line of an exception message, or the type name if the message is empty.
+    Avoids `str(e).splitlines()[0]` crashing on exceptions with no message (e.g. IndexError)."""
+    s = str(exc).strip()
+    return s.splitlines()[0] if s else type(exc).__name__
+
+
 def require(name: str) -> str:
     """Return an env var's value or raise a clear error if missing."""
     load_env()

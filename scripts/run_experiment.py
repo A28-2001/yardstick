@@ -27,7 +27,7 @@ import psycopg
 import yaml
 
 from yardstick import clients, extraction, prompting
-from yardstick.envtools import require
+from yardstick.envtools import first_line, require
 
 REPO = Path(__file__).resolve().parents[1]
 VARIANT_DIR = REPO / "configs" / "variants"
@@ -133,7 +133,7 @@ def main() -> int:
                     except Exception as e:  # noqa: BLE001
                         write_run(cur, q["question_id"], vid, args.replicate, cfg, None, None, str(e))
                         failed += 1
-                        print(f"  {vid} {q['question_id']} FAILED: {str(e).splitlines()[0]}")
+                        print(f"  {vid} {q['question_id']} FAILED: {first_line(e)}")
                 conn.commit()  # persist after every call
 
     print(f"\nGenerated {done}, skipped(cached) {skipped}, failed {failed}.")

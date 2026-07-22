@@ -25,7 +25,7 @@ from pathlib import Path
 import psycopg
 
 from yardstick import spider_data as sd
-from yardstick.envtools import require
+from yardstick.envtools import first_line, require
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "third_party" / "spider_eval"))
@@ -47,7 +47,7 @@ def official_verdict(db_path, pred_sql, gold_sql):
     try:
         schema = Schema(get_schema(str(db_path)))
     except Exception as e:  # noqa: BLE001
-        return None, f"schema_error:{str(e).splitlines()[0]}"
+        return None, f"schema_error:{first_line(e)}"
     try:
         g = get_sql(schema, gold_sql)
     except Exception:  # noqa: BLE001
@@ -59,7 +59,7 @@ def official_verdict(db_path, pred_sql, gold_sql):
     try:
         return bool(eval_exec_match(str(db_path), pred_sql, gold_sql, p, g)), None
     except Exception as e:  # noqa: BLE001
-        return None, f"exec_error:{str(e).splitlines()[0]}"
+        return None, f"exec_error:{first_line(e)}"
 
 
 def main() -> int:

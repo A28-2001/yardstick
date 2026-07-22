@@ -25,6 +25,12 @@ PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
 _MARK = {PASS: "\033[92m✓\033[0m", FAIL: "\033[91m✗\033[0m", SKIP: "\033[93m—\033[0m"}
 
 
+def _first(exc: BaseException) -> str:
+    """First line of an error message, or the type name if empty (never IndexErrors)."""
+    s = str(exc).strip()
+    return s.splitlines()[0] if s else type(exc).__name__
+
+
 def _row(status: str, name: str, detail: str = "") -> tuple[str, str, str]:
     print(f"  {_MARK[status]} {status:<4} {name}" + (f"  ({detail})" if detail else ""))
     return status, name, detail
@@ -68,7 +74,7 @@ def check_postgres() -> tuple[str, str, str]:
                         f"connected but missing tables: {sorted(missing)} — apply sql/schema.sql")
         return _row(PASS, "supabase-postgres", f"connected; all {len(expected)} tables present")
     except Exception as e:  # noqa: BLE001
-        return _row(FAIL, "supabase-postgres", str(e).splitlines()[0])
+        return _row(FAIL, "supabase-postgres", _first(e))
 
 
 def check_groq() -> tuple[str, str, str]:
@@ -92,7 +98,7 @@ def check_groq() -> tuple[str, str, str]:
                 temperature=0,
             )
         except Exception as e:  # noqa: BLE001
-            return _row(FAIL, "groq-api", f"{model}: {str(e).splitlines()[0]}")
+            return _row(FAIL, "groq-api", f"{model}: {_first(e)}")
     return _row(PASS, "groq-api", f"{cheap} ✓  {strong} ✓")
 
 
@@ -119,7 +125,7 @@ def check_sqlite_readonly() -> tuple[str, str, str]:
             return _row(PASS, "sqlite-readonly", "opened mode=ro, read 3 rows, writes blocked")
         return _row(FAIL, "sqlite-readonly", f"rows={n} write_blocked={write_blocked}")
     except Exception as e:  # noqa: BLE001
-        return _row(FAIL, "sqlite-readonly", str(e).splitlines()[0])
+        return _row(FAIL, "sqlite-readonly", _first(e))
     finally:
         tmp.unlink(missing_ok=True)
 

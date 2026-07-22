@@ -1,0 +1,24 @@
+# V4 — few-shot, strong model (Groq 70B). Both factors. (spec §4.1)
+variant_id: V4
+prompt_strategy: few-shot
+model: groq
+model_name: llama-3.3-70b-versatile   # STRONG/large model — same as V3, so V4 vs V3 isolates few-shot
+role: both, strong + few-shot
+prompt_version: "0.1.0"
+
+temperature: 0
+max_tokens: 500
+
+schema_format: create_table_fk
+
+system_prompt: |
+  You are an expert SQL analyst. You are given a SQLite database schema and a
+  natural-language question. Write a single SQLite SELECT query that answers it.
+
+  Respond with exactly:
+  1. The query inside one ```sql code block.
+  2. On a new line after the block: CONFIDENCE: <number from 0.0 to 1.0>
+  Do not add explanation.
+
+# Same held-out few-shot examples as V2 (spec §4.5 / §11.3 leakage constraint).
+few_shot_examples: []   # TODO(phase-2): populate from held-out Spider train examples

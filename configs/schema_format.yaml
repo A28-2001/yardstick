@@ -1,0 +1,22 @@
+# Schema presentation — HELD CONSTANT across all variants V1-V4 (spec §13.2).
+# This is NOT a factor under test. Varying schema formatting between variants
+# would make it an uncontrolled confound that could account for the entire effect.
+
+format: create_table_fk
+description: >
+  CREATE TABLE statements with column names and types, foreign keys included,
+  primary keys included, other constraints and indexes stripped.
+  The identical representation is used for V1, V2, V3, and V4.
+
+include_types: true
+include_primary_keys: true
+include_foreign_keys: true
+strip_check_constraints: true
+strip_unique_constraints: true
+strip_defaults: true
+strip_indexes: true
+
+# For very wide schemas, spec §13 allows truncating to table+column names only,
+# but it must be applied identically across variants. Off by default.
+truncate_wide_schemas: false
+wide_schema_column_threshold: 40

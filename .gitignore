@@ -1,0 +1,28 @@
+# Secrets — never commit real keys
+.env
+
+# Data & target databases — never commit (spec §6.2)
+# Spider ships large SQLite bundles; commit the download script instead.
+data/
+databases/
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Large regenerated figures (CSVs under results/ are tracked deliverables)
+results/figures/*.png
+results/figures/*.pdf

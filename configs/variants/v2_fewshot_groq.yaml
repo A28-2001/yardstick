@@ -1,0 +1,31 @@
+# V2 — few-shot, cheap model (Groq 8B). Prompt effect, cheap. (spec §4.1)
+# This is the TREATMENT in the primary comparison (V2 vs V1 within tier).
+variant_id: V2
+prompt_strategy: few-shot
+model: groq
+model_name: llama-3.1-8b-instant      # CHEAP/small model — same as V1, so V2 vs V1 isolates few-shot
+role: prompt effect, cheap
+prompt_version: "0.1.0"
+
+temperature: 0
+max_tokens: 500
+
+schema_format: create_table_fk
+
+# Identical system prompt to V1 — ONLY the presence of examples differs,
+# so the comparison isolates the few-shot effect.
+system_prompt: |
+  You are an expert SQL analyst. You are given a SQLite database schema and a
+  natural-language question. Write a single SQLite SELECT query that answers it.
+
+  Respond with exactly:
+  1. The query inside one ```sql code block.
+  2. On a new line after the block: CONFIDENCE: <number from 0.0 to 1.0>
+  Do not add explanation.
+
+# few-shot examples.
+# CONSTRAINT (spec §4.5 / §11.3): examples must be drawn from Spider data that is
+# NOT in the 150-question experiment sample, to avoid leakage/contamination.
+# Held constant across all questions in a tier so few-shot examples can be
+# prompt-cached (spec §13). FINALIZED IN PHASE 2 once data is downloaded.
+few_shot_examples: []   # TODO(phase-2): populate from held-out Spider train examples

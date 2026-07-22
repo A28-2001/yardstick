@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yardstick"
+version = "0.1.0"
+description = "A statistically rigorous evaluation and routing study for LLM-generated SQL."
+requires-python = ">=3.11"
+# Runtime deps are pinned in requirements.txt (kept as the single source of truth).
+
+[tool.setuptools]
+packages = ["yardstick"]

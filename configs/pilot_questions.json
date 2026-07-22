@@ -1,0 +1,57 @@
+{
+  "_comment": "Fixed pilot set (spec \u00a714 Phase 4): 4 simple / 3 moderate / 3 complex, first-per-tier by question_id. Committed before pre-registration.",
+  "question_ids": [
+    "q042d0e6efa73",
+    "q045a8cf31f85",
+    "q06d0a23c91da",
+    "q07b965bd395a",
+    "q02457c7c031b",
+    "q05fa6f825c2d",
+    "q0d746b8f893d",
+    "q057512db9f74",
+    "q093eb4f77b81",
+    "q0c18495f74d9"
+  ],
+  "detail": [
+    {
+      "question_id": "q042d0e6efa73",
+      "tier": "simple"
+    },
+    {
+      "question_id": "q045a8cf31f85",
+      "tier": "simple"
+    },
+    {
+      "question_id": "q06d0a23c91da",
+      "tier": "simple"
+    },
+    {
+      "question_id": "q07b965bd395a",
+      "tier": "simple"
+    },
+    {
+      "question_id": "q02457c7c031b",
+      "tier": "moderate"
+    },
+    {
+      "question_id": "q05fa6f825c2d",
+      "tier": "moderate"
+    },
+    {
+      "question_id": "q0d746b8f893d",
+      "tier": "moderate"
+    },
+    {
+      "question_id": "q057512db9f74",
+      "tier": "complex"
+    },
+    {
+      "question_id": "q093eb4f77b81",
+      "tier": "complex"
+    },
+    {
+      "question_id": "q0c18495f74d9",
+      "tier": "complex"
+    }
+  ]
+}

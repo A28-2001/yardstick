@@ -21,6 +21,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import psycopg
@@ -31,6 +32,7 @@ from yardstick.envtools import first_line, require
 
 REPO = Path(__file__).resolve().parents[1]
 VARIANT_DIR = REPO / "configs" / "variants"
+PILOT_FILE = REPO / "configs" / "pilot_questions.json"
 
 
 def load_variants() -> dict[str, dict]:
@@ -41,10 +43,13 @@ def load_variants() -> dict[str, dict]:
     return out
 
 
-def fetch_questions(cur, tier=None, split=None, limit=None) -> list[dict]:
+def fetch_questions(cur, tier=None, split=None, limit=None, pilot=False) -> list[dict]:
     q = ("SELECT question_id, question_text, schema_ddl, tier, split, gold_sql, db_id "
          "FROM questions")
     conds, args = [], []
+    if pilot:
+        ids = json.loads(PILOT_FILE.read_text())["question_ids"]
+        conds.append("question_id = ANY(%s)"); args.append(ids)
     if tier:
         conds.append("tier = %s"); args.append(tier)
     if split:
@@ -97,6 +102,7 @@ def main() -> int:
     ap.add_argument("--tier", choices=["simple", "moderate", "complex"])
     ap.add_argument("--split", choices=["train", "test"])
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--pilot", action="store_true", help="restrict to the fixed pilot set")
     ap.add_argument("--replicate", type=int, default=1)
     ap.add_argument("--force", action="store_true", help="ignore cache, regenerate")
     args = ap.parse_args()
@@ -108,7 +114,7 @@ def main() -> int:
     done = skipped = failed = 0
     with psycopg.connect(require("DATABASE_URL")) as conn:
         with conn.cursor() as cur:
-            questions = fetch_questions(cur, args.tier, args.split, args.limit)
+            questions = fetch_questions(cur, args.tier, args.split, args.limit, args.pilot)
         print(f"{len(questions)} questions × {len(vids)} variants "
               f"× replicate {args.replicate} = {len(questions)*len(vids)} cells\n")
         for vid in vids:

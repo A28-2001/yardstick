@@ -1,0 +1,110 @@
+examples:
+- difficulty: easy
+  db_id: architecture
+  schema_ddl: 'CREATE TABLE "architect" (
+
+    "id" text,
+
+    "name" text,
+
+    "nationality" text,
+
+    "gender" text,
+
+    primary key("id")
+
+    );
+
+
+    CREATE TABLE "bridge" (
+
+    "architect_id" int,
+
+    "id" int,
+
+    "name" text,
+
+    "location" text,
+
+    "length_meters" real,
+
+    "length_feet" real,
+
+    primary key("id"),
+
+    foreign key ("architect_id" ) references `architect`("id")
+
+    );
+
+
+    CREATE TABLE "mill" (
+
+    "architect_id" int,
+
+    "id" int,
+
+    "location" text,
+
+    "name" text,
+
+    "type" text,
+
+    "built_year" int,
+
+    "notes" text,
+
+    primary key ("id"),
+
+    foreign key ("architect_id" ) references `architect`("id")
+
+    );'
+  question: How many architects are female?
+  sql: SELECT count(*) FROM architect WHERE gender = 'female'
+  confidence: 0.95
+- difficulty: medium
+  db_id: battle_death
+  schema_ddl: "CREATE TABLE \"battle\" (\n\"id\" int,\n\"name\" text,\n\"date\" text,\n\"bulgarian_commander\" text,\n\"latin_commander\" text,\n\"result\" text,\nprimary key(\"id\")\n);\n\nCREATE TABLE \"death\" (\n\"caused_by_ship_id\" int,\n\"id\" int,\n\"note\" text,\n\"killed\" int,\n\"injured\" int,\nprimary key(\"id\"),\nforeign key (\"caused_by_ship_id\") references `ship`(\"id\") \n);\n\nCREATE TABLE \"ship\" (\n\"lost_in_battle\" int,\n\"id\" int,\n\"name\" text,\n\"tonnage\" text,\n\"ship_type\" text,\n\"location\" text,\n\"disposition_of_ship\" text,\nprimary key(\"id\"),\nforeign key (`lost_in_battle`) references `battle`(\"id\") \n);"
+  question: List the name and tonnage ordered by in descending alphaetical order for the names.
+  sql: SELECT name , tonnage FROM ship ORDER BY name DESC
+  confidence: 0.9
+- difficulty: hard
+  db_id: body_builder
+  schema_ddl: 'CREATE TABLE "body_builder" (
+
+    "Body_Builder_ID" int,
+
+    "People_ID" int,
+
+    "Snatch" real,
+
+    "Clean_Jerk" real,
+
+    "Total" real,
+
+    PRIMARY KEY ("Body_Builder_ID"),
+
+    FOREIGN KEY ("People_ID") REFERENCES `people`("People_ID")
+
+    );
+
+
+    CREATE TABLE "people" (
+
+    "People_ID" int,
+
+    "Name" text,
+
+    "Height" real,
+
+    "Weight" real,
+
+    "Birth_Date" text,
+
+    "Birth_Place" text,
+
+    PRIMARY KEY ("People_ID")
+
+    );'
+  question: List the weight of the body builders who have snatch score higher than 140 or have the height greater than 200.
+  sql: SELECT T2.weight FROM body_builder AS T1 JOIN people AS T2 ON T1.people_id = T2.people_id WHERE T1.snatch > 140 OR T2.height > 200;
+  confidence: 0.85

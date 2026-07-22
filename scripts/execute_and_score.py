@@ -1,15 +1,13 @@
-"""Phase 2/3 — execute generated SQL and score it (spec §9.2).
+"""Phase 3 — execute generated SQL, score it, and classify failures (spec §9.2, §9.5).
 
-Separate from generation (spec §7): re-scoring after a comparison-logic fix costs
+Separate from generation (spec §7): re-scoring after a comparison/taxonomy fix costs
 ZERO API calls. For each run it executes the extracted SQL read-only against the
 working DB copy, executes the gold query on the same DB, compares result sets under
-the §9.2 rules, and writes the verdict to `executions`.
+the §9.2 rules, and writes the verdict + error_type to `executions`.
 
   set_match   — order-insensitive, THE primary correctness flag
   exact_match — order-sensitive
-
-Basic error buckets are set here (extraction_failure / timeout / execution_error);
-the full structural taxonomy (§9.5: wrong_join, wrong_aggregation, …) lands in Phase 3.
+  error_type  — single bucket from the §9.5 taxonomy (yardstick/taxonomy.py)
 
 Run:  python scripts/execute_and_score.py [--force]
 """
@@ -20,7 +18,7 @@ import functools
 
 import psycopg
 
-from yardstick import comparison, sandbox, spider_data as sd
+from yardstick import comparison, sandbox, taxonomy, spider_data as sd
 from yardstick.envtools import require
 
 
@@ -30,31 +28,36 @@ def gold_rows(db_id: str, gold_sql: str):
     return res.rows if res.executed else None
 
 
-def score_run(run) -> dict:
-    qid, db_id, gold_sql, extracted_sql = run
+def score_run(db_id, gold_sql, extracted_sql, extraction_success, error_message) -> dict:
+    generation_error = bool(error_message)
+
     if not extracted_sql:
-        return {"executed": False, "error_type": "extraction_failure",
-                "set_match": False, "exact_match": False, "timed_out": False,
-                "execution_error": None, "result_hash": None,
-                "result_row_count": None, "result_col_count": None, "execution_time_ms": None}
+        executed = set_match = exact_match = timed_out = False
+        execution_error = result_hash = rrc = rcc = etime = None
+    else:
+        res = sandbox.execute(sd.working_db_path(db_id), extracted_sql)
+        if not res.executed:
+            executed = set_match = exact_match = False
+            timed_out = res.timed_out
+            execution_error, result_hash, rrc, rcc = res.error, None, None, None
+            etime = res.execution_time_ms
+        else:
+            gold = gold_rows(db_id, gold_sql)
+            cmp = comparison.compare(res.rows, gold if gold is not None else [])
+            executed, timed_out = True, False
+            set_match, exact_match = cmp["set_match"], cmp["exact_match"]
+            execution_error, result_hash = None, cmp["pred_hash"]
+            rrc, rcc, etime = res.row_count, res.col_count, res.execution_time_ms
 
-    res = sandbox.execute(sd.working_db_path(db_id), extracted_sql)
-    if not res.executed:
-        return {"executed": False,
-                "error_type": "timeout" if res.timed_out else "execution_error",
-                "set_match": False, "exact_match": False, "timed_out": res.timed_out,
-                "execution_error": res.error, "result_hash": None,
-                "result_row_count": None, "result_col_count": None,
-                "execution_time_ms": res.execution_time_ms}
+    error_type = taxonomy.classify(
+        set_match=set_match, extraction_success=extraction_success,
+        generation_error=generation_error, executed=executed, timed_out=timed_out,
+        execution_error=execution_error, extracted_sql=extracted_sql, gold_sql=gold_sql)
 
-    gold = gold_rows(db_id, gold_sql)
-    cmp = comparison.compare(res.rows, gold if gold is not None else [])
-    return {"executed": True, "error_type": None,
-            "set_match": cmp["set_match"], "exact_match": cmp["exact_match"],
-            "timed_out": False, "execution_error": None,
-            "result_hash": cmp["pred_hash"],
-            "result_row_count": res.row_count, "result_col_count": res.col_count,
-            "execution_time_ms": res.execution_time_ms}
+    return {"executed": executed, "execution_error": execution_error,
+            "result_hash": result_hash, "result_row_count": rrc, "result_col_count": rcc,
+            "exact_match": exact_match, "set_match": set_match,
+            "execution_time_ms": etime, "timed_out": timed_out, "error_type": error_type}
 
 
 def main() -> int:
@@ -64,10 +67,10 @@ def main() -> int:
 
     with psycopg.connect(require("DATABASE_URL")) as conn:
         with conn.cursor() as cur:
-            where = "" if args.force else \
-                "WHERE e.execution_id IS NULL"
+            where = "" if args.force else "WHERE e.execution_id IS NULL"
             cur.execute(
-                f"""SELECT r.run_id, r.question_id, q.db_id, q.gold_sql, r.extracted_sql
+                f"""SELECT r.run_id, q.db_id, q.gold_sql, r.extracted_sql,
+                           r.extraction_success, r.error_message
                     FROM runs r
                     JOIN questions q ON q.question_id = r.question_id
                     LEFT JOIN executions e ON e.run_id = r.run_id
@@ -77,8 +80,8 @@ def main() -> int:
 
         print(f"Scoring {len(rows)} runs...\n")
         n_match = n_exec = 0
-        for run_id, qid, db_id, gold_sql, extracted_sql in rows:
-            v = score_run((qid, db_id, gold_sql, extracted_sql))
+        for run_id, db_id, gold_sql, extracted_sql, extraction_success, error_message in rows:
+            v = score_run(db_id, gold_sql, extracted_sql, extraction_success, error_message)
             with conn.cursor() as cur:
                 cur.execute(
                     """INSERT INTO executions (run_id, executed, execution_error, result_hash,

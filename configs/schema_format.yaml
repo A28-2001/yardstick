@@ -2,21 +2,24 @@
 # This is NOT a factor under test. Varying schema formatting between variants
 # would make it an uncontrolled confound that could account for the entire effect.
 
-format: create_table_fk
+format: create_table_from_sqlite_master
 description: >
-  CREATE TABLE statements with column names and types, foreign keys included,
-  primary keys included, other constraints and indexes stripped.
-  The identical representation is used for V1, V2, V3, and V4.
+  Each database's real CREATE TABLE statements, read verbatim from sqlite_master
+  (yardstick/spider_data.extract_schema_ddl). Tables only — indexes are separate
+  sqlite_master objects and are excluded. Column types, PRIMARY KEY, and FOREIGN KEY
+  are retained; any inline CHECK/UNIQUE/DEFAULT the original schema declares are kept
+  as-is (present in ~5-16 of the 150 schemas). The IDENTICAL DDL string is used for
+  V1-V4, so schema formatting is held constant and cannot confound the comparison
+  (spec §13.2). We keep the raw DDL rather than re-parsing to avoid any risk of
+  altering the schema; Spider schemas are small so the token cost is negligible.
 
 include_types: true
 include_primary_keys: true
 include_foreign_keys: true
-strip_check_constraints: true
-strip_unique_constraints: true
-strip_defaults: true
-strip_indexes: true
+indexes_excluded: true            # sqlite_master type='table' only
+inline_constraints: kept_as_is    # CHECK/UNIQUE/DEFAULT left as the DB declares them
 
 # For very wide schemas, spec §13 allows truncating to table+column names only,
-# but it must be applied identically across variants. Off by default.
+# but it must be applied identically across variants. Off by default. (max schema
+# in the sample is ~6.1k chars / ~1.6k tokens, so truncation is unnecessary.)
 truncate_wide_schemas: false
-wide_schema_column_threshold: 40

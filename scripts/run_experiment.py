@@ -5,6 +5,11 @@ For each (question, variant, replicate) cell: if a run already exists it is SKIP
 SQL + confidence, and write the run to Postgres IMMEDIATELY (never batched, so a
 rate-limit interruption never loses progress).
 
+CACHE SEMANTICS: the resume key is (question_id, variant_id, replicate). It does NOT
+re-hash the prompt text, so if you EDIT a variant's prompt or bump its temperature,
+existing runs won't auto-invalidate — re-run that variant with --force to regenerate.
+(Bump prompt_version in the config too, so the change is recorded.)
+
 Filters let you run a slice (one variant, one tier, a few questions) — used for the
 pilot and the single-tier run before the full sweep.
 

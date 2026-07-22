@@ -1,0 +1,17 @@
+{
+  "_comment": "Question IDs excluded during Phase 1 hand-review (spec §6.3): broken or ambiguous Spider gold queries that would poison ground truth. The sampler skips these and backfills to keep 50 valid questions per tier. Version-controlled for reproducibility.",
+  "excluded": [
+    {
+      "question_id": "q87f86a76f8fc",
+      "db_id": "activity_1",
+      "question": "Which faculty members are playing either Canoeing or Kayaking? Tell me their first names.",
+      "reason": "Broken gold: selects T1.lname though the question asks for first names, and the join 'activity AS T3 ON T2.actid = T2.actid' is a cartesian self-join bug (column compared to itself), so it returns faculty in ANY activity."
+    },
+    {
+      "question_id": "qcd18f29f2a92",
+      "db_id": "activity_1",
+      "question": "What are the first names of the professors who do not play Canoeing or Kayaking as activities?",
+      "reason": "Same defects as its sibling: lname vs first-name mismatch and the cartesian self-join bug inside the EXCEPT subquery, poisoning the result."
+    }
+  ]
+}

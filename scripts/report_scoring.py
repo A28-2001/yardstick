@@ -29,6 +29,7 @@ def main() -> int:
             FROM runs r
             JOIN questions q ON q.question_id = r.question_id
             JOIN executions e ON e.run_id = r.run_id
+            WHERE r.error_message IS NULL   -- exclude pending generation failures (daily cap)
             GROUP BY r.variant_id, q.tier
             ORDER BY r.variant_id, q.tier""")
         grid = cur.fetchall()

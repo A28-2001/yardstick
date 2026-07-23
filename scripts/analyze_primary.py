@@ -28,15 +28,36 @@ def main() -> int:
     args = ap.parse_args()
 
     with psycopg.connect(require("DATABASE_URL")) as conn, conn.cursor() as cur:
+        # error_message IS NULL: only count runs whose API call succeeded. This keeps
+        # extraction failures (model produced no parseable SQL -> a real 0) but excludes
+        # generation failures (rate-limit/daily-cap) which are pending, not wrong answers.
         q = ("""SELECT q.tier, r.variant_id, r.question_id, e.set_match, e.executed
                 FROM runs r JOIN questions q ON q.question_id=r.question_id
                 JOIN executions e ON e.run_id=r.run_id
-                WHERE r.replicate=1""")
+                WHERE r.replicate=1 AND r.error_message IS NULL""")
         params = []
         if args.tier:
             q += " AND q.tier=%s"; params.append(args.tier)
         cur.execute(q, params)
         rows = cur.fetchall()
+
+        # completeness: warn if any variant has fewer successful runs than tier questions
+        cq = ("""SELECT q.tier, r.variant_id,
+                        count(*) FILTER (WHERE r.error_message IS NULL) AS ok,
+                        (SELECT count(*) FROM questions q2 WHERE q2.tier=q.tier) AS total
+                 FROM runs r JOIN questions q ON q.question_id=r.question_id
+                 WHERE r.replicate=1""")
+        if args.tier:
+            cq += " AND q.tier=%s"
+        cq += " GROUP BY q.tier, r.variant_id ORDER BY q.tier, r.variant_id"
+        cur.execute(cq, params)
+        incomplete = [(t, v, ok, tot) for t, v, ok, tot in cur.fetchall() if ok < tot]
+
+    if incomplete:
+        print("⚠ INCOMPLETE variants (pending generation — excluded from accuracy below):")
+        for t, v, ok, tot in incomplete:
+            print(f"    {t} {v}: {ok}/{tot} generated")
+        print()
 
     # tier -> question -> variant -> set_match ; and executed flags for silent-fail
     data = defaultdict(lambda: defaultdict(dict))

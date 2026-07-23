@@ -65,8 +65,11 @@ def fetch_questions(cur, tier=None, split=None, limit=None, pilot=False) -> list
 
 
 def run_exists(cur, qid, vid, replicate) -> bool:
-    cur.execute("SELECT 1 FROM runs WHERE question_id=%s AND variant_id=%s AND replicate=%s",
-                (qid, vid, replicate))
+    # A cell counts as done only if the API call SUCCEEDED (error_message IS NULL).
+    # Generation failures (e.g. hitting the daily token cap) are retried on resume,
+    # not skipped — important for the multi-day full run.
+    cur.execute("SELECT 1 FROM runs WHERE question_id=%s AND variant_id=%s AND replicate=%s "
+                "AND error_message IS NULL", (qid, vid, replicate))
     return cur.fetchone() is not None
 
 

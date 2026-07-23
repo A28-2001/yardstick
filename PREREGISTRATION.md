@@ -56,10 +56,13 @@ alpha = 0.05.
 
 ## Replicate decision
 
-Pilot: 10 questions × 4 variants × **3 replicates** at temperature 0. `set_match` was
-**identical across all 3 replicates in all 40 cells (zero variance)**. **DECISION: the
-full run uses 1 replicate per cell.** At temperature 0 the output is deterministic, so
-this is a token saving (~⅔) with no measurable loss of information.
+Pilot: 10 questions × 4 variants × **3 replicates** at temperature 0. `set_match` (the
+analysed metric) was **identical across all 3 replicates in all 40 cells — zero outcome
+variance**. The raw SQL *text* was identical in 37/40 cells; in 3 cells (all the 70B
+model) the model emitted two phrasings, but they were semantically equivalent and gave
+the **same `set_match` verdict**. So temperature 0 is near-deterministic in output and
+fully stable in outcome. **DECISION: the full run uses 1 replicate per cell** — a ~⅔
+token saving with no measurable loss on the metric we analyse.
 
 ## Sample-size justification / power
 
@@ -102,3 +105,11 @@ Model effect (V3 vs V1), the interaction (V4), query efficiency, routing perform
 the difficulty predictor, calibration (self-confidence + cross-variant agreement), and
 the error taxonomy are all labeled exploratory and reported without correction, with
 that status stated explicitly.
+
+## Amendments
+
+- **2026-07-22 (same day, before any full run):** refined the Replicate-decision wording
+  from "output is deterministic" to the precise statement that the *outcome* (`set_match`)
+  is fully stable while the SQL *text* varied in 3/40 cells (70B model) without changing any
+  verdict. No change to hypothesis, metric, comparison, correction, or the 1-replicate
+  decision — a wording-accuracy fix only.

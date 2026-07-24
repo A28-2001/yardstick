@@ -1,0 +1,4 @@
+tier,n,did_pts,ci_low_pts,ci_high_pts
+simple,37,-5.4,-13.5,0.0
+moderate,3,0.0,0.0,0.0
+complex,50,-12.0,-28.0,4.0

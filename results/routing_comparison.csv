@@ -1,0 +1,7 @@
+policy,accuracy,total_cost_usd,acc_pct_of_always_expensive,cost_pct_of_always_expensive,acc_gap_vs_oracle_pts,pct_of_oracle_savings_captured_matched_budget_only,n_escalated
+always_cheap,0.7,0.00179,79.2,8.7,-20.0,,0
+always_expensive,0.8833,0.02054,100.0,100.0,-1.7,,60
+random,0.7833,0.0073,88.7,35.5,-11.7,101.9,18
+length_only,0.75,0.008458,84.9,41.2,-15.0,93.0,18
+difficulty_routed,0.7833,0.005749,88.7,28.0,-11.7,113.9,18
+oracle,0.9,0.007552,101.9,36.8,0.0,,18

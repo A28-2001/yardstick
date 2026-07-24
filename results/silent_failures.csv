@@ -1,0 +1,13 @@
+variant,tier,n,silent_failures,silent_failure_rate
+V1,complex,50,16,0.32
+V1,moderate,50,9,0.18
+V1,simple,50,6,0.12
+V2,complex,50,11,0.22
+V2,moderate,50,8,0.16
+V2,simple,50,7,0.14
+V3,complex,50,6,0.12
+V3,moderate,50,9,0.18
+V3,simple,50,2,0.04
+V4,complex,50,8,0.16
+V4,moderate,3,0,0.0
+V4,simple,37,2,0.0541

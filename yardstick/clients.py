@@ -53,8 +53,13 @@ def _groq():
 
 def _is_retryable(exc: Exception) -> bool:
     import groq
-    return isinstance(exc, (groq.RateLimitError, groq.APIConnectionError,
-                            groq.InternalServerError))
+    if isinstance(exc, groq.RateLimitError):
+        # A per-DAY token cap (TPD) won't clear within our backoff window (hours away),
+        # so fail fast: the batch logs the failure and moves on, resuming after the daily
+        # reset. A per-MINUTE cap (TPM) clears in seconds, so keep retrying that.
+        msg = str(getattr(exc, "message", "") or exc).lower()
+        return "per day" not in msg and "tpd" not in msg
+    return isinstance(exc, (groq.APIConnectionError, groq.InternalServerError))
 
 
 def generate(model: str, messages: list[dict], temperature: float = 0.0,

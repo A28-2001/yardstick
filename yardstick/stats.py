@@ -72,3 +72,20 @@ def benjamini_hochberg(pvals: list[float], alpha: float = 0.05):
     """Return (reject_flags, adjusted_pvals) under BH FDR."""
     reject, p_adj, _, _ = multipletests(pvals, alpha=alpha, method="fdr_bh")
     return list(reject), list(p_adj)
+
+
+def diff_in_diff(v1: list[int], v2: list[int], v3: list[int], v4: list[int],
+                 n_boot: int = 10000, seed: int = 20260721, alpha: float = 0.05):
+    """2x2 interaction contrast (spec §4.1): does few-shot help the strong model MORE
+    than the cheap model?  DiD = (acc_V4 - acc_V3) - (acc_V2 - acc_V1), in pts, with a
+    bootstrap CI resampling the shared questions (all four variants paired per question).
+    Returns (point_pts, lo_pts, hi_pts).
+    """
+    a1, a2, a3, a4 = (np.asarray(x, float) for x in (v1, v2, v3, v4))
+    n = len(a1)
+    point = ((a4.mean() - a3.mean()) - (a2.mean() - a1.mean())) * 100
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n, size=(n_boot, n))
+    boot = ((a4[idx].mean(1) - a3[idx].mean(1)) - (a2[idx].mean(1) - a1[idx].mean(1))) * 100
+    lo, hi = np.percentile(boot, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return float(point), float(lo), float(hi)

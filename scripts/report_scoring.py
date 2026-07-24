@@ -29,7 +29,10 @@ def main() -> int:
             FROM runs r
             JOIN questions q ON q.question_id = r.question_id
             JOIN executions e ON e.run_id = r.run_id
-            WHERE r.error_message IS NULL   -- exclude pending generation failures (daily cap)
+            -- replicate=1 is THE analysed matrix (the pilot's extra replicates 2/3 would
+            -- otherwise triple-count 10 questions); error_message IS NULL drops pending
+            -- generation failures (daily cap), which are not wrong answers.
+            WHERE r.replicate = 1 AND r.error_message IS NULL
             GROUP BY r.variant_id, q.tier
             ORDER BY r.variant_id, q.tier""")
         grid = cur.fetchall()
@@ -37,7 +40,7 @@ def main() -> int:
         cur.execute("""
             SELECT r.variant_id, e.error_type, count(*)
             FROM runs r JOIN executions e ON e.run_id = r.run_id
-            WHERE e.error_type IS NOT NULL
+            WHERE r.replicate = 1 AND r.error_message IS NULL AND e.error_type IS NOT NULL
             GROUP BY r.variant_id, e.error_type
             ORDER BY r.variant_id, count(*) DESC""")
         taxo = cur.fetchall()

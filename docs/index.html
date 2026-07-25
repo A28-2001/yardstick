@@ -13,13 +13,16 @@
 
 <style>
 :root{
-  --paper:#ffffff;
+  --paper:#fdfcfa;      /* barely warm, takes the clinical sterility off pure white */
+  --card:#ffffff;
   --ink:#191919;
   --mid:#6f6a63;
   --rule:#d9d4cc;
   --faint:#f7f4ee;
-  --signal:#a81f24;
-  --slate:#33566b;
+  --signal:#a81f24;     /* significance, and the registration line */
+  --slate:#33566b;      /* the strong model, secondary encoding */
+  --ochre:#b07206;      /* silent failure: looks fine, is not */
+  --good:#2e6b4f;       /* the one thing that worked */
   --serif:Charter,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --mono:Menlo,"SF Mono",Consolas,"Liberation Mono",monospace;
   --measure:66ch;
@@ -35,7 +38,7 @@ body{
 .col{max-width:var(--measure)}
 
 /* ---------- masthead ---------- */
-header{padding:5.5rem 0 0}
+header{padding:5.5rem 0 4.2rem}
 .reg{
   font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--signal);margin:0 0 1.6rem;
@@ -50,7 +53,7 @@ h1 .nb{white-space:nowrap}   /* keep "LLM-generated" from breaking at its hyphen
 /* registration block, borrowed from trial reporting */
 .trial{
   border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);
-  padding:1.1rem 0 1.2rem;margin-bottom:3.5rem;
+  padding:1.1rem 0 1.2rem;margin-bottom:0;
   display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.2rem 2rem;
 }
 .trial div{font-family:var(--mono);font-size:12px;line-height:1.55}
@@ -68,6 +71,60 @@ h2 .num{
   font-family:var(--mono);font-size:.72rem;color:var(--signal);
   letter-spacing:.12em;display:block;margin-bottom:.55rem;text-transform:uppercase;
 }
+/* a short coloured rule opens each section, tinted to that section's subject */
+h2::after{content:"";display:block;width:2.6rem;height:3px;background:var(--signal);
+  margin:.85rem 0 1.35rem}
+section.s-silent h2::after{background:var(--ochre)}
+section.s-model  h2::after{background:var(--good)}
+section.s-conf   h2::after{background:var(--slate)}
+section.s-route  h2::after{background:var(--mid)}
+section.s-silent h2 .num{color:var(--ochre)}
+section.s-model  h2 .num{color:var(--good)}
+section.s-conf   h2 .num{color:var(--slate)}
+section.s-route  h2 .num{color:var(--mid)}
+
+/* abstract: the whole project in one block, for someone deciding whether to scroll */
+.abstract{
+  background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--ink);
+  padding:1.8rem 2rem 1.6rem;margin:0 0 2.6rem;max-width:74ch;
+}
+.abstract .tag{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mid);display:block;margin-bottom:1rem;
+}
+.abstract p{font-size:1.05rem;line-height:1.6;max-width:none;margin:0 0 .95rem}
+.abstract p:last-child{margin-bottom:0}
+.abstract .pop{font-weight:600}
+
+/* scroll cue */
+.cue{
+  display:flex;align-items:center;gap:.85rem;margin:2.6rem 0 0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mid);
+}
+.cue::after{content:"";flex:1;height:1px;background:var(--rule)}
+.cue .arrow{display:inline-block;animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media (prefers-reduced-motion:reduce){.cue .arrow{animation:none}}
+
+/* key numbers strip */
+.keys{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:1.6rem 2rem;margin:2.2rem 0 .4rem;max-width:960px;
+}
+.keys div{border-top:1px solid var(--rule);padding-top:.8rem}
+.keys .n{font-size:2.5rem;line-height:1;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;display:block;margin-bottom:.45rem}
+.keys .l{font-family:var(--mono);font-size:10.5px;line-height:1.55;color:var(--mid);
+  letter-spacing:.05em;display:block}
+.keys .k1 .n{color:var(--ochre)} .keys .k2 .n{color:var(--mid)}
+.keys .k3 .n{color:var(--good)}  .keys .k4 .n{color:var(--slate)}
+
+/* inline stat chip, so key numbers carry their meaning into the prose */
+.chip{font-family:var(--mono);font-size:.82em;padding:.08em .4em;
+  background:var(--faint);color:var(--ink);white-space:nowrap}
+.chip.o{color:var(--ochre)} .chip.g{color:var(--good)} .chip.s{color:var(--slate)}
+.chip.r{color:var(--signal)}
 h3{font-size:1.06rem;font-weight:600;margin:2.3rem 0 .5rem;letter-spacing:.005em}
 p{margin:0 0 1.05rem;max-width:var(--measure)}
 strong{font-weight:600}
@@ -88,11 +145,13 @@ a{color:var(--signal);text-underline-offset:2px}
 }
 
 /* ---------- figures ---------- */
-figure{margin:2.4rem 0 2.6rem;max-width:960px}
+/* figures sit on white panels so they read as objects against the warm page */
+figure{margin:2.4rem 0 2.6rem;max-width:960px;background:var(--card);
+  border:1px solid var(--rule);padding:1.4rem 1.5rem 1.2rem}
 figure img{width:100%;height:auto;display:block}
 figcaption{
   font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--mid);
-  margin-top:.7rem;max-width:78ch;
+  margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--rule);max-width:78ch;
 }
 figcaption b{color:var(--ink);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   font-size:10.5px}
@@ -154,6 +213,12 @@ pre code{background:none;padding:0}
 footer{border-top:2px solid var(--ink);padding-top:1.3rem;margin-top:5rem;
   font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--mid);max-width:80ch}
 footer a{color:var(--signal)}
+.byline{display:flex;flex-wrap:wrap;gap:.6rem 1.8rem;align-items:baseline;
+  padding-bottom:1.1rem;margin-bottom:1.1rem;border-bottom:1px solid var(--rule)}
+.byline .who{font-family:var(--serif);font-size:1.12rem;color:var(--ink);font-weight:600;
+  letter-spacing:-.005em}
+.byline a{text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:1px}
+.byline a:hover{border-bottom-color:var(--signal)}
 hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960px}
 </style>
 </head>
@@ -169,6 +234,33 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
     each happens, and finds the invisible kind gets worse as models get better.
   </p>
 
+  <div class="abstract">
+    <span class="tag">The short version</span>
+    <p>
+      I ran a controlled experiment to test whether the normal way of shipping
+      LLM-generated SQL is safe. 150 natural-language questions went to four
+      configurations, two prompting strategies crossed with two model sizes, and all 600
+      generated queries were executed against real databases and compared to
+      human-written answers. The hypothesis, the metric and the statistical test were
+      committed to version control <span class="pop">before</span> the full run, so the
+      results could not be reshaped after the fact.
+    </p>
+    <p>
+      <span class="pop">Three things came out of it.</span> Few-shot prompting produced no
+      significant improvement at any difficulty level, which was a null result and is
+      reported as one. Model size did help, but only on hard queries, and not at all in
+      the middle. And the most accurate configuration turned out to be the most dangerous:
+      <span class="pop">every single error it made ran without complaint and returned
+      believable wrong numbers.</span>
+    </p>
+    <p>
+      That last point is the reason the study exists. A query that crashes gets
+      investigated. A query that quietly returns the wrong revenue figure goes into a
+      board deck. The practical recommendation is at the end, and it does not involve
+      trusting the model's own confidence score.
+    </p>
+  </div>
+
   <dl class="trial">
     <div><dt>Design</dt><dd>2 &times; 2 factorial, 3 tiers</dd></div>
     <div><dt>Sample</dt><dd>150 questions, 93 databases</dd></div>
@@ -177,6 +269,20 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
     <div><dt>Primary test</dt><dd>McNemar exact, BH corrected</dd></div>
     <div><dt>Data</dt><dd>Spider, CC BY-SA 4.0</dd></div>
   </dl>
+
+  <div class="keys">
+    <div class="k1"><span class="n">100%</span><span class="l">of the best model's
+      errors ran cleanly and returned wrong numbers</span></div>
+    <div class="k2"><span class="n">0</span><span class="l">tiers where few-shot
+      prompting produced a significant gain</span></div>
+    <div class="k3"><span class="n">+28</span><span class="l">points from the bigger
+      model on complex queries, p = 0.0013</span></div>
+    <div class="k4"><span class="n">84%</span><span class="l">of errors caught by
+      reviewing the 28% where two models disagree</span></div>
+  </div>
+
+  <p class="cue"><span class="arrow">&darr;</span> Full study below: five figures, the
+    statistics, the negative results, and what to deploy</p>
 </header>
 
 <!-- ============================================================ -->
@@ -225,7 +331,7 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
 <hr class="div">
 
 <!-- ============================================================ -->
-<section>
+<section class="s-silent">
   <h2><span class="num">Finding 1</span>Better models fail more quietly</h2>
   <p class="lede">
     Silent failure means the generated query ran without error and returned the wrong rows.
@@ -261,7 +367,7 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
 </section>
 
 <!-- ============================================================ -->
-<section>
+<section class="s-model">
   <h2><span class="num">Finding 2</span>Prompting did nothing, model size did</h2>
 
   <figure>
@@ -343,7 +449,7 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
 </section>
 
 <!-- ============================================================ -->
-<section>
+<section class="s-conf">
   <h2><span class="num">Finding 3</span>Confidence is useless, agreement is not</h2>
 
   <figure>
@@ -398,7 +504,7 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
 </section>
 
 <!-- ============================================================ -->
-<section>
+<section class="s-route">
   <h2><span class="num">Finding 4</span>Difficulty routing did not beat random</h2>
   <p class="lede">
     Reported as the negative result it is.
@@ -614,6 +720,12 @@ python scripts/simulate_routing.py</code></pre>
 </section>
 
 <footer>
+  <div class="byline">
+    <span class="who">Aakash Mehta</span>
+    <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a>
+    <a href="https://www.linkedin.com/in/YOUR-LINKEDIN-HANDLE">LinkedIn</a>
+    <a href="https://github.com/YOUR-GITHUB-USERNAME/yardstick">Source on GitHub</a>
+  </div>
   Yardstick &middot; pre-registered before the full run &middot; McNemar's exact test,
   10,000 resample bootstrap intervals, Benjamini Hochberg correction<br>
   Data: Spider, Yale LILY, CC BY-SA 4.0 &middot; scorer cross-validated against the official

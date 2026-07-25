@@ -22,7 +22,5 @@ regenerated from Supabase by `python scripts/export_results.py` (plus
 - Restricted to `replicate = 1` (the analysed matrix) and to runs whose API call succeeded
   (`error_message IS NULL`), so free-tier rate-limit failures are treated as *pending*
   rather than as wrong answers.
-- **Provisional:** rows involving **V4** on the simple (n=37) and moderate (n=3) tiers are
-  incomplete — a free-tier daily token cap blocked ~60 cells. Every pre-registered result
-  and all three research-question answers use complete data. Re-running the export after
-  those cells finish will finalize them.
+- **Complete: all 600/600 matrix cells** (4 variants × 3 tiers × 50 questions) generated,
+  executed, and scored — 0 extraction failures, 0 timeouts. These tables are final.

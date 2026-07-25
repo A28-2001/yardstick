@@ -160,7 +160,7 @@ def main() -> int:
     write_csv("query_efficiency.csv", ["variant", "tier", "n_correct", "median_exec_ms"],
               sorted(qe))
 
-    print("Done. NOTE: numbers are provisional until the matrix is complete (V4 pending).")
+    print("Done.")
     return 0
 
 

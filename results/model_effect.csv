@@ -1,7 +1,7 @@
 tier,comparison,n,acc_a,acc_b,diff_pts,ci_low_pts,ci_high_pts,mcnemar_p
 simple,model_zeroshot,50,0.88,0.96,8.0,2.0,16.0,0.125
-simple,model_fewshot,37,0.8919,0.9189,2.7,-5.4,13.5,1.0
+simple,model_fewshot,50,0.86,0.92,6.0,-2.0,16.0,0.375
 moderate,model_zeroshot,50,0.82,0.82,0.0,-10.0,10.0,1.0
-moderate,model_fewshot,3,1.0,1.0,0.0,0.0,0.0,1.0
+moderate,model_fewshot,50,0.82,0.84,2.0,-6.0,10.0,1.0
 complex,model_zeroshot,50,0.6,0.88,28.0,14.0,42.0,0.0013
 complex,model_fewshot,50,0.68,0.84,16.0,4.0,30.0,0.0386

@@ -7,10 +7,8 @@ improves it.**
 Every generated query executed against a real database and compared to a human-written
 gold answer. Statistics chosen in advance and committed to Git before the full run.
 
-> **Status:** results below are final except where marked
-> **[provisional]** — one variant (V4) is 90/150 complete because of a free-tier daily
-> token cap. This affects only the exploratory interaction test; the pre-registered
-> primary result and all three research questions are fully answered.
+> **Status: complete.** All **600/600** cells generated, executed, and scored — 0
+> extraction failures, 0 timeouts. Every number below is final.
 
 ---
 
@@ -39,9 +37,11 @@ it happens, and finds it gets *worse* as models get better.
 
 **1. The better the model, the higher the share of its errors that are silent.**
 Every single error made by the most accurate variant (V3, 89% accurate) executed cleanly
-and returned plausible wrong numbers — **100% silent**. The weakest variant at least failed
-loudly 11% of the time. Across all variants, **82–96% of errors were silent** depending on
-tier. Choosing a model by benchmark score alone selects for *quieter*, not fewer, dangers.
+and returned plausible wrong numbers — **100% silent**. The two strong-model variants were
+100% and 95% silent; the two cheap-model variants, 89% and 81%. The weakest model at least
+failed *loudly* 11% of the time. Across all variants, **82–97% of errors were silent**
+depending on tier. Choosing a model by benchmark score alone selects for *quieter*, not
+fewer, dangers.
 
 **2. Few-shot prompting produced no statistically significant benefit at any complexity
 tier.** Lift was −2 pts (simple), 0 pts (moderate), +8 pts (complex); all p ≈ 1.0 after
@@ -165,9 +165,12 @@ Accuracy (`set_match`) with silent-failure rate in parentheses:
 
 | Tier | V1 (8B zero) | V2 (8B few) | V3 (70B zero) | V4 (70B few) |
 |---|---|---|---|---|
-| Simple | 0.88 (0.12) | 0.86 (0.14) | **0.96 (0.04)** | 0.92 (0.05) *[provisional, n=37]* |
-| Moderate | 0.82 (0.18) | 0.82 (0.16) | 0.82 (0.18) | *[insufficient data, n=3]* |
+| Simple | 0.88 (0.12) | 0.86 (0.14) | **0.96 (0.04)** | 0.92 (0.06) |
+| Moderate | 0.82 (0.18) | 0.82 (0.16) | 0.82 (0.18) | 0.84 (0.16) |
 | Complex | 0.60 (0.32) | 0.68 (0.22) | **0.88 (0.12)** | 0.84 (0.16) |
+
+All cells n=50. Note the moderate tier: **every variant lands at 82–84%** regardless of
+model or prompt — nothing tested here moves it.
 
 ### RQ1 — Does few-shot lift depend on query complexity?
 
@@ -190,13 +193,18 @@ zero," and at n=50 this study can only detect large effects.
 | Simple | V3 vs V1 (zero-shot) | +8 pts | [+2, +16] | 0.125 |
 | Moderate | V3 vs V1 | +0 pts | [−10, +10] | 1.000 |
 | **Complex** | **V3 vs V1** | **+28 pts** | **[+14, +42]** | **0.0013** |
-| Complex | V4 vs V2 (few-shot) | +16 pts | [+4, +30] | 0.039 |
+| **Complex** | **V4 vs V2 (few-shot)** | **+16 pts** | **[+4, +30]** | **0.039** |
 | Complex | V4 vs V3 (prompt, on 70B) | −4 pts | [−12, +4] | 0.625 |
 
 The model effect is large and significant on complex queries under *both* prompt
-strategies. Adding examples to the strong model did nothing. The interaction contrast
-(does few-shot help the strong model more?) was −12 pts, CI [−28, +4] — not significant,
-directionally suggesting few-shot helps the *weak* model more. *[provisional]*
+strategies, and is the **only** significant effect anywhere in the study. Adding examples
+to the strong model did nothing.
+
+The 2×2 interaction (does few-shot help the strong model *more*?) was **not significant on
+any tier**: −2 pts on simple (CI [−10, +4]), +2 on moderate ([−8, +12]), −12 on complex
+([−28, +4]). The complex point estimate leans toward few-shot helping the *weak* model
+more — consistent with the idea that examples substitute for capability — but the interval
+includes zero.
 
 On simple queries the bootstrap CI excludes zero while McNemar does not (p = 0.125);
 McNemar is conservative with few discordant pairs, and the pre-specified test governs — so
@@ -258,7 +266,7 @@ flip. A 51-point threshold sweep is in
 | V1 | 0.986 | 0.767 | 0.219 | severely overconfident |
 | V2 | 0.939 | 0.787 | 0.152 | overconfident |
 | V3 | 0.984 | 0.887 | 0.097 | overconfident |
-| V4 | 0.923 | 0.856 | 0.067 | overconfident *[provisional]* |
+| V4 | 0.926 | 0.867 | 0.059 | overconfident |
 
 Every variant is overconfident, and the weakest is the worst: **it claims 99% confidence
 while being wrong 23% of the time.** Reliability-curve data:
@@ -268,9 +276,9 @@ while being wrong 23% of the time.** Reliability-curve data:
 
 | Signal | AUC | Needs gold answer? |
 |---|---|---|
-| **Cross-variant result-set agreement** | **0.857** | No |
-| AST (structural) agreement | 0.698 | No |
-| Self-reported confidence | 0.643 | No |
+| **Cross-variant result-set agreement** | **0.861** | No |
+| AST (structural) agreement | 0.710 | No |
+| Self-reported confidence | 0.647 | No |
 
 **Cross-variant agreement decisively beats self-reported confidence** — and it is available
 in production, since noticing that two models disagree requires no ground truth.
@@ -279,11 +287,12 @@ in production, since noticing that two models disagree requires no ground truth.
 
 | Flag rule | Outputs flagged | Errors caught | False alarms |
 |---|---|---|---|
-| **Result-set disagreement** | **28%** | **82%** | **16%** |
-| AST disagreement | 74% | 100% | 68% |
+| **Result-set disagreement** | **28%** | **84%** | **16%** |
+| AST disagreement | 74% | 100% | 69% |
 
-Review the 28% of queries where two cheap models disagree and you catch 82% of all errors.
-AST-based flagging is too noisy to be useful.
+Review the 28% of queries where the models disagree on the *executed result* and you catch
+**84% of all errors**. AST-based flagging catches everything but flags three quarters of all
+output — too noisy to be useful.
 
 ### Silent failures: where models fail invisibly
 
@@ -293,26 +302,33 @@ AST-based flagging is too noisy to be useful.
 |---|---|---|---|---|
 | V1 (8B zero) | 0.767 | 35 | 89% | 0.963 |
 | V2 (8B few) | 0.787 | 32 | 81% | 0.927 |
-| V4 (70B few) | 0.856 | 13 | 77% | 0.873 *[provisional]* |
+| V4 (70B few) | 0.867 | 20 | 95% | 0.872 |
 | **V3 (70B zero)** | **0.887** | **17** | **100%** | **0.953** |
 
 The most accurate variant made the fewest errors — and **every one of them was silent.** It
-also stated 95% confidence on the answers it got wrong. By tier, **82% (complex), 96%
-(moderate), and 94% (simple)** of all errors were silent.
+also stated 95% confidence on the answers it got wrong. Both strong-model variants (100%,
+95%) are above both cheap-model variants (89%, 81%): **as accuracy goes up, the fraction of
+errors that announce themselves goes down.** By tier, **82% (complex), 97% (moderate), and
+95% (simple)** of all errors were silent.
 
 **Error taxonomy** (single bucket per failure, via `sqlglot` AST comparison):
 
 | Variant | wrong_join | wrong_filter | wrong_projection | wrong_aggregation | schema_error |
 |---|---|---|---|---|---|
-| V1 | 16 | 8 | 5 | 2 | 4 |
-| V2 | 17 | 5 | 1 | 3 | 6 |
-| V3 | 6 | 7 | 2 | 2 | 0 |
-| V4 | 3 | 5 | 1 | 1 | 1 |
+| V1 (8B zero) | **16** | 8 | 5 | 2 | 4 |
+| V2 (8B few) | **17** | 5 | 1 | 3 | 6 |
+| V3 (70B zero) | 6 | 7 | 2 | 2 | 0 |
+| V4 (70B few) | 7 | 7 | 3 | 2 | 1 |
 
-**Wrong joins dominate the cheap model's failures** (16–17 cases) and are what the model
-upgrade fixes best (down to 6). Zero timeouts and zero extraction failures throughout.
-Note that `wrong_join`, `wrong_filter`, `wrong_projection`, and `wrong_aggregation` are
-*all* silent failure modes — the query runs fine and returns wrong numbers.
+**Wrong joins dominate the cheap model's failures** (16–17 cases) and are exactly what the
+model upgrade fixes — down to 6–7, a ~60% reduction. That is the mechanism behind the +28
+pt complex-tier model effect: joins are where reasoning about the schema actually happens.
+`schema_error` (hallucinated tables/columns) also drops from 4–6 to 0–1.
+
+Zero timeouts and zero extraction failures throughout. Note that `wrong_join`,
+`wrong_filter`, `wrong_projection`, and `wrong_aggregation` are **all silent** failure
+modes — the query runs fine and returns wrong numbers. Only `schema_error` fails loudly,
+and it is the rarest category for the strong model.
 
 ---
 
@@ -369,9 +385,9 @@ Stated plainly, because they bound every claim above.
    cross-vendor comparison.
 9. **The moderate tier's train/test split is 33/17, not 30/20**, a side effect of keeping
    whole databases on one side of the split. No-leakage was prioritized over an exact ratio.
-10. **V4 is incomplete (90/150).** A free-tier daily token cap blocked ~60 cells. Only the
-    exploratory interaction test and V4's simple/moderate numbers are affected; every
-    pre-registered result and all three RQ answers use complete data.
+10. **The moderate tier is uninformative about everything tested here.** All four variants
+    landed at 82–84%, so neither the prompt nor the model factor moves it. Whatever limits
+    accuracy there is something this design does not manipulate.
 
 ---
 
@@ -407,9 +423,9 @@ python scripts/analyze_calibration.py  # RQ3
 python scripts/export_results.py       # -> results/*.csv
 ```
 
-**Runtime and cost:** 620 successful generation calls so far (540 matrix cells + 80 pilot
-replicates). **$0 actual** (Groq free tier); list-price equivalent **$0.151** total, of
-which the 540-cell matrix is $0.126.
+**Runtime and cost:** 680 successful generation calls (the 600-cell matrix + 80 extra pilot
+replicates). **$0 actual** (Groq free tier); list-price equivalent **$0.19** total, of which
+the 600-cell matrix is **$0.167**.
 
 **Input tokens dominate: 494k input vs 27k output — a 95/5 split**, because the schema DDL
 is included in every prompt. This is why schema size drives cost (r = 0.95) far more than

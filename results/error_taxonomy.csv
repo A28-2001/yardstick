@@ -32,6 +32,10 @@ V4,complex,wrong_aggregation,1
 V4,complex,wrong_filter,4
 V4,complex,wrong_join,2
 V4,complex,wrong_projection,1
+V4,moderate,wrong_aggregation,1
+V4,moderate,wrong_filter,2
+V4,moderate,wrong_join,3
+V4,moderate,wrong_projection,2
 V4,simple,schema_error,1
 V4,simple,wrong_filter,1
-V4,simple,wrong_join,1
+V4,simple,wrong_join,2

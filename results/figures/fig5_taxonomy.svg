@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="652.774609pt" height="359.456998pt" viewBox="0 0 652.774609 359.456998" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="614.885313pt" height="439.512358pt" viewBox="0 0 614.885313 439.512358" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-07-25T11:05:21.277252</dc:date>
+    <dc:date>2026-07-25T11:26:23.926138</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -21,9 +21,9 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 359.456998 
-L 652.774609 359.456998 
-L 652.774609 0 
+   <path d="M 0 439.512358 
+L 614.885313 439.512358 
+L 614.885313 0 
 L 0 0 
 z
 " style="fill: #ffffff"/>
@@ -1278,84 +1278,84 @@ L 594.725313 256.236609
 " style="fill: none; stroke: #d9d4cc; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="patch_5">
-    <path d="M 126.005313 69.748067 
-L 544.05288 69.748067 
-L 544.05288 84.355525 
-L 126.005313 84.355525 
-z
-" clip-path="url(#p6cd156f327)" style="fill: #cbb9a6"/>
-   </g>
-   <g id="patch_6">
-    <path d="M 126.005313 110.324338 
-L 290.690718 110.324338 
-L 290.690718 124.931796 
-L 126.005313 124.931796 
-z
-" clip-path="url(#p6cd156f327)" style="fill: #cbb9a6"/>
-   </g>
-   <g id="patch_7">
-    <path d="M 126.005313 150.900609 
-L 202.013961 150.900609 
-L 202.013961 165.508067 
-L 126.005313 165.508067 
-z
-" clip-path="url(#p6cd156f327)" style="fill: #cbb9a6"/>
-   </g>
-   <g id="patch_8">
-    <path d="M 126.005313 191.476881 
-L 189.345853 191.476881 
-L 189.345853 206.084338 
-L 126.005313 206.084338 
-z
-" clip-path="url(#p6cd156f327)" style="fill: #cbb9a6"/>
-   </g>
-   <g id="patch_9">
-    <path d="M 126.005313 232.053152 
-L 252.686394 232.053152 
-L 252.686394 246.660609 
-L 126.005313 246.660609 
-z
-" clip-path="url(#p6cd156f327)" style="fill: #cbb9a6"/>
-   </g>
-   <g id="patch_10">
     <path d="M 126.005313 55.140609 
 L 290.690718 55.140609 
 L 290.690718 69.748067 
 L 126.005313 69.748067 
 z
-" clip-path="url(#p6cd156f327)" style="fill: #33566b"/>
+" clip-path="url(#pcc9ca9bf75)" style="fill: #33566b"/>
    </g>
-   <g id="patch_11">
+   <g id="patch_6">
     <path d="M 126.005313 95.716881 
 L 303.358826 95.716881 
 L 303.358826 110.324338 
 L 126.005313 110.324338 
 z
-" clip-path="url(#p6cd156f327)" style="fill: #33566b"/>
+" clip-path="url(#pcc9ca9bf75)" style="fill: #33566b"/>
    </g>
-   <g id="patch_12">
+   <g id="patch_7">
     <path d="M 126.005313 136.293152 
 L 189.345853 136.293152 
 L 189.345853 150.900609 
 L 126.005313 150.900609 
 z
-" clip-path="url(#p6cd156f327)" style="fill: #33566b"/>
+" clip-path="url(#pcc9ca9bf75)" style="fill: #33566b"/>
    </g>
-   <g id="patch_13">
+   <g id="patch_8">
     <path d="M 126.005313 176.869423 
 L 176.677745 176.869423 
 L 176.677745 191.476881 
 L 126.005313 191.476881 
 z
-" clip-path="url(#p6cd156f327)" style="fill: #33566b"/>
+" clip-path="url(#pcc9ca9bf75)" style="fill: #33566b"/>
    </g>
-   <g id="patch_14">
+   <g id="patch_9">
     <path d="M 126.005313 217.445694 
 L 138.673421 217.445694 
 L 138.673421 232.053152 
 L 126.005313 232.053152 
 z
-" clip-path="url(#p6cd156f327)" style="fill: #33566b"/>
+" clip-path="url(#pcc9ca9bf75)" style="fill: #33566b"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 126.005313 69.748067 
+L 544.05288 69.748067 
+L 544.05288 84.355525 
+L 126.005313 84.355525 
+z
+" clip-path="url(#pcc9ca9bf75)" style="fill: #c9c2b6"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 126.005313 110.324338 
+L 290.690718 110.324338 
+L 290.690718 124.931796 
+L 126.005313 124.931796 
+z
+" clip-path="url(#pcc9ca9bf75)" style="fill: #c9c2b6"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 126.005313 150.900609 
+L 202.013961 150.900609 
+L 202.013961 165.508067 
+L 126.005313 165.508067 
+z
+" clip-path="url(#pcc9ca9bf75)" style="fill: #c9c2b6"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 126.005313 191.476881 
+L 189.345853 191.476881 
+L 189.345853 206.084338 
+L 126.005313 206.084338 
+z
+" clip-path="url(#pcc9ca9bf75)" style="fill: #c9c2b6"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 126.005313 232.053152 
+L 252.686394 232.053152 
+L 252.686394 246.660609 
+L 126.005313 246.660609 
+z
+" clip-path="url(#pcc9ca9bf75)" style="fill: #c9c2b6"/>
    </g>
    <g id="text_11">
     <!-- 33 -->
@@ -1503,8 +1503,459 @@ z
     </g>
    </g>
    <g id="text_21">
-    <!-- Wrong joins fall from 33 to 13 with the larger model, and hallucinated tables/columns from 10 to 1. -->
-    <g style="fill: #6f6a63" transform="translate(126.005313 325.920787) scale(0.085 -0.085)">
+    <g id="patch_15">
+     <path d="M 126.005313 355.832355 
+L 481.717813 355.832355 
+Q 487.217813 355.832355 487.217813 350.332355 
+L 487.217813 327.865089 
+Q 487.217813 322.365089 481.717813 322.365089 
+L 126.005313 322.365089 
+Q 120.505313 322.365089 120.505313 327.865089 
+L 120.505313 350.332355 
+Q 120.505313 355.832355 126.005313 355.832355 
+z
+" style="fill: #f7f4ee; stroke: #d9d4cc; stroke-width: 0.8; stroke-linejoin: miter"/>
+    </g>
+    <!-- In plain terms: most wrong answers come from linking the wrong tables together. -->
+    <g style="fill: #191919" transform="translate(126.005313 335.307277) scale(0.1 -0.1)">
+     <defs>
+      <path id="Charter-Roman-49" d="M 225 0 
+L 225 263 
+L 634 294 
+L 744 384 
+L 744 3909 
+L 634 4000 
+L 225 4038 
+L 225 4294 
+L 1850 4294 
+L 1850 4038 
+L 1441 4000 
+L 1331 3909 
+L 1331 384 
+L 1441 294 
+L 1850 263 
+L 1850 0 
+L 225 0 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-70" d="M 1131 372 
+Q 1288 319 1423 294 
+Q 1559 269 1678 269 
+Q 2153 269 2447 623 
+Q 2741 978 2741 1563 
+Q 2741 2103 2486 2422 
+Q 2231 2741 1806 2741 
+Q 1653 2741 1490 2687 
+Q 1328 2634 1131 2522 
+L 1131 372 
+z
+M 147 -1394 
+L 147 -1166 
+L 494 -1131 
+L 594 -1031 
+L 594 2681 
+L 147 2681 
+L 147 2881 
+L 891 3109 
+L 1131 3109 
+L 1131 2759 
+Q 1394 2956 1623 3050 
+Q 1853 3144 2075 3144 
+Q 2613 3144 2958 2725 
+Q 3303 2306 3303 1644 
+Q 3303 891 2872 436 
+Q 2441 -19 1728 -19 
+Q 1606 -19 1459 -5 
+Q 1313 9 1134 38 
+L 1131 -1031 
+L 1241 -1131 
+L 1650 -1166 
+L 1650 -1394 
+L 147 -1394 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-3a" d="M 1019 756 
+Q 1188 756 1308 636 
+Q 1428 516 1428 347 
+Q 1428 178 1308 61 
+Q 1188 -56 1019 -56 
+Q 847 -56 731 59 
+Q 616 175 616 347 
+Q 616 519 733 637 
+Q 850 756 1019 756 
+z
+M 1019 3078 
+Q 1188 3078 1308 2961 
+Q 1428 2844 1428 2675 
+Q 1428 2506 1306 2386 
+Q 1184 2266 1019 2266 
+Q 850 2266 733 2386 
+Q 616 2506 616 2675 
+Q 616 2847 731 2962 
+Q 847 3078 1019 3078 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-77" d="M -13 3078 
+L 1375 3078 
+L 1375 2841 
+L 1038 2816 
+L 959 2713 
+L 1544 634 
+L 2400 3078 
+L 2791 3078 
+L 3547 634 
+L 4197 2713 
+L 4147 2816 
+L 3803 2841 
+L 3803 3078 
+L 4934 3078 
+L 4934 2841 
+L 4575 2791 
+L 3659 0 
+L 3263 0 
+L 2491 2425 
+L 1625 0 
+L 1228 0 
+L 378 2803 
+L -13 2841 
+L -13 3078 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-67" d="M 1319 191 
+Q 1059 113 914 -53 
+Q 769 -219 769 -434 
+Q 769 -722 1012 -911 
+Q 1256 -1100 1638 -1100 
+Q 2047 -1100 2319 -903 
+Q 2591 -706 2591 -422 
+Q 2591 -206 2472 -103 
+Q 2353 0 1941 78 
+L 1319 191 
+z
+M 1575 2894 
+Q 1288 2894 1117 2680 
+Q 947 2466 947 2106 
+Q 947 1750 1120 1534 
+Q 1294 1319 1575 1319 
+Q 1856 1319 2029 1534 
+Q 2203 1750 2203 2106 
+Q 2203 2463 2031 2678 
+Q 1859 2894 1575 2894 
+z
+M 2363 2963 
+L 3278 2963 
+L 3278 2663 
+L 2572 2663 
+Q 2666 2522 2709 2378 
+Q 2753 2234 2753 2069 
+Q 2753 1628 2412 1348 
+Q 2072 1069 1528 1069 
+L 1422 1069 
+Q 1384 997 1367 925 
+Q 1350 853 1350 781 
+Q 1350 759 1356 688 
+Q 1363 647 1363 628 
+L 1978 531 
+Q 2578 441 2822 261 
+Q 3066 81 3066 -256 
+Q 3066 -441 2964 -633 
+Q 2863 -825 2681 -972 
+Q 2428 -1178 2103 -1286 
+Q 1778 -1394 1416 -1394 
+Q 869 -1394 562 -1175 
+Q 256 -956 256 -569 
+Q 256 -259 440 -46 
+Q 625 166 947 225 
+Q 916 300 900 372 
+Q 884 444 884 513 
+Q 884 634 959 784 
+Q 1034 934 1191 1119 
+Q 825 1200 611 1461 
+Q 397 1722 397 2088 
+Q 397 2559 739 2851 
+Q 1081 3144 1638 3144 
+Q 1822 3144 2001 3098 
+Q 2181 3053 2363 2963 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-6b" d="M 159 0 
+L 159 231 
+L 506 263 
+L 616 366 
+L 616 4281 
+L 122 4281 
+L 122 4481 
+L 903 4709 
+L 1147 4709 
+L 1147 1631 
+L 1269 1631 
+L 2247 2725 
+L 2203 2816 
+L 1913 2841 
+L 1913 3078 
+L 3128 3078 
+L 3128 2841 
+L 2719 2791 
+L 1844 1863 
+L 2969 275 
+L 3378 244 
+L 3378 0 
+L 2381 0 
+L 2381 213 
+L 1516 1453 
+L 1147 1453 
+L 1147 366 
+L 1259 263 
+L 1563 231 
+L 1563 0 
+L 159 0 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-2e" d="M 891 756 
+Q 1059 756 1176 637 
+Q 1294 519 1294 347 
+Q 1294 178 1175 61 
+Q 1056 -56 891 -56 
+Q 719 -56 600 59 
+Q 481 175 481 347 
+Q 481 516 600 636 
+Q 719 756 891 756 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#Charter-Roman-49"/>
+     <use xlink:href="#Charter-Roman-6e" x="32.421875"/>
+     <use xlink:href="#Charter-Roman-20" x="89.208984"/>
+     <use xlink:href="#Charter-Roman-70" x="116.992188"/>
+     <use xlink:href="#Charter-Roman-6c" x="172.070312"/>
+     <use xlink:href="#Charter-Roman-61" x="200.292969"/>
+     <use xlink:href="#Charter-Roman-69" x="250.976562"/>
+     <use xlink:href="#Charter-Roman-6e" x="278.955078"/>
+     <use xlink:href="#Charter-Roman-20" x="335.742188"/>
+     <use xlink:href="#Charter-Roman-74" x="363.525391"/>
+     <use xlink:href="#Charter-Roman-65" x="396.923828"/>
+     <use xlink:href="#Charter-Roman-72" x="446.044922"/>
+     <use xlink:href="#Charter-Roman-6d" x="484.228516"/>
+     <use xlink:href="#Charter-Roman-73" x="568.505859"/>
+     <use xlink:href="#Charter-Roman-3a" x="608.496094"/>
+     <use xlink:href="#Charter-Roman-20" x="640.380859"/>
+     <use xlink:href="#Charter-Roman-6d" x="668.164062"/>
+     <use xlink:href="#Charter-Roman-6f" x="752.441406"/>
+     <use xlink:href="#Charter-Roman-73" x="806.347656"/>
+     <use xlink:href="#Charter-Roman-74" x="846.337891"/>
+     <use xlink:href="#Charter-Roman-20" x="879.736328"/>
+     <use xlink:href="#Charter-Roman-77" x="907.519531"/>
+     <use xlink:href="#Charter-Roman-72" x="984.619141"/>
+     <use xlink:href="#Charter-Roman-6f" x="1022.802734"/>
+     <use xlink:href="#Charter-Roman-6e" x="1076.708984"/>
+     <use xlink:href="#Charter-Roman-67" x="1133.496094"/>
+     <use xlink:href="#Charter-Roman-20" x="1185.791016"/>
+     <use xlink:href="#Charter-Roman-61" x="1213.574219"/>
+     <use xlink:href="#Charter-Roman-6e" x="1264.257812"/>
+     <use xlink:href="#Charter-Roman-73" x="1321.044922"/>
+     <use xlink:href="#Charter-Roman-77" x="1361.035156"/>
+     <use xlink:href="#Charter-Roman-65" x="1438.134766"/>
+     <use xlink:href="#Charter-Roman-72" x="1487.255859"/>
+     <use xlink:href="#Charter-Roman-73" x="1525.439453"/>
+     <use xlink:href="#Charter-Roman-20" x="1565.429688"/>
+     <use xlink:href="#Charter-Roman-63" x="1593.212891"/>
+     <use xlink:href="#Charter-Roman-6f" x="1637.792969"/>
+     <use xlink:href="#Charter-Roman-6d" x="1691.699219"/>
+     <use xlink:href="#Charter-Roman-65" x="1775.976562"/>
+     <use xlink:href="#Charter-Roman-20" x="1825.097656"/>
+     <use xlink:href="#Charter-Roman-66" x="1852.880859"/>
+     <use xlink:href="#Charter-Roman-72" x="1884.960938"/>
+     <use xlink:href="#Charter-Roman-6f" x="1923.144531"/>
+     <use xlink:href="#Charter-Roman-6d" x="1977.050781"/>
+     <use xlink:href="#Charter-Roman-20" x="2061.328125"/>
+     <use xlink:href="#Charter-Roman-6c" x="2089.111328"/>
+     <use xlink:href="#Charter-Roman-69" x="2117.333984"/>
+     <use xlink:href="#Charter-Roman-6e" x="2145.3125"/>
+     <use xlink:href="#Charter-Roman-6b" x="2202.099609"/>
+     <use xlink:href="#Charter-Roman-69" x="2253.808594"/>
+     <use xlink:href="#Charter-Roman-6e" x="2281.787109"/>
+     <use xlink:href="#Charter-Roman-67" x="2338.574219"/>
+     <use xlink:href="#Charter-Roman-20" x="2390.869141"/>
+     <use xlink:href="#Charter-Roman-74" x="2418.652344"/>
+     <use xlink:href="#Charter-Roman-68" x="2452.050781"/>
+     <use xlink:href="#Charter-Roman-65" x="2508.447266"/>
+     <use xlink:href="#Charter-Roman-20" x="2557.568359"/>
+     <use xlink:href="#Charter-Roman-77" x="2585.351562"/>
+     <use xlink:href="#Charter-Roman-72" x="2662.451172"/>
+     <use xlink:href="#Charter-Roman-6f" x="2700.634766"/>
+     <use xlink:href="#Charter-Roman-6e" x="2754.541016"/>
+     <use xlink:href="#Charter-Roman-67" x="2811.328125"/>
+     <use xlink:href="#Charter-Roman-20" x="2863.623047"/>
+     <use xlink:href="#Charter-Roman-74" x="2891.40625"/>
+     <use xlink:href="#Charter-Roman-61" x="2924.804688"/>
+     <use xlink:href="#Charter-Roman-62" x="2975.488281"/>
+     <use xlink:href="#Charter-Roman-6c" x="3029.394531"/>
+     <use xlink:href="#Charter-Roman-65" x="3057.617188"/>
+     <use xlink:href="#Charter-Roman-73" x="3106.738281"/>
+     <use xlink:href="#Charter-Roman-20" x="3146.728516"/>
+     <use xlink:href="#Charter-Roman-74" x="3174.511719"/>
+     <use xlink:href="#Charter-Roman-6f" x="3207.910156"/>
+     <use xlink:href="#Charter-Roman-67" x="3261.816406"/>
+     <use xlink:href="#Charter-Roman-65" x="3314.111328"/>
+     <use xlink:href="#Charter-Roman-74" x="3363.232422"/>
+     <use xlink:href="#Charter-Roman-68" x="3396.630859"/>
+     <use xlink:href="#Charter-Roman-65" x="3453.027344"/>
+     <use xlink:href="#Charter-Roman-72" x="3502.148438"/>
+     <use xlink:href="#Charter-Roman-2e" x="3529.332031"/>
+    </g>
+    <!-- That is exactly the mistake the bigger model stops making. -->
+    <g style="fill: #191919" transform="translate(126.005313 348.15423) scale(0.1 -0.1)">
+     <defs>
+      <path id="Charter-Roman-54" d="M 103 4294 
+L 3719 4294 
+L 3719 3309 
+L 3366 3309 
+L 3278 3903 
+L 3188 4000 
+L 2209 4000 
+L 2209 384 
+L 2316 294 
+L 2747 263 
+L 2747 0 
+L 1075 0 
+L 1075 263 
+L 1503 294 
+L 1613 384 
+L 1613 4000 
+L 634 4000 
+L 544 3903 
+L 453 3309 
+L 103 3309 
+L 103 4294 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-78" d="M 116 3078 
+L 1491 3078 
+L 1491 2841 
+L 1197 2803 
+L 1166 2741 
+L 1703 1900 
+L 2284 2719 
+L 2234 2803 
+L 1925 2841 
+L 1925 3078 
+L 3078 3078 
+L 3078 2841 
+L 2719 2778 
+L 1875 1656 
+L 2816 288 
+L 3200 238 
+L 3200 0 
+L 1838 0 
+L 1838 238 
+L 2106 281 
+L 2138 331 
+L 1544 1288 
+L 891 359 
+L 922 281 
+L 1288 238 
+L 1288 0 
+L 78 0 
+L 78 238 
+L 441 288 
+L 1363 1522 
+L 506 2772 
+L 116 2841 
+L 116 3078 
+z
+" transform="scale(0.015625)"/>
+      <path id="Charter-Roman-79" d="M -6 3078 
+L 1381 3078 
+L 1381 2841 
+L 1044 2816 
+L 966 2713 
+L 1734 722 
+L 2534 2713 
+L 2484 2816 
+L 2138 2841 
+L 2138 3078 
+L 3278 3078 
+L 3278 2841 
+L 2906 2791 
+L 1625 -319 
+Q 1391 -884 1147 -1139 
+Q 903 -1394 603 -1394 
+Q 403 -1394 281 -1295 
+Q 159 -1197 159 -1038 
+Q 159 -944 201 -856 
+Q 244 -769 325 -691 
+L 941 -934 
+Q 1081 -784 1214 -537 
+Q 1347 -291 1459 25 
+L 384 2803 
+L -6 2841 
+L -6 3078 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#Charter-Roman-54"/>
+     <use xlink:href="#Charter-Roman-68" x="59.716797"/>
+     <use xlink:href="#Charter-Roman-61" x="116.113281"/>
+     <use xlink:href="#Charter-Roman-74" x="166.796875"/>
+     <use xlink:href="#Charter-Roman-20" x="200.195312"/>
+     <use xlink:href="#Charter-Roman-69" x="227.978516"/>
+     <use xlink:href="#Charter-Roman-73" x="255.957031"/>
+     <use xlink:href="#Charter-Roman-20" x="295.947266"/>
+     <use xlink:href="#Charter-Roman-65" x="323.730469"/>
+     <use xlink:href="#Charter-Roman-78" x="372.851562"/>
+     <use xlink:href="#Charter-Roman-61" x="423.144531"/>
+     <use xlink:href="#Charter-Roman-63" x="473.828125"/>
+     <use xlink:href="#Charter-Roman-74" x="518.408203"/>
+     <use xlink:href="#Charter-Roman-6c" x="551.806641"/>
+     <use xlink:href="#Charter-Roman-79" x="580.029297"/>
+     <use xlink:href="#Charter-Roman-20" x="629.541016"/>
+     <use xlink:href="#Charter-Roman-74" x="657.324219"/>
+     <use xlink:href="#Charter-Roman-68" x="690.722656"/>
+     <use xlink:href="#Charter-Roman-65" x="747.119141"/>
+     <use xlink:href="#Charter-Roman-20" x="796.240234"/>
+     <use xlink:href="#Charter-Roman-6d" x="824.023438"/>
+     <use xlink:href="#Charter-Roman-69" x="908.300781"/>
+     <use xlink:href="#Charter-Roman-73" x="936.279297"/>
+     <use xlink:href="#Charter-Roman-74" x="976.269531"/>
+     <use xlink:href="#Charter-Roman-61" x="1009.667969"/>
+     <use xlink:href="#Charter-Roman-6b" x="1060.351562"/>
+     <use xlink:href="#Charter-Roman-65" x="1112.060547"/>
+     <use xlink:href="#Charter-Roman-20" x="1161.181641"/>
+     <use xlink:href="#Charter-Roman-74" x="1188.964844"/>
+     <use xlink:href="#Charter-Roman-68" x="1222.363281"/>
+     <use xlink:href="#Charter-Roman-65" x="1278.759766"/>
+     <use xlink:href="#Charter-Roman-20" x="1327.880859"/>
+     <use xlink:href="#Charter-Roman-62" x="1355.664062"/>
+     <use xlink:href="#Charter-Roman-69" x="1409.570312"/>
+     <use xlink:href="#Charter-Roman-67" x="1437.548828"/>
+     <use xlink:href="#Charter-Roman-67" x="1489.84375"/>
+     <use xlink:href="#Charter-Roman-65" x="1542.138672"/>
+     <use xlink:href="#Charter-Roman-72" x="1591.259766"/>
+     <use xlink:href="#Charter-Roman-20" x="1629.443359"/>
+     <use xlink:href="#Charter-Roman-6d" x="1657.226562"/>
+     <use xlink:href="#Charter-Roman-6f" x="1741.503906"/>
+     <use xlink:href="#Charter-Roman-64" x="1795.410156"/>
+     <use xlink:href="#Charter-Roman-65" x="1851.904297"/>
+     <use xlink:href="#Charter-Roman-6c" x="1901.025391"/>
+     <use xlink:href="#Charter-Roman-20" x="1929.248047"/>
+     <use xlink:href="#Charter-Roman-73" x="1957.03125"/>
+     <use xlink:href="#Charter-Roman-74" x="1997.021484"/>
+     <use xlink:href="#Charter-Roman-6f" x="2030.419922"/>
+     <use xlink:href="#Charter-Roman-70" x="2084.326172"/>
+     <use xlink:href="#Charter-Roman-73" x="2139.404297"/>
+     <use xlink:href="#Charter-Roman-20" x="2179.394531"/>
+     <use xlink:href="#Charter-Roman-6d" x="2207.177734"/>
+     <use xlink:href="#Charter-Roman-61" x="2291.455078"/>
+     <use xlink:href="#Charter-Roman-6b" x="2342.138672"/>
+     <use xlink:href="#Charter-Roman-69" x="2393.847656"/>
+     <use xlink:href="#Charter-Roman-6e" x="2421.826172"/>
+     <use xlink:href="#Charter-Roman-67" x="2478.613281"/>
+     <use xlink:href="#Charter-Roman-2e" x="2530.908203"/>
+    </g>
+   </g>
+   <g id="text_22">
+    <!-- Wrong joins fall 33 → 13 with the larger model; invented tables/columns 10 → 1. -->
+    <g style="fill: #6f6a63" transform="translate(126.005313 405.976147) scale(0.085 -0.085)">
      <defs>
       <path id="Menlo-Regular-57" d="M 0 4666 
 L 616 4666 
@@ -1520,6 +1971,19 @@ L 1925 2772
 L 1294 0 
 L 697 0 
 L 0 4666 
+z
+" transform="scale(0.015625)"/>
+      <path id="Menlo-Regular-2192" d="M 3647 1625 
+L 2738 716 
+L 2456 997 
+L 2956 1497 
+L 206 1497 
+L 206 2009 
+L 2956 2009 
+L 2456 2509 
+L 2738 2791 
+L 3647 1881 
+L 3647 1625 
 z
 " transform="scale(0.015625)"/>
       <path id="Menlo-Regular-64" d="M 2681 3053 
@@ -1548,32 +2012,29 @@ Q 1416 3097 1203 2756
 Q 991 2416 991 1747 
 z
 " transform="scale(0.015625)"/>
-      <path id="Menlo-Regular-2c" d="M 1381 1128 
+      <path id="Menlo-Regular-3b" d="M 1381 1128 
 L 2356 1128 
 L 2356 300 
-L 1663 -1047 
-L 1038 -1050 
+L 1741 -894 
+L 1072 -894 
 L 1381 300 
 L 1381 1128 
 z
+M 1341 3497 
+L 2316 3497 
+L 2316 2369 
+L 1341 2369 
+L 1341 3497 
+z
 " transform="scale(0.015625)"/>
-      <path id="Menlo-Regular-75" d="M 609 1325 
-L 609 3494 
-L 1184 3494 
-L 1184 1325 
-Q 1184 853 1351 631 
-Q 1519 409 1869 409 
-Q 2275 409 2490 695 
-Q 2706 981 2706 1516 
-L 2706 3494 
-L 3284 3494 
-L 3284 0 
-L 2706 0 
-L 2706 525 
-Q 2553 222 2289 65 
-Q 2025 -91 1672 -91 
-Q 1134 -91 871 261 
-Q 609 613 609 1325 
+      <path id="Menlo-Regular-76" d="M 313 3500 
+L 909 3500 
+L 1925 563 
+L 2944 3500 
+L 3541 3500 
+L 2297 0 
+L 1556 0 
+L 313 3500 
 z
 " transform="scale(0.015625)"/>
       <path id="Menlo-Regular-62" d="M 2869 1747 
@@ -1609,6 +2070,25 @@ L 319 -594
 L 2778 4666 
 z
 " transform="scale(0.015625)"/>
+      <path id="Menlo-Regular-75" d="M 609 1325 
+L 609 3494 
+L 1184 3494 
+L 1184 1325 
+Q 1184 853 1351 631 
+Q 1519 409 1869 409 
+Q 2275 409 2490 695 
+Q 2706 981 2706 1516 
+L 2706 3494 
+L 3284 3494 
+L 3284 0 
+L 2706 0 
+L 2706 525 
+Q 2553 222 2289 65 
+Q 2025 -91 1672 -91 
+Q 1134 -91 871 261 
+Q 609 613 609 1325 
+z
+" transform="scale(0.015625)"/>
       <path id="Menlo-Regular-2e" d="M 1216 1263 
 L 2316 1263 
 L 2316 0 
@@ -1634,91 +2114,71 @@ z
      <use xlink:href="#Menlo-Regular-6c" x="842.871094"/>
      <use xlink:href="#Menlo-Regular-6c" x="903.076172"/>
      <use xlink:href="#Menlo-Regular-20" x="963.28125"/>
-     <use xlink:href="#Menlo-Regular-66" x="1023.486328"/>
-     <use xlink:href="#Menlo-Regular-72" x="1083.691406"/>
-     <use xlink:href="#Menlo-Regular-6f" x="1143.896484"/>
-     <use xlink:href="#Menlo-Regular-6d" x="1204.101562"/>
+     <use xlink:href="#Menlo-Regular-33" x="1023.486328"/>
+     <use xlink:href="#Menlo-Regular-33" x="1083.691406"/>
+     <use xlink:href="#Menlo-Regular-20" x="1143.896484"/>
+     <use xlink:href="#Menlo-Regular-2192" x="1204.101562"/>
      <use xlink:href="#Menlo-Regular-20" x="1264.306641"/>
-     <use xlink:href="#Menlo-Regular-33" x="1324.511719"/>
+     <use xlink:href="#Menlo-Regular-31" x="1324.511719"/>
      <use xlink:href="#Menlo-Regular-33" x="1384.716797"/>
      <use xlink:href="#Menlo-Regular-20" x="1444.921875"/>
-     <use xlink:href="#Menlo-Regular-74" x="1505.126953"/>
-     <use xlink:href="#Menlo-Regular-6f" x="1565.332031"/>
-     <use xlink:href="#Menlo-Regular-20" x="1625.537109"/>
-     <use xlink:href="#Menlo-Regular-31" x="1685.742188"/>
-     <use xlink:href="#Menlo-Regular-33" x="1745.947266"/>
-     <use xlink:href="#Menlo-Regular-20" x="1806.152344"/>
-     <use xlink:href="#Menlo-Regular-77" x="1866.357422"/>
-     <use xlink:href="#Menlo-Regular-69" x="1926.5625"/>
-     <use xlink:href="#Menlo-Regular-74" x="1986.767578"/>
-     <use xlink:href="#Menlo-Regular-68" x="2046.972656"/>
-     <use xlink:href="#Menlo-Regular-20" x="2107.177734"/>
-     <use xlink:href="#Menlo-Regular-74" x="2167.382812"/>
-     <use xlink:href="#Menlo-Regular-68" x="2227.587891"/>
+     <use xlink:href="#Menlo-Regular-77" x="1505.126953"/>
+     <use xlink:href="#Menlo-Regular-69" x="1565.332031"/>
+     <use xlink:href="#Menlo-Regular-74" x="1625.537109"/>
+     <use xlink:href="#Menlo-Regular-68" x="1685.742188"/>
+     <use xlink:href="#Menlo-Regular-20" x="1745.947266"/>
+     <use xlink:href="#Menlo-Regular-74" x="1806.152344"/>
+     <use xlink:href="#Menlo-Regular-68" x="1866.357422"/>
+     <use xlink:href="#Menlo-Regular-65" x="1926.5625"/>
+     <use xlink:href="#Menlo-Regular-20" x="1986.767578"/>
+     <use xlink:href="#Menlo-Regular-6c" x="2046.972656"/>
+     <use xlink:href="#Menlo-Regular-61" x="2107.177734"/>
+     <use xlink:href="#Menlo-Regular-72" x="2167.382812"/>
+     <use xlink:href="#Menlo-Regular-67" x="2227.587891"/>
      <use xlink:href="#Menlo-Regular-65" x="2287.792969"/>
-     <use xlink:href="#Menlo-Regular-20" x="2347.998047"/>
-     <use xlink:href="#Menlo-Regular-6c" x="2408.203125"/>
-     <use xlink:href="#Menlo-Regular-61" x="2468.408203"/>
-     <use xlink:href="#Menlo-Regular-72" x="2528.613281"/>
-     <use xlink:href="#Menlo-Regular-67" x="2588.818359"/>
+     <use xlink:href="#Menlo-Regular-72" x="2347.998047"/>
+     <use xlink:href="#Menlo-Regular-20" x="2408.203125"/>
+     <use xlink:href="#Menlo-Regular-6d" x="2468.408203"/>
+     <use xlink:href="#Menlo-Regular-6f" x="2528.613281"/>
+     <use xlink:href="#Menlo-Regular-64" x="2588.818359"/>
      <use xlink:href="#Menlo-Regular-65" x="2649.023438"/>
-     <use xlink:href="#Menlo-Regular-72" x="2709.228516"/>
-     <use xlink:href="#Menlo-Regular-20" x="2769.433594"/>
-     <use xlink:href="#Menlo-Regular-6d" x="2829.638672"/>
-     <use xlink:href="#Menlo-Regular-6f" x="2889.84375"/>
-     <use xlink:href="#Menlo-Regular-64" x="2950.048828"/>
-     <use xlink:href="#Menlo-Regular-65" x="3010.253906"/>
-     <use xlink:href="#Menlo-Regular-6c" x="3070.458984"/>
-     <use xlink:href="#Menlo-Regular-2c" x="3130.664062"/>
-     <use xlink:href="#Menlo-Regular-20" x="3190.869141"/>
-     <use xlink:href="#Menlo-Regular-61" x="3251.074219"/>
-     <use xlink:href="#Menlo-Regular-6e" x="3311.279297"/>
-     <use xlink:href="#Menlo-Regular-64" x="3371.484375"/>
-     <use xlink:href="#Menlo-Regular-20" x="3431.689453"/>
-     <use xlink:href="#Menlo-Regular-68" x="3491.894531"/>
-     <use xlink:href="#Menlo-Regular-61" x="3552.099609"/>
+     <use xlink:href="#Menlo-Regular-6c" x="2709.228516"/>
+     <use xlink:href="#Menlo-Regular-3b" x="2769.433594"/>
+     <use xlink:href="#Menlo-Regular-20" x="2829.638672"/>
+     <use xlink:href="#Menlo-Regular-69" x="2889.84375"/>
+     <use xlink:href="#Menlo-Regular-6e" x="2950.048828"/>
+     <use xlink:href="#Menlo-Regular-76" x="3010.253906"/>
+     <use xlink:href="#Menlo-Regular-65" x="3070.458984"/>
+     <use xlink:href="#Menlo-Regular-6e" x="3130.664062"/>
+     <use xlink:href="#Menlo-Regular-74" x="3190.869141"/>
+     <use xlink:href="#Menlo-Regular-65" x="3251.074219"/>
+     <use xlink:href="#Menlo-Regular-64" x="3311.279297"/>
+     <use xlink:href="#Menlo-Regular-20" x="3371.484375"/>
+     <use xlink:href="#Menlo-Regular-74" x="3431.689453"/>
+     <use xlink:href="#Menlo-Regular-61" x="3491.894531"/>
+     <use xlink:href="#Menlo-Regular-62" x="3552.099609"/>
      <use xlink:href="#Menlo-Regular-6c" x="3612.304688"/>
-     <use xlink:href="#Menlo-Regular-6c" x="3672.509766"/>
-     <use xlink:href="#Menlo-Regular-75" x="3732.714844"/>
-     <use xlink:href="#Menlo-Regular-63" x="3792.919922"/>
-     <use xlink:href="#Menlo-Regular-69" x="3853.125"/>
-     <use xlink:href="#Menlo-Regular-6e" x="3913.330078"/>
-     <use xlink:href="#Menlo-Regular-61" x="3973.535156"/>
-     <use xlink:href="#Menlo-Regular-74" x="4033.740234"/>
-     <use xlink:href="#Menlo-Regular-65" x="4093.945312"/>
-     <use xlink:href="#Menlo-Regular-64" x="4154.150391"/>
-     <use xlink:href="#Menlo-Regular-20" x="4214.355469"/>
-     <use xlink:href="#Menlo-Regular-74" x="4274.560547"/>
-     <use xlink:href="#Menlo-Regular-61" x="4334.765625"/>
-     <use xlink:href="#Menlo-Regular-62" x="4394.970703"/>
-     <use xlink:href="#Menlo-Regular-6c" x="4455.175781"/>
-     <use xlink:href="#Menlo-Regular-65" x="4515.380859"/>
-     <use xlink:href="#Menlo-Regular-73" x="4575.585938"/>
-     <use xlink:href="#Menlo-Regular-2f" x="4635.791016"/>
-     <use xlink:href="#Menlo-Regular-63" x="4695.996094"/>
-     <use xlink:href="#Menlo-Regular-6f" x="4756.201172"/>
-     <use xlink:href="#Menlo-Regular-6c" x="4816.40625"/>
-     <use xlink:href="#Menlo-Regular-75" x="4876.611328"/>
-     <use xlink:href="#Menlo-Regular-6d" x="4936.816406"/>
-     <use xlink:href="#Menlo-Regular-6e" x="4997.021484"/>
-     <use xlink:href="#Menlo-Regular-73" x="5057.226562"/>
-     <use xlink:href="#Menlo-Regular-20" x="5117.431641"/>
-     <use xlink:href="#Menlo-Regular-66" x="5177.636719"/>
-     <use xlink:href="#Menlo-Regular-72" x="5237.841797"/>
-     <use xlink:href="#Menlo-Regular-6f" x="5298.046875"/>
-     <use xlink:href="#Menlo-Regular-6d" x="5358.251953"/>
-     <use xlink:href="#Menlo-Regular-20" x="5418.457031"/>
-     <use xlink:href="#Menlo-Regular-31" x="5478.662109"/>
-     <use xlink:href="#Menlo-Regular-30" x="5538.867188"/>
-     <use xlink:href="#Menlo-Regular-20" x="5599.072266"/>
-     <use xlink:href="#Menlo-Regular-74" x="5659.277344"/>
-     <use xlink:href="#Menlo-Regular-6f" x="5719.482422"/>
-     <use xlink:href="#Menlo-Regular-20" x="5779.6875"/>
-     <use xlink:href="#Menlo-Regular-31" x="5839.892578"/>
-     <use xlink:href="#Menlo-Regular-2e" x="5900.097656"/>
+     <use xlink:href="#Menlo-Regular-65" x="3672.509766"/>
+     <use xlink:href="#Menlo-Regular-73" x="3732.714844"/>
+     <use xlink:href="#Menlo-Regular-2f" x="3792.919922"/>
+     <use xlink:href="#Menlo-Regular-63" x="3853.125"/>
+     <use xlink:href="#Menlo-Regular-6f" x="3913.330078"/>
+     <use xlink:href="#Menlo-Regular-6c" x="3973.535156"/>
+     <use xlink:href="#Menlo-Regular-75" x="4033.740234"/>
+     <use xlink:href="#Menlo-Regular-6d" x="4093.945312"/>
+     <use xlink:href="#Menlo-Regular-6e" x="4154.150391"/>
+     <use xlink:href="#Menlo-Regular-73" x="4214.355469"/>
+     <use xlink:href="#Menlo-Regular-20" x="4274.560547"/>
+     <use xlink:href="#Menlo-Regular-31" x="4334.765625"/>
+     <use xlink:href="#Menlo-Regular-30" x="4394.970703"/>
+     <use xlink:href="#Menlo-Regular-20" x="4455.175781"/>
+     <use xlink:href="#Menlo-Regular-2192" x="4515.380859"/>
+     <use xlink:href="#Menlo-Regular-20" x="4575.585938"/>
+     <use xlink:href="#Menlo-Regular-31" x="4635.791016"/>
+     <use xlink:href="#Menlo-Regular-2e" x="4695.996094"/>
     </g>
-    <!-- Only schema_error fails loudly — every other category returns wrong numbers silently. -->
-    <g style="fill: #6f6a63" transform="translate(126.005313 337.470827) scale(0.085 -0.085)">
+    <!-- Only schema error fails loudly — every other category returns wrong numbers silently. -->
+    <g style="fill: #6f6a63" transform="translate(126.005313 417.526187) scale(0.085 -0.085)">
      <defs>
       <path id="Menlo-Regular-4f" d="M 2828 2328 
 Q 2828 3356 2617 3797 
@@ -1759,28 +2219,11 @@ L 3603 3500
 L 2681 1125 
 z
 " transform="scale(0.015625)"/>
-      <path id="Menlo-Regular-5f" d="M 3825 -594 
-L 3825 -1125 
-L 0 -1125 
-L 0 -594 
-L 3825 -594 
-z
-" transform="scale(0.015625)"/>
       <path id="Menlo-Regular-2014" d="M 0 2259 
 L 3853 2259 
 L 3853 1725 
 L 0 1725 
 L 0 2259 
-z
-" transform="scale(0.015625)"/>
-      <path id="Menlo-Regular-76" d="M 313 3500 
-L 909 3500 
-L 1925 563 
-L 2944 3500 
-L 3541 3500 
-L 2297 0 
-L 1556 0 
-L 313 3500 
 z
 " transform="scale(0.015625)"/>
      </defs>
@@ -1795,7 +2238,7 @@ z
      <use xlink:href="#Menlo-Regular-65" x="481.640625"/>
      <use xlink:href="#Menlo-Regular-6d" x="541.845703"/>
      <use xlink:href="#Menlo-Regular-61" x="602.050781"/>
-     <use xlink:href="#Menlo-Regular-5f" x="662.255859"/>
+     <use xlink:href="#Menlo-Regular-20" x="662.255859"/>
      <use xlink:href="#Menlo-Regular-65" x="722.460938"/>
      <use xlink:href="#Menlo-Regular-72" x="782.666016"/>
      <use xlink:href="#Menlo-Regular-72" x="842.871094"/>
@@ -1871,7 +2314,7 @@ z
      <use xlink:href="#Menlo-Regular-2e" x="5057.226562"/>
     </g>
    </g>
-   <g id="text_22">
+   <g id="text_23">
     <!-- Where the model upgrade actually pays: joins -->
     <g style="fill: #191919" transform="translate(126.005313 31.564609) scale(0.155 -0.155)">
      <defs>
@@ -1927,148 +2370,6 @@ L 622 2706
 L 166 2706 
 L 166 2906 
 L 909 3144 
-z
-" transform="scale(0.015625)"/>
-      <path id="Charter-Roman-70" d="M 1131 372 
-Q 1288 319 1423 294 
-Q 1559 269 1678 269 
-Q 2153 269 2447 623 
-Q 2741 978 2741 1563 
-Q 2741 2103 2486 2422 
-Q 2231 2741 1806 2741 
-Q 1653 2741 1490 2687 
-Q 1328 2634 1131 2522 
-L 1131 372 
-z
-M 147 -1394 
-L 147 -1166 
-L 494 -1131 
-L 594 -1031 
-L 594 2681 
-L 147 2681 
-L 147 2881 
-L 891 3109 
-L 1131 3109 
-L 1131 2759 
-Q 1394 2956 1623 3050 
-Q 1853 3144 2075 3144 
-Q 2613 3144 2958 2725 
-Q 3303 2306 3303 1644 
-Q 3303 891 2872 436 
-Q 2441 -19 1728 -19 
-Q 1606 -19 1459 -5 
-Q 1313 9 1134 38 
-L 1131 -1031 
-L 1241 -1131 
-L 1650 -1166 
-L 1650 -1394 
-L 147 -1394 
-z
-" transform="scale(0.015625)"/>
-      <path id="Charter-Roman-67" d="M 1319 191 
-Q 1059 113 914 -53 
-Q 769 -219 769 -434 
-Q 769 -722 1012 -911 
-Q 1256 -1100 1638 -1100 
-Q 2047 -1100 2319 -903 
-Q 2591 -706 2591 -422 
-Q 2591 -206 2472 -103 
-Q 2353 0 1941 78 
-L 1319 191 
-z
-M 1575 2894 
-Q 1288 2894 1117 2680 
-Q 947 2466 947 2106 
-Q 947 1750 1120 1534 
-Q 1294 1319 1575 1319 
-Q 1856 1319 2029 1534 
-Q 2203 1750 2203 2106 
-Q 2203 2463 2031 2678 
-Q 1859 2894 1575 2894 
-z
-M 2363 2963 
-L 3278 2963 
-L 3278 2663 
-L 2572 2663 
-Q 2666 2522 2709 2378 
-Q 2753 2234 2753 2069 
-Q 2753 1628 2412 1348 
-Q 2072 1069 1528 1069 
-L 1422 1069 
-Q 1384 997 1367 925 
-Q 1350 853 1350 781 
-Q 1350 759 1356 688 
-Q 1363 647 1363 628 
-L 1978 531 
-Q 2578 441 2822 261 
-Q 3066 81 3066 -256 
-Q 3066 -441 2964 -633 
-Q 2863 -825 2681 -972 
-Q 2428 -1178 2103 -1286 
-Q 1778 -1394 1416 -1394 
-Q 869 -1394 562 -1175 
-Q 256 -956 256 -569 
-Q 256 -259 440 -46 
-Q 625 166 947 225 
-Q 916 300 900 372 
-Q 884 444 884 513 
-Q 884 634 959 784 
-Q 1034 934 1191 1119 
-Q 825 1200 611 1461 
-Q 397 1722 397 2088 
-Q 397 2559 739 2851 
-Q 1081 3144 1638 3144 
-Q 1822 3144 2001 3098 
-Q 2181 3053 2363 2963 
-z
-" transform="scale(0.015625)"/>
-      <path id="Charter-Roman-79" d="M -6 3078 
-L 1381 3078 
-L 1381 2841 
-L 1044 2816 
-L 966 2713 
-L 1734 722 
-L 2534 2713 
-L 2484 2816 
-L 2138 2841 
-L 2138 3078 
-L 3278 3078 
-L 3278 2841 
-L 2906 2791 
-L 1625 -319 
-Q 1391 -884 1147 -1139 
-Q 903 -1394 603 -1394 
-Q 403 -1394 281 -1295 
-Q 159 -1197 159 -1038 
-Q 159 -944 201 -856 
-Q 244 -769 325 -691 
-L 941 -934 
-Q 1081 -784 1214 -537 
-Q 1347 -291 1459 25 
-L 384 2803 
-L -6 2841 
-L -6 3078 
-z
-" transform="scale(0.015625)"/>
-      <path id="Charter-Roman-3a" d="M 1019 756 
-Q 1188 756 1308 636 
-Q 1428 516 1428 347 
-Q 1428 178 1308 61 
-Q 1188 -56 1019 -56 
-Q 847 -56 731 59 
-Q 616 175 616 347 
-Q 616 519 733 637 
-Q 850 756 1019 756 
-z
-M 1019 3078 
-Q 1188 3078 1308 2961 
-Q 1428 2844 1428 2675 
-Q 1428 2506 1306 2386 
-Q 1184 2266 1019 2266 
-Q 850 2266 733 2386 
-Q 616 2506 616 2675 
-Q 616 2847 731 2962 
-Q 847 3078 1019 3078 
 z
 " transform="scale(0.015625)"/>
       <path id="Charter-Roman-6a" d="M 563 4159 
@@ -2149,55 +2450,50 @@ z
     </g>
    </g>
    <g id="legend_1">
-    <g id="patch_15">
-     <path d="M 507.339531 233.093953 
-L 525.339531 233.093953 
-L 525.339531 226.793953 
-L 507.339531 226.793953 
+    <g id="patch_16">
+     <path d="M 134.105312 308.879601 
+L 152.105312 308.879601 
+L 152.105312 302.579601 
+L 134.105312 302.579601 
 z
-" style="fill: #cbb9a6"/>
+" style="fill: #33566b"/>
     </g>
-    <g id="text_23">
-     <!-- 8B (V1+V2) -->
-     <g style="fill: #191919" transform="translate(532.539531 233.093953) scale(0.09 -0.09)">
+    <g id="text_24">
+     <!-- 70B (strong model) -->
+     <g style="fill: #191919" transform="translate(157.505313 308.879601) scale(0.09 -0.09)">
       <defs>
-       <path id="Charter-Roman-38" d="M 1403 2106 
-Q 1072 1931 923 1709 
-Q 775 1488 775 1172 
-Q 775 744 1048 487 
-Q 1322 231 1778 231 
-Q 2188 231 2438 465 
-Q 2688 700 2688 1081 
-Q 2688 1391 2453 1595 
-Q 2219 1800 1403 2106 
+       <path id="Charter-Roman-37" d="M 453 4294 
+L 3397 4294 
+L 3397 4038 
+L 1275 -97 
+L 1275 -238 
+L 744 -238 
+L 2828 3809 
+L 856 3809 
+L 756 3225 
+L 453 3225 
+L 453 4294 
 z
-M 2322 2247 
-Q 2769 2091 3003 1808 
-Q 3238 1525 3238 1147 
-Q 3238 616 2820 256 
-Q 2403 -103 1759 -103 
-Q 1088 -103 684 236 
-Q 281 575 281 1131 
-Q 281 1516 503 1794 
-Q 725 2072 1159 2241 
-Q 828 2378 658 2629 
-Q 488 2881 488 3225 
-Q 488 3741 855 4062 
-Q 1222 4384 1813 4384 
-Q 2372 4384 2715 4086 
-Q 3059 3788 3059 3309 
-Q 3059 2988 2867 2709 
-Q 2675 2431 2322 2247 
+" transform="scale(0.015625)"/>
+       <path id="Charter-Roman-30" d="M 1778 4072 
+Q 1331 4072 1097 3580 
+Q 863 3088 863 2144 
+Q 863 1206 1097 718 
+Q 1331 231 1778 231 
+Q 2225 231 2456 720 
+Q 2688 1209 2688 2150 
+Q 2688 3094 2456 3583 
+Q 2225 4072 1778 4072 
 z
-M 2053 2363 
-Q 2297 2522 2431 2753 
-Q 2566 2984 2566 3244 
-Q 2566 3625 2356 3851 
-Q 2147 4078 1791 4078 
-Q 1463 4078 1241 3859 
-Q 1019 3641 1019 3322 
-Q 1019 3016 1266 2786 
-Q 1513 2556 2053 2363 
+M 1778 4372 
+Q 2484 4372 2890 3778 
+Q 3297 3184 3297 2150 
+Q 3297 1113 2889 517 
+Q 2481 -78 1778 -78 
+Q 1078 -78 670 517 
+Q 263 1113 263 2150 
+Q 263 3184 669 3778 
+Q 1075 4372 1778 4372 
 z
 " transform="scale(0.015625)"/>
        <path id="Charter-Roman-42" d="M 1263 319 
@@ -2242,81 +2538,76 @@ L 213 4038
 L 213 4294 
 z
 " transform="scale(0.015625)"/>
-       <path id="Charter-Roman-56" d="M -147 4294 
-L 1344 4294 
-L 1344 4038 
-L 972 4000 
-L 903 3909 
-L 2106 684 
-L 3263 3909 
-L 3200 4000 
-L 2803 4038 
-L 2803 4294 
-L 4078 4294 
-L 4078 4038 
-L 3681 3963 
-L 2209 -31 
-L 1766 -31 
-L 263 3963 
-L -147 4038 
-L -147 4294 
+      </defs>
+      <use xlink:href="#Charter-Roman-37"/>
+      <use xlink:href="#Charter-Roman-30" x="55.615234"/>
+      <use xlink:href="#Charter-Roman-42" x="111.230469"/>
+      <use xlink:href="#Charter-Roman-20" x="171.630859"/>
+      <use xlink:href="#Charter-Roman-28" x="199.414062"/>
+      <use xlink:href="#Charter-Roman-73" x="241.113281"/>
+      <use xlink:href="#Charter-Roman-74" x="281.103516"/>
+      <use xlink:href="#Charter-Roman-72" x="314.501953"/>
+      <use xlink:href="#Charter-Roman-6f" x="352.685547"/>
+      <use xlink:href="#Charter-Roman-6e" x="406.591797"/>
+      <use xlink:href="#Charter-Roman-67" x="463.378906"/>
+      <use xlink:href="#Charter-Roman-20" x="515.673828"/>
+      <use xlink:href="#Charter-Roman-6d" x="543.457031"/>
+      <use xlink:href="#Charter-Roman-6f" x="627.734375"/>
+      <use xlink:href="#Charter-Roman-64" x="681.640625"/>
+      <use xlink:href="#Charter-Roman-65" x="738.134766"/>
+      <use xlink:href="#Charter-Roman-6c" x="787.255859"/>
+      <use xlink:href="#Charter-Roman-29" x="815.478516"/>
+     </g>
+    </g>
+    <g id="patch_17">
+     <path d="M 254.452187 308.879601 
+L 272.452187 308.879601 
+L 272.452187 302.579601 
+L 254.452187 302.579601 
 z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-31" d="M 1991 4372 
-L 2169 4372 
-L 2169 397 
-L 2247 300 
-L 2938 269 
-L 2938 0 
-L 794 0 
-L 794 275 
-L 1528 313 
-L 1606 422 
-L 1606 3866 
-L 603 3688 
-L 603 3956 
-L 1991 4372 
+" style="fill: #c9c2b6"/>
+    </g>
+    <g id="text_25">
+     <!-- 8B (cheap model) -->
+     <g style="fill: #191919" transform="translate(277.852187 308.879601) scale(0.09 -0.09)">
+      <defs>
+       <path id="Charter-Roman-38" d="M 1403 2106 
+Q 1072 1931 923 1709 
+Q 775 1488 775 1172 
+Q 775 744 1048 487 
+Q 1322 231 1778 231 
+Q 2188 231 2438 465 
+Q 2688 700 2688 1081 
+Q 2688 1391 2453 1595 
+Q 2219 1800 1403 2106 
 z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-2b" d="M 2484 3816 
-L 2853 3816 
-L 2853 2094 
-L 4538 2094 
-L 4538 1728 
-L 2853 1728 
-L 2853 0 
-L 2484 0 
-L 2484 1728 
-L 794 1728 
-L 794 2094 
-L 2484 2094 
-L 2484 3816 
+M 2322 2247 
+Q 2769 2091 3003 1808 
+Q 3238 1525 3238 1147 
+Q 3238 616 2820 256 
+Q 2403 -103 1759 -103 
+Q 1088 -103 684 236 
+Q 281 575 281 1131 
+Q 281 1516 503 1794 
+Q 725 2072 1159 2241 
+Q 828 2378 658 2629 
+Q 488 2881 488 3225 
+Q 488 3741 855 4062 
+Q 1222 4384 1813 4384 
+Q 2372 4384 2715 4086 
+Q 3059 3788 3059 3309 
+Q 3059 2988 2867 2709 
+Q 2675 2431 2322 2247 
 z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-32" d="M 903 506 
-L 2828 506 
-L 2944 1050 
-L 3231 1050 
-L 3231 0 
-L 269 0 
-L 269 403 
-Q 1669 1541 2070 2062 
-Q 2472 2584 2472 3078 
-Q 2472 3531 2245 3787 
-Q 2019 4044 1619 4044 
-Q 1469 4044 1328 4006 
-Q 1188 3969 1050 3891 
-L 1050 3206 
-Q 981 3159 909 3134 
-Q 838 3109 763 3109 
-Q 597 3109 500 3206 
-Q 403 3303 403 3469 
-Q 403 3828 801 4100 
-Q 1200 4372 1759 4372 
-Q 2369 4372 2730 4042 
-Q 3091 3713 3091 3163 
-Q 3091 2656 2652 2103 
-Q 2213 1550 903 506 
+M 2053 2363 
+Q 2297 2522 2431 2753 
+Q 2566 2984 2566 3244 
+Q 2566 3625 2356 3851 
+Q 2147 4078 1791 4078 
+Q 1463 4078 1241 3859 
+Q 1019 3641 1019 3322 
+Q 1019 3016 1266 2786 
+Q 1513 2556 2053 2363 
 z
 " transform="scale(0.015625)"/>
       </defs>
@@ -2324,140 +2615,25 @@ z
       <use xlink:href="#Charter-Roman-42" x="55.615234"/>
       <use xlink:href="#Charter-Roman-20" x="116.015625"/>
       <use xlink:href="#Charter-Roman-28" x="143.798828"/>
-      <use xlink:href="#Charter-Roman-56" x="185.498047"/>
-      <use xlink:href="#Charter-Roman-31" x="247.314453"/>
-      <use xlink:href="#Charter-Roman-2b" x="302.929688"/>
-      <use xlink:href="#Charter-Roman-56" x="386.230469"/>
-      <use xlink:href="#Charter-Roman-32" x="448.046875"/>
-      <use xlink:href="#Charter-Roman-29" x="503.662109"/>
-     </g>
-    </g>
-    <g id="patch_16">
-     <path d="M 507.339531 246.176297 
-L 525.339531 246.176297 
-L 525.339531 239.876297 
-L 507.339531 239.876297 
-z
-" style="fill: #33566b"/>
-    </g>
-    <g id="text_24">
-     <!-- 70B (V3+V4) -->
-     <g style="fill: #191919" transform="translate(532.539531 246.176297) scale(0.09 -0.09)">
-      <defs>
-       <path id="Charter-Roman-37" d="M 453 4294 
-L 3397 4294 
-L 3397 4038 
-L 1275 -97 
-L 1275 -238 
-L 744 -238 
-L 2828 3809 
-L 856 3809 
-L 756 3225 
-L 453 3225 
-L 453 4294 
-z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-30" d="M 1778 4072 
-Q 1331 4072 1097 3580 
-Q 863 3088 863 2144 
-Q 863 1206 1097 718 
-Q 1331 231 1778 231 
-Q 2225 231 2456 720 
-Q 2688 1209 2688 2150 
-Q 2688 3094 2456 3583 
-Q 2225 4072 1778 4072 
-z
-M 1778 4372 
-Q 2484 4372 2890 3778 
-Q 3297 3184 3297 2150 
-Q 3297 1113 2889 517 
-Q 2481 -78 1778 -78 
-Q 1078 -78 670 517 
-Q 263 1113 263 2150 
-Q 263 3184 669 3778 
-Q 1075 4372 1778 4372 
-z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-33" d="M 2028 2259 
-Q 2553 2222 2851 1947 
-Q 3150 1672 3150 1228 
-Q 3150 669 2695 298 
-Q 2241 -72 1528 -72 
-Q 1006 -72 634 143 
-Q 263 359 263 634 
-Q 263 772 366 865 
-Q 469 959 622 959 
-Q 675 959 722 951 
-Q 769 944 813 928 
-L 1013 384 
-Q 1141 306 1277 268 
-Q 1413 231 1556 231 
-Q 1988 231 2273 520 
-Q 2559 809 2559 1241 
-Q 2559 1625 2314 1833 
-Q 2069 2041 1613 2041 
-Q 1525 2041 1439 2034 
-Q 1353 2028 1275 2016 
-L 1275 2394 
-Q 1297 2394 1340 2391 
-Q 1384 2388 1409 2388 
-Q 1884 2388 2142 2603 
-Q 2400 2819 2400 3213 
-Q 2400 3591 2178 3817 
-Q 1956 4044 1588 4044 
-Q 1416 4044 1266 3998 
-Q 1116 3953 978 3859 
-L 978 3256 
-Q 922 3216 858 3195 
-Q 794 3175 716 3175 
-Q 563 3175 467 3270 
-Q 372 3366 372 3519 
-Q 372 3863 765 4117 
-Q 1159 4372 1722 4372 
-Q 2294 4372 2637 4078 
-Q 2981 3784 2981 3297 
-Q 2981 2922 2737 2658 
-Q 2494 2394 2028 2259 
-z
-" transform="scale(0.015625)"/>
-       <path id="Charter-Roman-34" d="M 2234 3634 
-L 653 1656 
-L 2234 1656 
-L 2234 3634 
-z
-M 2356 4331 
-L 2725 4331 
-L 2725 1656 
-L 3450 1656 
-L 3450 1241 
-L 2725 1241 
-L 2725 -238 
-L 2234 -238 
-L 2234 1241 
-L 172 1241 
-L 172 1656 
-L 2356 4331 
-z
-" transform="scale(0.015625)"/>
-      </defs>
-      <use xlink:href="#Charter-Roman-37"/>
-      <use xlink:href="#Charter-Roman-30" x="55.615234"/>
-      <use xlink:href="#Charter-Roman-42" x="111.230469"/>
-      <use xlink:href="#Charter-Roman-20" x="171.630859"/>
-      <use xlink:href="#Charter-Roman-28" x="199.414062"/>
-      <use xlink:href="#Charter-Roman-56" x="241.113281"/>
-      <use xlink:href="#Charter-Roman-33" x="302.929688"/>
-      <use xlink:href="#Charter-Roman-2b" x="358.544922"/>
-      <use xlink:href="#Charter-Roman-56" x="441.845703"/>
-      <use xlink:href="#Charter-Roman-34" x="503.662109"/>
-      <use xlink:href="#Charter-Roman-29" x="559.277344"/>
+      <use xlink:href="#Charter-Roman-63" x="185.498047"/>
+      <use xlink:href="#Charter-Roman-68" x="230.078125"/>
+      <use xlink:href="#Charter-Roman-65" x="286.474609"/>
+      <use xlink:href="#Charter-Roman-61" x="335.595703"/>
+      <use xlink:href="#Charter-Roman-70" x="386.279297"/>
+      <use xlink:href="#Charter-Roman-20" x="441.357422"/>
+      <use xlink:href="#Charter-Roman-6d" x="469.140625"/>
+      <use xlink:href="#Charter-Roman-6f" x="553.417969"/>
+      <use xlink:href="#Charter-Roman-64" x="607.324219"/>
+      <use xlink:href="#Charter-Roman-65" x="663.818359"/>
+      <use xlink:href="#Charter-Roman-6c" x="712.939453"/>
+      <use xlink:href="#Charter-Roman-29" x="741.162109"/>
      </g>
     </g>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p6cd156f327">
+  <clipPath id="pcc9ca9bf75">
    <rect x="126.005313" y="45.564609" width="468.72" height="210.672"/>
   </clipPath>
  </defs>

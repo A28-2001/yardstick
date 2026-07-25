@@ -68,9 +68,18 @@ def save(fig, stem: str):
 
 
 def caption(ax, text: str, y: float = -0.30):
-    """Source note, left-aligned to the plot area (axes-relative so it never drifts)."""
+    """Technical source note, left-aligned to the plot area (axes-relative, never drifts)."""
     ax.text(0, y, text, transform=ax.transAxes, ha="left", va="top",
             fontsize=8.5, color=MID, fontfamily=MONO, linespacing=1.5)
+
+
+def plainbox(ax, text: str, y: float = -0.28):
+    """One boxed sentence in everyday language — what a non-specialist should take away.
+    Sits between the chart and the technical note so the figure reads without the paper."""
+    ax.text(0, y, text, transform=ax.transAxes, ha="left", va="top",
+            fontsize=10, color=INK, fontfamily=SERIF, linespacing=1.45,
+            bbox=dict(boxstyle="round,pad=0.55", facecolor="#f7f4ee",
+                      edgecolor=RULE, linewidth=0.8))
 
 
 # ---- Figure 1 — the headline ---------------------------------------------------
@@ -83,8 +92,11 @@ def fig_silent():
 
     fig, ax = plt.subplots(figsize=(8.4, 3.5))
     y = range(len(order))
-    ax.barh(list(y), share, height=0.52, color=[SIGNAL if s >= 95 else "#cbb9a6" for s in share],
-            zorder=3)
+    # Colour encodes MODEL FAMILY, not alarm — the 70B variants are the *accurate* ones,
+    # so painting them red would imply the opposite of the finding.
+    fam = {"V1": "8B", "V2": "8B", "V3": "70B", "V4": "70B"}
+    ax.barh(list(y), share, height=0.52,
+            color=[SLATE if fam[v] == "70B" else "#c9c2b6" for v in order], zorder=3)
     for i, (s, a, ne) in enumerate(zip(share, acc, nerr)):
         ax.text(s - 1.6, i, f"{s:.0f}%", va="center", ha="right", color=PAPER,
                 fontsize=11.5, fontfamily=MONO, zorder=4)
@@ -104,9 +116,15 @@ def fig_silent():
     ax.invert_yaxis()
     ax.set_title("Better models fail more quietly", loc="left", fontsize=15.5,
                  color=INK, pad=14)
-    caption(ax, "Silent = the query executed without error and returned a plausible but WRONG result set.\n"
-                "Ordered by accuracy. Both 70B variants sit above both 8B variants.   n = 150 per variant.",
-            y=-0.36)
+    ax.legend(handles=[
+        Line2D([], [], marker="s", ls="none", ms=9, color="#c9c2b6", label="8B (cheap model)"),
+        Line2D([], [], marker="s", ls="none", ms=9, color=SLATE, label="70B (strong model)")],
+        loc="upper left", bbox_to_anchor=(0.0, -0.22), ncol=2, frameon=False,
+        fontsize=9, handletextpad=.5, columnspacing=2.2)
+    plainbox(ax, "In plain terms: the smarter the model, the more its mistakes look like correct answers.\n"
+                 "A wrong number that runs without error is one nobody catches.", y=-0.42)
+    caption(ax, "Silent = the query ran without error but returned the WRONG rows. Ordered by accuracy.\n"
+                "n = 150 per variant.", y=-0.76)
     save(fig, "fig1_silent_failures")
 
 
@@ -173,18 +191,22 @@ def fig_forest():
         Line2D([], [], marker="s", ls="none", ms=8, mfc=PAPER, mec=MID, label="CI includes 0")],
         loc="upper left", bbox_to_anchor=(0.0, -0.16), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=1.8)
-    caption(ax, "Every prompt-effect interval crosses zero. The 70B upgrade is significant only on complex queries\n"
-                "(+28 pts, p = 0.0013). Minimum detectable effect at n = 50 is roughly 14–27 pts. Marker fill encodes\n"
-                "the bootstrap interval, text colour the pre-specified McNemar test — they disagree on exploratory\n"
-                "'simple', where McNemar is conservative with few discordant pairs; the pre-specified test governs.",
-            y=-0.34)
+    plainbox(ax, "In plain terms: if a bar crosses the middle line, that change did nothing we can prove.\n"
+                 "Only one thing clearly worked — using the bigger model on the hardest questions.", y=-0.30)
+    caption(ax, "Marker filled = the interval excludes zero; text in red = the pre-specified test is significant.\n"
+                "They disagree on exploratory 'simple', where McNemar is conservative with few discordant pairs;\n"
+                "the pre-specified test governs. Minimum detectable effect at n = 50 is roughly 14–27 pts.",
+            y=-0.62)
     save(fig, "fig2_forest")
 
 
 # ---- Figure 3 — calibration ----------------------------------------------------
 def fig_calibration():
     rows = {r["variant"]: r for r in read("variant_summary.csv")}
-    order = ["V1", "V2", "V3", "V4"]
+    # Sorted by overconfidence gap (largest first) so the shrinking gap reads at a glance.
+    gap = {v: (float(r["mean_confidence"]) - float(r["accuracy"])) * 100
+           for v, r in rows.items()}
+    order = sorted(rows, key=lambda v: -gap[v])
     fig, ax = plt.subplots(figsize=(8.4, 3.4))
     for i, v in enumerate(order):
         stated = float(rows[v]["mean_confidence"]) * 100
@@ -213,8 +235,10 @@ def fig_calibration():
         Line2D([], [], marker="o", ls="none", ms=9, color=SIGNAL, label="stated confidence")],
         loc="upper left", bbox_to_anchor=(0.0, -0.20), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=2.2)
-    caption(ax, "The weakest variant claims 98.6% confidence and is right 76.7% of the time.\n"
-                "All four stay ~87–96% confident on the answers they get wrong.", y=-0.36)
+    plainbox(ax, "In plain terms: every model claims to be surer than it actually is. The gap shrinks as models\n"
+                 "improve, but never closes — so a model's own confidence score is not a safety check.", y=-0.34)
+    caption(ax, "Sorted by the size of the overconfidence gap. All four stay ~87–96% confident even on the\n"
+                "answers they get wrong.", y=-0.70)
     save(fig, "fig3_calibration")
 
 
@@ -255,9 +279,11 @@ def fig_routing():
     ax.set_ylim(68, 92)
     ax.set_title("Difficulty routing did not beat random", loc="left", fontsize=15.5,
                  color=INK, pad=14)
-    caption(ax, "Routing kept 88.7% of the expensive model's accuracy at 28% of its cost — but random routing at the\n"
-                "same escalation budget scored identically (78.3%). The oracle beats always-expensive at 63% less\n"
-                "cost, so real headroom exists; these features could not reach it.", y=-0.22)
+    plainbox(ax, "In plain terms: our 'smart' way of guessing which questions need the expensive model performed\n"
+                 "no better than picking at random. Cheaper, yes — but not smarter.", y=-0.22)
+    caption(ax, "Both scored 78.3% at the same escalation budget. The oracle (perfect foresight) beats\n"
+                "always-expensive at 63% less cost, so real headroom exists — these features could not reach it.",
+            y=-0.46)
     save(fig, "fig4_routing")
 
 
@@ -277,10 +303,11 @@ def fig_taxonomy():
     n = len(types)
     h = 0.36
     ys = list(range(n))
-    ax.barh([y + h/2 for y in ys], [counts["8B"][t] for t in types], height=h,
-            color="#cbb9a6", label="8B (V1+V2)", zorder=3)
-    ax.barh([y - h/2 for y in ys], [counts["70B"][t] for t in types], height=h,
-            color=SLATE, label="70B (V3+V4)", zorder=3)
+    # 70B is drawn as the upper bar of each pair, so it is listed first in the legend.
+    b70 = ax.barh([y - h/2 for y in ys], [counts["70B"][t] for t in types], height=h,
+                  color=SLATE, label="70B (strong model)", zorder=3)
+    b8 = ax.barh([y + h/2 for y in ys], [counts["8B"][t] for t in types], height=h,
+                 color="#c9c2b6", label="8B (cheap model)", zorder=3)
     for i, t in enumerate(types):
         ax.text(counts["8B"][t] + .6, i + h/2, str(counts["8B"][t]), va="center",
                 fontsize=9.5, color=MID, fontfamily=MONO)
@@ -296,11 +323,15 @@ def fig_taxonomy():
     ax.set_xlim(0, 37)
     ax.tick_params(length=0)
     ax.spines["left"].set_color(RULE)
-    ax.legend(frameon=False, fontsize=9, loc="lower right")
+    ax.legend(handles=[b70, b8], loc="upper left", bbox_to_anchor=(0.0, -0.18),
+              ncol=2, frameon=False, fontsize=9, handletextpad=.6, columnspacing=2.2)
     ax.set_title("Where the model upgrade actually pays: joins", loc="left",
                  fontsize=15.5, color=INK, pad=14)
-    caption(ax, "Wrong joins fall from 33 to 13 with the larger model, and hallucinated tables/columns from 10 to 1.\n"
-                "Only schema_error fails loudly — every other category returns wrong numbers silently.", y=-0.30)
+    plainbox(ax, "In plain terms: most wrong answers come from linking the wrong tables together.\n"
+                 "That is exactly the mistake the bigger model stops making.", y=-0.34)
+    caption(ax, "Wrong joins fall 33 → 13 with the larger model; invented tables/columns 10 → 1.\n"
+                "Only schema error fails loudly — every other category returns wrong numbers silently.",
+            y=-0.68)
     save(fig, "fig5_taxonomy")
 
 

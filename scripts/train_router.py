@@ -1,15 +1,15 @@
-"""Phase 8 — train and validate the difficulty predictor (spec §11.2, §11.4, §11.5).
+"""Phase 8, train and validate the difficulty predictor (spec §11.2, §11.4, §11.5).
 
-Target: "hard" = the CHEAP model (V1) got the question wrong — i.e. questions that
+Target: "hard" = the CHEAP model (V1) got the question wrong, i.e. questions that
 should be routed up to the strong model. Features are question+schema only (no gold SQL).
 
 Reports:
   1. Held-out test performance vs the three mandatory baselines
-     (length-only, schema-size-only, random) — §11.4.
-  2. Leave-one-TIER-out generalisation — §11.2.
-  3. Leave-one-DATABASE-out generalisation (pooled out-of-fold AUC) — the real
-     production question: does it transfer to schemas never seen? — §11.2.
-  4. Does it recover Spider's HUMAN difficulty label? (accuracy + confusion matrix) — §11.5.
+     (length-only, schema-size-only, random), §11.4.
+  2. Leave-one-TIER-out generalisation, §11.2.
+  3. Leave-one-DATABASE-out generalisation (pooled out-of-fold AUC), the real
+     production question: does it transfer to schemas never seen?, §11.2.
+  4. Does it recover Spider's HUMAN difficulty label? (accuracy + confusion matrix), §11.5.
 
 Run:  python scripts/train_router.py
 """
@@ -42,7 +42,7 @@ def main() -> int:
     print(f"  base rate of 'hard' (cheap model failed): {df['is_hard'].mean():.2f}\n")
 
     train, test = df[df.split == "train"], df[df.split == "test"]
-    print(f"1) HELD-OUT TEST (train n={len(train)}, test n={len(test)}) — AUC for predicting 'hard'")
+    print(f"1) HELD-OUT TEST (train n={len(train)}, test n={len(test)}). AUC for predicting 'hard'")
     rng = np.random.default_rng(SEED)
     contenders = {
         "difficulty model (6 feat)": routing.ROUTER_FEATURES,
@@ -63,7 +63,7 @@ def main() -> int:
         print(f"   held-out {tier:9s} n={len(te):3d}  AUC={safe_auc(te['is_hard'], p):.3f}")
     print()
 
-    print("3) LEAVE-ONE-DATABASE-OUT (pooled out-of-fold AUC — transfers to unseen schemas?)")
+    print("3) LEAVE-ONE-DATABASE-OUT (pooled out-of-fold AUC, transfers to unseen schemas?)")
     logo = LeaveOneGroupOut()
     oof = np.full(len(df), np.nan)
     X = df[routing.ROUTER_FEATURES].to_numpy(dtype=float)

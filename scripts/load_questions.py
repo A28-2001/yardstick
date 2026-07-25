@@ -1,4 +1,4 @@
-"""Phase 1, Step 5 — load validated questions + variants into Supabase.
+"""Phase 1, Step 5, load validated questions + variants into Supabase.
 
 Reads data/questions.json (from sample_and_validate.py) and the 4 variant YAML
 configs, and upserts them into the `questions` and `variants` tables. Idempotent.

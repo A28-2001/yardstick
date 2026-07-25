@@ -1,4 +1,4 @@
-"""Safely set GROQ_API_KEY in .env — hidden input, no manual editing.
+"""Safely set GROQ_API_KEY in .env, hidden input, no manual editing.
 
 Prompts for the key with HIDDEN input (nothing echoes, nothing lands in shell
 history), sanity-checks the format, and rewrites ONLY the GROQ_API_KEY line.
@@ -17,14 +17,14 @@ def main() -> int:
         return 1
 
     print("Paste your Groq API key from https://console.groq.com/keys (input is hidden).")
-    print("Tip: create a NEW key and copy it with the copy button — it is shown only once.")
+    print("Tip: create a NEW key and copy it with the copy button, it is shown only once.")
     key = getpass.getpass("GROQ_API_KEY: ").strip()
     if not key:
-        print("Empty — nothing changed.")
+        print("Empty, nothing changed.")
         return 1
     if not key.startswith("gsk_"):
         print(f"⚠ Warning: a Groq key normally starts with 'gsk_', but yours starts "
-              f"with {key[:4]!r}. Saving anyway — double-check you copied the right value.")
+              f"with {key[:4]!r}. Saving anyway, double-check you copied the right value.")
 
     lines = ENV.read_text().splitlines()
     idx = next((i for i, ln in enumerate(lines) if ln.startswith("GROQ_API_KEY=")), None)

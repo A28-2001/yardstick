@@ -1,7 +1,7 @@
-# Secrets — never commit real keys
+# Secrets, never commit real keys
 .env
 
-# Data & target databases — never commit (spec §6.2)
+# Data & target databases, never commit (spec §6.2)
 # Spider ships large SQLite bundles; commit the download script instead.
 data/
 databases/

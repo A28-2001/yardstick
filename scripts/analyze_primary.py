@@ -1,4 +1,4 @@
-"""Phase 5/7 — primary analysis: few-shot lift (V2 vs V1) per tier (spec §10).
+"""Phase 5/7, primary analysis: few-shot lift (V2 vs V1) per tier (spec §10).
 
 For each tier with data: McNemar's exact test on paired set_match outcomes, the
 accuracy difference with a bootstrap 95% CI, and the discordant-pair counts. When more
@@ -54,7 +54,7 @@ def main() -> int:
         incomplete = [(t, v, ok, tot) for t, v, ok, tot in cur.fetchall() if ok < tot]
 
     if incomplete:
-        print("⚠ INCOMPLETE variants (pending generation — excluded from accuracy below):")
+        print("⚠ INCOMPLETE variants (pending generation, excluded from accuracy below):")
         for t, v, ok, tot in incomplete:
             print(f"    {t} {v}: {ok}/{tot} generated")
         print()
@@ -110,7 +110,7 @@ def main() -> int:
             print(f"  {tier:9} raw p={p:.4f}  adj p={pa:.4f}  "
                   f"{'SIGNIFICANT' if rj else 'not significant'}")
     elif len(pvals) == 1:
-        print("(Single tier — BH correction applies once all three primary tiers are run.)")
+        print("(Single tier. BH correction applies once all three primary tiers are run.)")
     return 0
 
 

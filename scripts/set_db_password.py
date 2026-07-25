@@ -1,4 +1,4 @@
-"""Safely set the Supabase DB password in .env — no manual editing.
+"""Safely set the Supabase DB password in .env, no manual editing.
 
 Prompts for the password with HIDDEN input (nothing echoes, nothing lands in
 shell history), URL-encodes it to handle any special characters, and rewrites
@@ -35,7 +35,7 @@ def main() -> int:
     print("Paste the database password from Supabase (input is hidden), then press Enter.")
     pw = getpass.getpass("DB password: ").strip()
     if not pw:
-        print("Empty password — nothing changed.")
+        print("Empty password, nothing changed.")
         return 1
 
     # Rebuild netloc as user:ENCODED_PW@host:port  (encode pw so special chars are URL-safe)

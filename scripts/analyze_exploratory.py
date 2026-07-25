@@ -1,11 +1,11 @@
-"""Phase 7 — exploratory analyses (spec §10.4: reported WITHOUT correction, labelled exploratory).
+"""Phase 7, exploratory analyses (spec §10.4: reported WITHOUT correction, labelled exploratory).
 
   - Model effect:  V3 vs V1 (70B vs 8B, zero-shot) and V4 vs V2 (few-shot), McNemar + CI.
   - Prompt effect on the strong model: V4 vs V3.
   - 2x2 interaction: does few-shot help the strong model more than the cheap one?
     DiD = (V4-V3) - (V2-V1) with a bootstrap CI.
   - Query efficiency (§9.6): median execution time of CORRECT queries per variant per tier
-    (SQLite time on tiny benchmark DBs is a weak warehouse proxy — stated as such).
+    (SQLite time on tiny benchmark DBs is a weak warehouse proxy, stated as such).
 
 Uses replicate 1, valid generations only (error_message IS NULL). Robust to an
 incomplete matrix: pairs on questions where the needed variants are all present and
@@ -94,7 +94,7 @@ def main() -> int:
             effs.append(f"{vv}={statistics.median(times):.1f}ms(n{len(times)})" if times else f"{vv}=-")
         print("    median exec time, correct queries: " + "  ".join(effs))
         print()
-    print("(SQLite on small benchmark DBs is a weak warehouse-performance proxy — §9.6.)")
+    print("(SQLite on small benchmark DBs is a weak warehouse-performance proxy, §9.6.)")
     return 0
 
 

@@ -1,8 +1,8 @@
-"""Phase 4 — pick the fixed 10-question pilot set (spec §14, Phase 4).
+"""Phase 4, pick the fixed 10-question pilot set (spec §14, Phase 4).
 
 Stratified across tiers (4 simple / 3 moderate / 3 complex = 10). Deterministic:
 takes the first K per tier by question_id, which is effectively a random pick since
-question_id is a content hash — and it maximizes reuse of the V1 predictions already
+question_id is a content hash, and it maximizes reuse of the V1 predictions already
 generated in Phase 3 (same first-per-tier ordering). Result is committed
 (configs/pilot_questions.json) so the pilot set is fixed and reproducible before the
 pre-registration.

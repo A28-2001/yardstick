@@ -1,7 +1,7 @@
 """Statistical methods (spec §10). Built by hand on scipy/statsmodels primitives.
 
 For the primary comparison (V2 vs V1, paired binary set_match within a tier):
-  - McNemar's EXACT test (not a t-test — the classic error on paired binary data, §10.1)
+  - McNemar's EXACT test (not a t-test, the classic error on paired binary data, §10.1)
   - bootstrap 95% CI on the accuracy difference, resampling QUESTIONS to preserve pairing (§10.2)
   - Benjamini-Hochberg FDR across the primary comparisons (§10.4)
 """

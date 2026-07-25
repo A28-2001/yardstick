@@ -1,6 +1,6 @@
-"""Phase 3/7 — scoring summary: accuracy, silent-failure rate, error taxonomy (spec §9.4, §9.5).
+"""Phase 3/7, scoring summary: accuracy, silent-failure rate, error taxonomy (spec §9.4, §9.5).
 
-silent_failure_rate = count(executed=true AND set_match=false) / count(all)  — per variant per tier.
+silent_failure_rate = count(executed=true AND set_match=false) / count(all), per variant per tier.
 A silent failure runs cleanly and returns plausible WRONG numbers; the study's key
 secondary metric. Also reports the set_match vs exact_match gap (right data, wrong order).
 

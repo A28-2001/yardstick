@@ -1,4 +1,4 @@
-# V1 — zero-shot, cheap model (Groq 8B). Baseline, cheapest. (spec §4.1)
+# V1, zero-shot, cheap model (Groq 8B). Baseline, cheapest. (spec §4.1)
 variant_id: V1
 prompt_strategy: zero-shot
 model: groq

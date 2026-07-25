@@ -1,14 +1,14 @@
 """Question + schema features for difficulty prediction (spec §11.3).
 
 =====================================================================================
-HARD CONSTRAINT — READ BEFORE ADDING ANY FEATURE (spec §11.3, §17):
+HARD CONSTRAINT. READ BEFORE ADDING ANY FEATURE (spec §11.3, §17):
 
     EVERY feature here MUST be computable from the QUESTION TEXT and the SCHEMA DDL
     ALONE, before any SQL is generated, and without an LLM call.
 
     NO feature may derive from the gold SQL (or from any generated SQL, or from
     execution results). The gold query does not exist at inference time in production,
-    so using it would invalidate the entire routing result — this is the single most
+    so using it would invalidate the entire routing result, this is the single most
     likely way to accidentally break this study.
 =====================================================================================
 """

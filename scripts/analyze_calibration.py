@@ -1,7 +1,7 @@
-"""Phase 9 — calibration and cross-variant agreement (spec §12).
+"""Phase 9, calibration and cross-variant agreement (spec §12).
 
   1. Is self-reported confidence calibrated?  ECE + reliability curve, per variant.
-  2. Cross-variant agreement (result-set and AST) — computable WITHOUT the gold answer.
+  2. Cross-variant agreement (result-set and AST), computable WITHOUT the gold answer.
   3. Which signal best predicts correctness?  AUC showdown.
   4. Practical recommendation: flag disagreement -> how many errors caught, at what
      false-alarm rate.
@@ -84,7 +84,7 @@ def main() -> int:
         ast_agree[qid] = cal.pairwise_agreement(
             [cal.canonical_sql(d[v]["sql"]) for v in VARIANTS if v in d])
     n_var = [len([v for v in VARIANTS if v in per_q[q]]) for q in qids]
-    print(f"2) CROSS-VARIANT AGREEMENT (§12.3) — {np.mean(n_var):.1f} variants/question on average")
+    print(f"2) CROSS-VARIANT AGREEMENT (§12.3), {np.mean(n_var):.1f} variants/question on average")
     print(f"   mean result-set agreement: {np.nanmean(list(res_agree.values())):.3f}")
     print(f"   mean AST agreement:        {np.nanmean(list(ast_agree.values())):.3f}\n")
 
@@ -116,7 +116,7 @@ def main() -> int:
 
     # ---------- 5. counterintuitive checks (§12.4) ----------
     print("5) COUNTERINTUITIVE CHECKS (§12.4)")
-    print("   (a) mean stated confidence ON ERRORS — is the better model more overconfident?")
+    print("   (a) mean stated confidence ON ERRORS, is the better model more overconfident?")
     for vid in VARIANTS:
         errs = [d[vid]["conf"] for d in per_q.values()
                 if vid in d and not d[vid]["correct"]]

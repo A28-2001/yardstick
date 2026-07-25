@@ -1,7 +1,7 @@
 # Groq published LIST prices (USD per 1,000,000 tokens).
 #
 # Used as the COST PROXY for the routing analysis (spec §13.3). Our actual spend on
-# Groq's free tier is $0 — these list prices are what make "cost saved by routing" a
+# Groq's free tier is $0, these list prices are what make "cost saved by routing" a
 # real, defensible number: an 8B model genuinely costs ~10x less than a 70B one.
 #
 # Verify/refresh current values at https://groq.com/pricing  (recorded 2026-07-22).

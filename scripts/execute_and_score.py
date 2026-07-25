@@ -1,13 +1,13 @@
-"""Phase 3 — execute generated SQL, score it, and classify failures (spec §9.2, §9.5).
+"""Phase 3, execute generated SQL, score it, and classify failures (spec §9.2, §9.5).
 
 Separate from generation (spec §7): re-scoring after a comparison/taxonomy fix costs
 ZERO API calls. For each run it executes the extracted SQL read-only against the
 working DB copy, executes the gold query on the same DB, compares result sets under
 the §9.2 rules, and writes the verdict + error_type to `executions`.
 
-  set_match   — order-insensitive, THE primary correctness flag
-  exact_match — order-sensitive
-  error_type  — single bucket from the §9.5 taxonomy (yardstick/taxonomy.py)
+  set_match, order-insensitive, THE primary correctness flag
+  exact_match, order-sensitive
+  error_type, single bucket from the §9.5 taxonomy (yardstick/taxonomy.py)
 
 Run:  python scripts/execute_and_score.py [--force]
 """

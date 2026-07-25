@@ -1,4 +1,4 @@
-"""Safe .env diagnostic — reveals the STRUCTURE of your config without printing
+"""Safe .env diagnostic, reveals the STRUCTURE of your config without printing
 any secret values. Helps debug auth failures.  Run: python scripts/diagnose_env.py
 """
 import os
@@ -44,7 +44,7 @@ else:
           f"{'⚠ EMPTY' if not pw else ''}")
     problems = []
     if "[" in raw or "]" in raw:
-        problems.append("contains leftover [ ] placeholder brackets — replace them")
+        problems.append("contains leftover [ ] placeholder brackets, replace them")
     if pw and pw != pw.strip():
         problems.append("password has whitespace")
     print("  status          :", "OK" if not problems else "⚠ " + "; ".join(problems))

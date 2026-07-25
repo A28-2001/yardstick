@@ -1,4 +1,4 @@
-# Pre-registration — Yardstick
+# Pre-registration. Yardstick
 
 **Committed before the full experiment was run.** The Git commit timestamp of this
 file is the pre-registration timestamp. Pilot evidence (10 questions × 4 variants ×
@@ -48,7 +48,7 @@ run is exactly what H1 is about.
 
 ## Correction
 
-Benjamini–Hochberg FDR across the primary comparisons only.
+Benjamini Hochberg FDR across the primary comparisons only.
 
 ## Significance threshold
 
@@ -57,11 +57,11 @@ alpha = 0.05.
 ## Replicate decision
 
 Pilot: 10 questions × 4 variants × **3 replicates** at temperature 0. `set_match` (the
-analysed metric) was **identical across all 3 replicates in all 40 cells — zero outcome
+analysed metric) was **identical across all 3 replicates in all 40 cells, zero outcome
 variance**. The raw SQL *text* was identical in 37/40 cells; in 3 cells (all the 70B
 model) the model emitted two phrasings, but they were semantically equivalent and gave
 the **same `set_match` verdict**. So temperature 0 is near-deterministic in output and
-fully stable in outcome. **DECISION: the full run uses 1 replicate per cell** — a ~⅔
+fully stable in outcome. **DECISION: the full run uses 1 replicate per cell**, a ~⅔
 token saving with no measurable loss on the metric we analyse.
 
 ## Sample-size justification / power
@@ -84,12 +84,12 @@ significance. This is accepted rather than inflating n.
 
 ## Pilot findings that shaped this pre-registration
 
-- **Extraction failures 0/120, timeouts 0/120** — the pipeline is sound; the full run is safe.
-- **Ceiling/floor (pilot n per tier is small — 4/3/3 — so indicative only):** no floor on
+- **Extraction failures 0/120, timeouts 0/120**, the pipeline is sound; the full run is safe.
+- **Ceiling/floor (pilot n per tier is small. 4/3/3, so indicative only):** no floor on
   complex (V1=0.33, above the 15% floor; V3=1.00). Moderate sat at 1.00 for every variant
   and simple at 0.75; combined with the 30-question V1 check (simple 0.90, moderate 1.00,
   complex 0.70) this suggests lift will concentrate on **complex**, with simple/moderate
-  near saturation. **No tier is dropped** (see Primary comparison) — a saturated tier
+  near saturation. **No tier is dropped** (see Primary comparison), a saturated tier
   showing no lift is a valid part of the H1 pattern.
 - **Replicate variance zero** (see above) → 1 replicate.
 
@@ -112,4 +112,4 @@ that status stated explicitly.
   from "output is deterministic" to the precise statement that the *outcome* (`set_match`)
   is fully stable while the SQL *text* varied in 3/40 cells (70B model) without changing any
   verdict. No change to hypothesis, metric, comparison, correction, or the 1-replicate
-  decision — a wording-accuracy fix only.
+  decision, a wording-accuracy fix only.

@@ -1,13 +1,13 @@
 # Yardstick
 
-**A pre-registered study of when LLM-generated SQL is safe to trust — and what actually
+**A pre-registered study of when LLM-generated SQL is safe to trust, and what actually
 improves it.**
 
 150 natural-language questions × 3 complexity tiers × 2 prompt strategies × 2 model sizes.
 Every generated query executed against a real database and compared to a human-written
 gold answer. Statistics chosen in advance and committed to Git before the full run.
 
-> **Status: complete.** All **600/600** cells generated, executed, and scored — 0
+> **Status: complete.** All **600/600** cells generated, executed, and scored. 0
 > extraction failures, 0 timeouts. Every number below is final.
 
 ---
@@ -19,11 +19,11 @@ process is: validate on a benchmark, pick the prompt that wins, deploy it everyw
 
 **This study asks whether that is safe, and where it stops being safe.**
 
-- **RQ1** — Does few-shot prompting improve execution accuracy, and does the improvement
+- **RQ1**. Does few-shot prompting improve execution accuracy, and does the improvement
   differ across query complexity?
-- **RQ2** — Can question difficulty be predicted from cheap, LLM-free features and used to
+- **RQ2**. Can question difficulty be predicted from cheap, LLM-free features and used to
   route to the appropriate model?
-- **RQ3** — Does self-reported confidence predict correctness, and does cross-variant
+- **RQ3**. Does self-reported confidence predict correctness, and does cross-variant
   agreement predict it better?
 
 The framing that matters: **a SQL query that throws a syntax error is a visible failure.
@@ -37,32 +37,32 @@ it happens, and finds it gets *worse* as models get better.
 
 **1. The better the model, the higher the share of its errors that are silent.**
 Every single error made by the most accurate variant (V3, 89% accurate) executed cleanly
-and returned plausible wrong numbers — **100% silent**. The two strong-model variants were
+and returned plausible wrong numbers, **100% silent**. The two strong-model variants were
 100% and 95% silent; the two cheap-model variants, 89% and 81%. The weakest model at least
-failed *loudly* 11% of the time. Across all variants, **82–97% of errors were silent**
+failed *loudly* 11% of the time. Across all variants, **82 to 97% of errors were silent**
 depending on tier. Choosing a model by benchmark score alone selects for *quieter*, not
 fewer, dangers.
 
 **2. Few-shot prompting produced no statistically significant benefit at any complexity
 tier.** Lift was −2 pts (simple), 0 pts (moderate), +8 pts (complex); all p ≈ 1.0 after
-Benjamini–Hochberg correction. A 10-question pilot had suggested few-shot nearly doubled
+Benjamini Hochberg correction. A 10-question pilot had suggested few-shot nearly doubled
 accuracy on complex queries (33% → 67%); at n=50 that collapsed to non-significance.
 Pre-registration is the only reason this is reported as a null instead of a discovery.
 
-**3. Model size mattered ~3.5× more than prompt engineering — but only on hard queries.**
+**3. Model size mattered ~3.5× more than prompt engineering, but only on hard queries.**
 Upgrading 8B → 70B gave **+28 pts on complex queries (95% CI [+14, +42], p = 0.0013)**,
 versus few-shot's non-significant +8. On moderate queries the model upgrade gave **exactly
 zero** (both 82%). Effort spent on prompts was effort spent on the wrong lever.
 
 **4. Self-reported confidence is nearly useless; cross-model agreement works.** All
-variants were overconfident — the weakest claimed **99% confidence while being 77% correct**
+variants were overconfident, the weakest claimed **99% confidence while being 77% correct**
 (ECE 0.219). For predicting correctness, cross-variant result-set agreement scored
 **AUC 0.857** versus **0.643** for self-reported confidence. Asking "do two models agree?"
 beats asking a model "are you sure?"
 
 **5. Difficulty routing failed to beat random.** My 6-feature difficulty model (AUC 0.665)
 was *outperformed by question length alone* (0.724). Routing retained 88.7% of the
-expensive model's accuracy at 28% of its cost — but **random routing at the same budget
+expensive model's accuracy at 28% of its cost, but **random routing at the same budget
 matched it exactly** (both 78.3% accuracy). Reported as the negative result it is.
 
 ---
@@ -86,7 +86,7 @@ the routing cost analysis meaningful despite $0 actual spend.
 
 ### Data
 
-[Spider](https://yale-lily.github.io/spider) (Yale LILY, CC BY-SA 4.0) — the only major
+[Spider](https://yale-lily.github.io/spider) (Yale LILY, CC BY-SA 4.0), the only major
 text-to-SQL benchmark that ships **executable SQLite databases**, which execution accuracy
 requires.
 
@@ -96,14 +96,14 @@ requires.
   medium→moderate, hard+extra→complex.
 - **Ground truth was validated, not assumed.** Every gold query was executed; 7 returning
   zero rows were excluded (they make execution comparison degenerate), and 20 questions
-  were hand-read for ambiguity. **Two were excluded for broken gold SQL** — both contained
+  were hand-read for ambiguity. **Two were excluded for broken gold SQL**, both contained
   a cartesian self-join bug (`ON T2.actid = T2.actid`) and selected the wrong column.
 - Fixed seed throughout. Train/test split (90/60) assigned **before** any feature
   engineering, with **whole databases kept on one side** so no schema spans both splits.
 
 ### Metric
 
-**Execution accuracy** — binary per question. 1 if the generated query executes without
+**Execution accuracy**, binary per question. 1 if the generated query executes without
 error *and* its result set matches the gold query's, else 0. No LLM judge; correctness is
 objective.
 
@@ -112,13 +112,13 @@ Result-set comparison rules (`set_match`, the primary flag):
 | Rule | Decision |
 |---|---|
 | Row order | **Ignored** (`exact_match` recorded separately for the order-sensitive view) |
-| Column order / names | Ignored — values compared as sorted tuples |
-| Duplicate rows | **Preserved** — multiset comparison, so `DISTINCT` remains a real difference |
+| Column order / names | Ignored, values compared as sorted tuples |
+| Duplicate rows | **Preserved**, multiset comparison, so `DISTINCT` remains a real difference |
 | Floats | Rounded to 4 dp |
 | NULL | `NULL == NULL` |
 | Empty gold results | Excluded at sampling time |
 
-**Extraction failures score 0 and are not retried** — a model that can't emit parseable SQL
+**Extraction failures score 0 and are not retried**, a model that can't emit parseable SQL
 is a real production problem. (In practice: 0 extraction failures across 540 valid cells.)
 
 ### Execution safety
@@ -130,10 +130,10 @@ return >10k rows.
 
 ### Statistics
 
-- **McNemar's exact test** for the primary comparison — the correct test for paired binary
+- **McNemar's exact test** for the primary comparison, the correct test for paired binary
   outcomes. (A paired t-test on binary data is the classic error here and was avoided.)
 - **Bootstrap 95% CIs**, 10,000 resamples, resampling *questions* to preserve pairing.
-- **Benjamini–Hochberg FDR** across the three pre-registered primary comparisons.
+- **Benjamini Hochberg FDR** across the three pre-registered primary comparisons.
 - Exploratory analyses (model effect, interaction, routing, calibration, taxonomy) are
   reported **uncorrected and labeled exploratory**, per the pre-registration.
 
@@ -143,15 +143,15 @@ return >10k rows.
   The commit timestamp is the proof. It fixes the hypothesis, metric, test, correction, and
   the replicate decision, and records the pilot evidence behind them.
 - **Power:** the pilot gave a minimum detectable effect at n=50 of roughly **+14 to +27
-  percentage points** depending on baseline. The study is powered for *large* effects only —
-  stated up front, not discovered afterward.
+  percentage points** depending on baseline. The study is powered for *large* effects only.
+  That was stated up front, not discovered afterward.
 - **Replicates:** at temperature 0, `set_match` was identical across 3 replicates in all 40
   pilot cells, so the full run uses 1 replicate. (Raw SQL text varied in 3/40 cells on the
   70B model without changing any verdict.)
 - **Our scorer was cross-validated against the official Spider evaluation script**:
   **18/19 agreement (95%)** on cases both could score. The single disagreement is a
-  documented *spurious match* (two structurally different queries both returning `12`) —
-  the known limitation of single-instance execution accuracy, not a bug. The official
+  documented *spurious match*: two structurally different queries both returned `12`. That is
+  the known limitation of single-instance execution accuracy, not a bug in our logic. The official
   parser could not score 11 of 30 predictions at all; ours executed every one. See
   [`docs/scorer_crosscheck.md`](docs/scorer_crosscheck.md).
 
@@ -169,10 +169,10 @@ Accuracy (`set_match`) with silent-failure rate in parentheses:
 | Moderate | 0.82 (0.18) | 0.82 (0.16) | 0.82 (0.18) | 0.84 (0.16) |
 | Complex | 0.60 (0.32) | 0.68 (0.22) | **0.88 (0.12)** | 0.84 (0.16) |
 
-All cells n=50. Note the moderate tier: **every variant lands at 82–84%** regardless of
-model or prompt — nothing tested here moves it.
+All cells n=50. Note the moderate tier: **every variant lands at 82 to 84%** regardless of
+model or prompt, nothing tested here moves it.
 
-### RQ1 — Does few-shot lift depend on query complexity?
+### RQ1. Does few-shot lift depend on query complexity?
 
 **No. There is no significant lift to depend on anything.**
 
@@ -183,7 +183,7 @@ model or prompt — nothing tested here moves it.
 | Complex | 0.600 | 0.680 | +8.0 pts | [−6.0, +22.0] | 5 / 9 | 0.424 | 1.000 |
 
 **H1 is not supported.** The direction is positive on complex and the CI reaches +22, so a
-real moderate-sized effect there cannot be ruled out — "not significant" is not "proven
+real moderate-sized effect there cannot be ruled out. "not significant" is not "proven
 zero," and at n=50 this study can only detect large effects.
 
 ### Exploratory: the model effect (uncorrected)
@@ -203,17 +203,17 @@ to the strong model did nothing.
 The 2×2 interaction (does few-shot help the strong model *more*?) was **not significant on
 any tier**: −2 pts on simple (CI [−10, +4]), +2 on moderate ([−8, +12]), −12 on complex
 ([−28, +4]). The complex point estimate leans toward few-shot helping the *weak* model
-more — consistent with the idea that examples substitute for capability — but the interval
+more, consistent with the idea that examples substitute for capability, but the interval
 includes zero.
 
 On simple queries the bootstrap CI excludes zero while McNemar does not (p = 0.125);
-McNemar is conservative with few discordant pairs, and the pre-specified test governs — so
+McNemar is conservative with few discordant pairs, and the pre-specified test governs, so
 simple is reported as **suggestive, not significant**.
 
-### RQ2 — Can difficulty be predicted and routed on?
+### RQ2. Can difficulty be predicted and routed on?
 
 Target: "hard" = the cheap model got it wrong (base rate 0.23). Features are computed
-**only from the question text and schema DDL** — never from the gold SQL, which does not
+**only from the question text and schema DDL**, never from the gold SQL, which does not
 exist at inference time. That constraint is enforced by code comment and code review.
 
 **Predicting difficulty (AUC on the 60-question held-out test set):**
@@ -228,7 +228,7 @@ exist at inference time. That constraint is enforced by code comment and code re
 **The simplest possible baseline beat the real model.** Adding features hurt.
 Generalization was weak: leave-one-tier-out fell to chance on complex (0.525), while
 leave-one-**database**-out (93 folds, unseen schemas) held at 0.670. The predictor
-recovered Spider's human difficulty labels at 51.7% vs 33% chance — modest, and it
+recovered Spider's human difficulty labels at 51.7% vs 33% chance, modest, and it
 systematically mistook complex for moderate.
 
 **Routing simulation** (test split, n=60; escalation budget k=18 matched to the oracle):
@@ -242,9 +242,9 @@ systematically mistook complex for moderate.
 | **difficulty_routed** | **0.783** | **$0.0058** | **88.7%** | **28.0%** |
 | **oracle** | **0.900** | $0.0076 | 101.9% | 36.8% |
 
-Difficulty routing retained 88.7% of the expensive model's accuracy at 28% of its cost —
-**but random routing matched it on accuracy.** The predictor bought no accuracy over a coin
-flip. A 51-point threshold sweep is in
+Difficulty routing retained 88.7% of the expensive model's accuracy at 28% of its cost,
+**but random routing matched it on accuracy.** The predictor bought no accuracy over a
+coin flip. A 51-point threshold sweep is in
 [`results/routing_threshold_sweep.csv`](results/routing_threshold_sweep.csv).
 
 **Two findings worth more than the routing number itself:**
@@ -254,12 +254,12 @@ flip. A 51-point threshold sweep is in
   both cheaper and more accurate. Real headroom exists; my predictor just couldn't reach it.
 - **Cost and difficulty are decoupled.** Question length predicts difficulty (r = 0.55) but
   not cost. Schema size predicts **cost** (r = 0.95) and difficulty *not at all* (AUC
-  0.507). The thing that makes a query expensive is not the thing that makes it hard —
-  which is precisely why naive cost-based routing misfires.
+  0.507). The thing that makes a query expensive is not the thing that makes it hard, which is
+  precisely why naive cost-based routing misfires.
 
-### RQ3 — Is confidence calibrated, and does agreement predict error better?
+### RQ3. Is confidence calibrated, and does agreement predict error better?
 
-**Calibration** (confidence requested on every generation, 0.0–1.0):
+**Calibration** (confidence requested on every generation, 0.0 to 1.0):
 
 | Variant | Mean stated confidence | Actual accuracy | ECE | Verdict |
 |---|---|---|---|---|
@@ -272,7 +272,7 @@ Every variant is overconfident, and the weakest is the worst: **it claims 99% co
 while being wrong 23% of the time.** Reliability-curve data:
 [`results/calibration.csv`](results/calibration.csv).
 
-**Signal comparison** — AUC for predicting `set_match` (0.5 = useless):
+**Signal comparison**. AUC for predicting `set_match` (0.5 = useless):
 
 | Signal | AUC | Needs gold answer? |
 |---|---|---|
@@ -280,7 +280,7 @@ while being wrong 23% of the time.** Reliability-curve data:
 | AST (structural) agreement | 0.710 | No |
 | Self-reported confidence | 0.647 | No |
 
-**Cross-variant agreement decisively beats self-reported confidence** — and it is available
+**Cross-variant agreement decisively beats self-reported confidence**, and it is available
 in production, since noticing that two models disagree requires no ground truth.
 
 **The practical policy this yields:**
@@ -292,7 +292,7 @@ in production, since noticing that two models disagree requires no ground truth.
 
 Review the 28% of queries where the models disagree on the *executed result* and you catch
 **84% of all errors**. AST-based flagging catches everything but flags three quarters of all
-output — too noisy to be useful.
+output, too noisy to be useful.
 
 ### Silent failures: where models fail invisibly
 
@@ -305,7 +305,7 @@ output — too noisy to be useful.
 | V4 (70B few) | 0.867 | 20 | 95% | 0.872 |
 | **V3 (70B zero)** | **0.887** | **17** | **100%** | **0.953** |
 
-The most accurate variant made the fewest errors — and **every one of them was silent.** It
+The most accurate variant made the fewest errors, and **every one of them was silent.** It
 also stated 95% confidence on the answers it got wrong. Both strong-model variants (100%,
 95%) are above both cheap-model variants (89%, 81%): **as accuracy goes up, the fraction of
 errors that announce themselves goes down.** By tier, **82% (complex), 97% (moderate), and
@@ -320,21 +320,21 @@ errors that announce themselves goes down.** By tier, **82% (complex), 97% (mode
 | V3 (70B zero) | 6 | 7 | 2 | 2 | 0 |
 | V4 (70B few) | 7 | 7 | 3 | 2 | 1 |
 
-**Wrong joins dominate the cheap model's failures** (16–17 cases) and are exactly what the
-model upgrade fixes — down to 6–7, a ~60% reduction. That is the mechanism behind the +28
+**Wrong joins dominate the cheap model's failures** (16 to 17 cases) and are exactly what the
+model upgrade fixes, down to 6 to 7, a ~60% reduction. That is the mechanism behind the +28
 pt complex-tier model effect: joins are where reasoning about the schema actually happens.
-`schema_error` (hallucinated tables/columns) also drops from 4–6 to 0–1.
+`schema_error` (hallucinated tables/columns) also drops from 4 to 6 to 0 to 1.
 
 Zero timeouts and zero extraction failures throughout. Note that `wrong_join`,
 `wrong_filter`, `wrong_projection`, and `wrong_aggregation` are **all silent** failure
-modes — the query runs fine and returns wrong numbers. Only `schema_error` fails loudly,
+modes, the query runs fine and returns wrong numbers. Only `schema_error` fails loudly,
 and it is the rarest category for the strong model.
 
 ---
 
 ## Deployment recommendation
 
-1. **Spend on the model, not the prompt — and only where it pays.** The 8B→70B upgrade
+1. **Spend on the model, not the prompt, and only where it pays.** The 8B→70B upgrade
    bought +28 pts on complex queries and **nothing** on moderate ones. Few-shot bought
    nothing anywhere. If your workload is mostly simple/moderate lookups, the cheap model is
    already at parity; if it includes multi-join analytical queries, upgrade the model.
@@ -343,7 +343,7 @@ and it is the rarest category for the strong model.
 3. **Do gate on cross-model disagreement.** Run two cheap models, compare executed result
    sets, and route disagreements to human review: **28% reviewed, 82% of errors caught.**
    This is the single most actionable result in the study, and it costs one extra cheap call.
-4. **Assume wrong answers will look right.** 82–96% of errors executed cleanly. Any
+4. **Assume wrong answers will look right.** 82 to 96% of errors executed cleanly. Any
    pipeline that treats "the query ran" as "the query is correct" is unprotected against the
    dominant failure mode. Guardrails belong on *results* (row-count sanity, join-fanout
    checks, reconciliation against known aggregates), not on error handling.
@@ -358,8 +358,8 @@ Stated plainly, because they bound every claim above.
 
 1. **Benchmark contamination.** Spider is public and predates these models' training
    cutoffs; both models may have seen it. Absolute accuracies are therefore likely
-   optimistic. This affects all four variants equally, so the *comparative* conclusions —
-   which is what the study is about — are more robust than the absolute numbers. Mitigating
+   optimistic. It affects all four variants equally, so the comparative conclusions, which are
+   what the study is about, are more robust than the absolute numbers. Mitigating
    this properly would require a held-out check on BIRD or hand-written questions
    (not done).
 2. **Underpowered for small effects.** MDE at n=50 is roughly +14 to +27 pts. The complex
@@ -376,7 +376,7 @@ Stated plainly, because they bound every claim above.
 5. **Uneven database representation.** 150 questions across 93 databases, capped at 3 each,
    so schemas contribute unequally.
 6. **SQLite on small benchmark databases is a weak warehouse-performance proxy.** All
-   variants' correct queries ran in ~1.1–1.5 ms median, so the query-efficiency dimension is
+   variants' correct queries ran in ~1.1 to 1.5 ms median, so the query-efficiency dimension is
    effectively uninformative here and no efficiency claim is made.
 7. **Cost is list-price, not billed.** Actual spend was $0 on a free tier; the routing
    economics assume published per-token rates hold at scale.
@@ -386,7 +386,7 @@ Stated plainly, because they bound every claim above.
 9. **The moderate tier's train/test split is 33/17, not 30/20**, a side effect of keeping
    whole databases on one side of the split. No-leakage was prioritized over an exact ratio.
 10. **The moderate tier is uninformative about everything tested here.** All four variants
-    landed at 82–84%, so neither the prompt nor the model factor moves it. Whatever limits
+    landed at 82 to 84%, so neither the prompt nor the model factor moves it. Whatever limits
     accuracy there is something this design does not manipulate.
 
 ---
@@ -427,13 +427,13 @@ python scripts/export_results.py       # -> results/*.csv
 replicates). **$0 actual** (Groq free tier); list-price equivalent **$0.19** total, of which
 the 600-cell matrix is **$0.167**.
 
-**Input tokens dominate: 494k input vs 27k output — a 95/5 split**, because the schema DDL
+**Input tokens dominate: 494k input vs 27k output, a 95/5 split**, because the schema DDL
 is included in every prompt. This is why schema size drives cost (r = 0.95) far more than
 question complexity does, and it is the mechanism behind the cost/difficulty decoupling in
 RQ2.
 
-Wall-clock is dominated by rate limits, not compute — the 70B model's 100k-tokens/day free
-cap means the full matrix spans **2–3 days**. Generation is cached and resumable, so
+Wall-clock is dominated by rate limits, not compute, the 70B model's 100k-tokens/day free
+cap means the full matrix spans **2 to 3 days**. Generation is cached and resumable, so
 interruption costs nothing; re-scoring is free at any time because executions are stored
 separately from generations.
 
@@ -442,7 +442,7 @@ separately from generations.
 ## Repository
 
 ```
-PREREGISTRATION.md          committed before the full run — the timestamp is the point
+PREREGISTRATION.md          committed before the full run, the timestamp is the point
 yardstick/                  sandbox, comparison, taxonomy, stats, features, routing, calibration
 scripts/                    one script per pipeline stage, all resumable/idempotent
 results/*.csv               every table behind the numbers above
@@ -454,10 +454,10 @@ yardstick_project_spec.md   the full build specification
 
 ## Data & attribution
 
-- **Spider** — Yale LILY lab, **CC BY-SA 4.0**, https://yale-lily.github.io/spider.
+- **Spider**. Yale LILY lab, **CC BY-SA 4.0**, https://yale-lily.github.io/spider.
   Downloaded by `scripts/download_data.py`; no dataset files are committed.
-- **Official Spider evaluation scripts** — vendored under `third_party/spider_eval/` from
+- **Official Spider evaluation scripts**, vendored under `third_party/spider_eval/` from
   https://github.com/taoyds/spider, used for tier labeling and scorer cross-validation.
 
 No LangChain, Ragas, DeepEval, or prebuilt eval framework. The statistical layer is
-hand-built on SciPy/statsmodels — that was the point.
+hand-built on SciPy/statsmodels, that was the point.

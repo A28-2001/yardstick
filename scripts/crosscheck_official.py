@@ -1,4 +1,4 @@
-"""Phase 3 — cross-validate our scorer against the official Spider scorer (spec §9.3).
+"""Phase 3, cross-validate our scorer against the official Spider scorer (spec §9.3).
 
 For a set of generated predictions we compare OUR set_match verdict against the
 official Spider `eval_exec_match` (from third_party/spider_eval/evaluation.py, which
@@ -7,12 +7,12 @@ parses each query with the official process_sql and compares executed results).
 Every disagreement is printed for inspection. Expected, LEGITIMATE differences:
   - the official exec-match is row-ORDER-SENSITIVE, whereas our set_match sorts rows
     (spec §9.2: order-insensitive unless the gold query has ORDER BY). So we expect
-    disagreements on unordered queries — that is our scorer being MORE correct, not a bug.
+    disagreements on unordered queries, that is our scorer being MORE correct, not a bug.
   - the official parser (process_sql) rejects some valid SQL (e.g. window functions);
     those it simply cannot score, while ours executes them fine.
 
 A disagreement where the OFFICIAL says match but WE say no-match would point at a bug
-in our logic — that is the case to hunt for.
+in our logic, that is the case to hunt for.
 
 Run:  python scripts/crosscheck_official.py [--variant V1] [--limit N]
 """

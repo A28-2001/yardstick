@@ -1,7 +1,7 @@
-"""Phase 8 — simulate routing policies on the TEST split (spec §11.6, §11.7).
+"""Phase 8, simulate routing policies on the TEST split (spec §11.6, §11.7).
 
 Every variant ran on every question, so the counterfactual matrix is complete and each
-policy is just a selection from a table we already have — ZERO extra API calls (§11.1).
+policy is just a selection from a table we already have. ZERO extra API calls (§11.1).
 
 Policies: always_cheap, always_expensive, random, length_only, difficulty_routed, oracle.
 Reported per policy: accuracy, total cost, accuracy retained vs always-expensive, cost
@@ -95,7 +95,7 @@ def main() -> int:
         gap_pts = (acc - oracle_acc) * 100
         captured = (((cost_ae - cost) / oracle_savings * 100)
                     if (oracle_savings > 0 and name in matched) else float("nan"))
-        cap_str = f"{captured:14.1f}%" if not np.isnan(captured) else f"{'—':>15}"
+        cap_str = f"{captured:14.1f}%" if not np.isnan(captured) else f"{' ':>15}"
         print(f"  {name:20} {acc:6.3f} {cost:10.5f} {acc_ret:10.1f}% {cost_rel:11.1f}% "
               f"{gap_pts:17.1f} {cap_str}")
         rows.append([name, round(acc, 4), round(cost, 6), round(acc_ret, 1),
@@ -110,7 +110,7 @@ def main() -> int:
         w.writerows(rows)
     print(f"\n  wrote results/routing_comparison.csv")
 
-    # threshold sweep (accuracy-cost curve) — a curve is an analysis, a point is a claim
+    # threshold sweep (accuracy-cost curve), a curve is an analysis, a point is a claim
     sweep = []
     for thr in np.linspace(0, 1, 51):
         mask = p_full >= thr

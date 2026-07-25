@@ -49,7 +49,7 @@ def db_sqlite_path(db_id: str) -> Path:
 
 
 def working_db_path(db_id: str) -> Path:
-    """The read-only working COPY under databases/ (spec §8.2 — never touch originals).
+    """The read-only working COPY under databases/ (spec §8.2, never touch originals).
 
     Falls back to the bundle original if the copy hasn't been made yet, so callers
     keep working before scripts/make_db_copies.py has run.

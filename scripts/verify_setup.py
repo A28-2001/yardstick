@@ -3,7 +3,7 @@
 Exit criteria checked:
   1. .env loads and required vars are present
   2. Supabase Postgres connects; results-schema tables exist
-  3. API calls to BOTH Groq models succeed — cheap/8B (V1,V2) and strong/70B (V3,V4)
+  3. API calls to BOTH Groq models succeed, cheap/8B (V1,V2) and strong/70B (V3,V4)
   4. A SQLite database opens READ-ONLY and executes a query
 
 Everything runs on Groq's free tier; there is no paid provider in this design.
@@ -22,7 +22,7 @@ import tempfile
 from pathlib import Path
 
 PASS, FAIL, SKIP = "PASS", "FAIL", "SKIP"
-_MARK = {PASS: "\033[92m✓\033[0m", FAIL: "\033[91m✗\033[0m", SKIP: "\033[93m—\033[0m"}
+_MARK = {PASS: "\033[92m✓\033[0m", FAIL: "\033[91m✗\033[0m", SKIP: "\033[93m \033[0m"}
 
 
 def _first(exc: BaseException) -> str:
@@ -40,10 +40,10 @@ def check_env() -> tuple[str, str, str]:
     try:
         from dotenv import load_dotenv
     except ImportError:
-        return _row(FAIL, "env", "python-dotenv not installed — run: pip install -r requirements.txt")
+        return _row(FAIL, "env", "python-dotenv not installed, run: pip install -r requirements.txt")
     env_path = Path(__file__).resolve().parents[1] / ".env"
     if not env_path.exists():
-        return _row(SKIP, "env", "no .env yet — copy .env.example to .env and fill in")
+        return _row(SKIP, "env", "no .env yet, copy .env.example to .env and fill in")
     # override=True: .env is authoritative, beating any stale value exported in the
     # shell (e.g. an old GROQ_API_KEY in ~/.zshrc), which otherwise silently wins.
     load_dotenv(env_path, override=True)
@@ -71,7 +71,7 @@ def check_postgres() -> tuple[str, str, str]:
         missing = expected - tables
         if missing:
             return _row(FAIL, "supabase-postgres",
-                        f"connected but missing tables: {sorted(missing)} — apply sql/schema.sql")
+                        f"connected but missing tables: {sorted(missing)}, apply sql/schema.sql")
         return _row(PASS, "supabase-postgres", f"connected; all {len(expected)} tables present")
     except Exception as e:  # noqa: BLE001
         return _row(FAIL, "supabase-postgres", _first(e))
@@ -131,7 +131,7 @@ def check_sqlite_readonly() -> tuple[str, str, str]:
 
 
 def main() -> int:
-    print("Yardstick — Phase 0 verification\n")
+    print("Yardstick. Phase 0 verification\n")
     results = [
         check_env(),
         check_postgres(),
@@ -143,12 +143,12 @@ def main() -> int:
     core = {name: st for st, name, _ in results
             if name in {"supabase-postgres", "groq-api", "sqlite-readonly"}}
     if any(s == FAIL for s in statuses):
-        print("Phase 0 NOT complete — resolve the FAIL rows above.")
+        print("Phase 0 NOT complete, resolve the FAIL rows above.")
         return 1
     if all(core.get(n) == PASS for n in core):
         print("Phase 0 exit criteria MET ✓  (DB, both providers, read-only SQLite all verified)")
         return 0
-    print("No failures, but some checks SKIPPED — fill in .env and re-run to complete Phase 0.")
+    print("No failures, but some checks SKIPPED, fill in .env and re-run to complete Phase 0.")
     return 0
 
 

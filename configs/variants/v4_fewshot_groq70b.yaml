@@ -1,8 +1,8 @@
-# V4 — few-shot, strong model (Groq 70B). Both factors. (spec §4.1)
+# V4, few-shot, strong model (Groq 70B). Both factors. (spec §4.1)
 variant_id: V4
 prompt_strategy: few-shot
 model: groq
-model_name: llama-3.3-70b-versatile   # STRONG/large model — same as V3, so V4 vs V3 isolates few-shot
+model_name: llama-3.3-70b-versatile   # STRONG/large model, same as V3, so V4 vs V3 isolates few-shot
 role: both, strong + few-shot
 prompt_version: "0.1.0"
 

@@ -1,11 +1,11 @@
-# Schema presentation — HELD CONSTANT across all variants V1-V4 (spec §13.2).
+# Schema presentation. HELD CONSTANT across all variants V1-V4 (spec §13.2).
 # This is NOT a factor under test. Varying schema formatting between variants
 # would make it an uncontrolled confound that could account for the entire effect.
 
 format: create_table_from_sqlite_master
 description: >
   Each database's real CREATE TABLE statements, read verbatim from sqlite_master
-  (yardstick/spider_data.extract_schema_ddl). Tables only — indexes are separate
+  (yardstick/spider_data.extract_schema_ddl). Tables only, indexes are separate
   sqlite_master objects and are excluded. Column types, PRIMARY KEY, and FOREIGN KEY
   are retained; any inline CHECK/UNIQUE/DEFAULT the original schema declares are kept
   as-is (present in ~5-16 of the 150 schemas). The IDENTICAL DDL string is used for

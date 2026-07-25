@@ -1,11 +1,11 @@
-"""Phase 4 — pilot analysis: variance, ceiling/floor, failure rates, power (spec §10.3, §10.5).
+"""Phase 4, pilot analysis: variance, ceiling/floor, failure rates, power (spec §10.3, §10.5).
 
 Reports the four things the pre-registration needs before the full run:
-  1. Replicate variance   — does set_match ever differ across the 3 replicates? If not,
+  1. Replicate variance, does set_match ever differ across the 3 replicates? If not,
                             drop to 1 replicate for the full run (saves ~2/3 of tokens).
-  2. Ceiling / floor       — simple tier >~92% (no room to detect lift) or complex <~15%.
-  3. Extraction / timeout  — failure rates that would invalidate the run.
-  4. Power                 — V2 vs V1 effect size & n_required per tier, plus the minimum
+  2. Ceiling / floor, simple tier >~92% (no room to detect lift) or complex <~15%.
+  3. Extraction / timeout, failure rates that would invalidate the run.
+  4. Power. V2 vs V1 effect size & n_required per tier, plus the minimum
                             detectable effect at n=50 (conservative unpaired approximation;
                             the paired McNemar design needs fewer).
 
@@ -94,7 +94,7 @@ def main() -> int:
     for tier in TIERS:
         accs = [tier_acc[(v, tier)] for v in variants if not np.isnan(tier_acc[(v, tier)])]
         if accs and tier == "simple" and min(accs) >= CEILING:
-            print(f"   ⚠ CEILING on simple: all variants ≥ {CEILING:.0%} — little room to detect lift.")
+            print(f"   ⚠ CEILING on simple: all variants ≥ {CEILING:.0%}, little room to detect lift.")
         if accs and tier == "complex" and max(accs) <= FLOOR:
             print(f"   ⚠ FLOOR on complex: all variants ≤ {FLOOR:.0%}.")
     print()
@@ -105,7 +105,7 @@ def main() -> int:
     print(f"   timeouts:            {n_timeout}/{n_total} ({n_timeout/max(n_total,1):.1%})\n")
 
     # 4. power: V2 vs V1 per tier
-    print("4) POWER — primary comparison V2 (few-shot) vs V1 (zero-shot), 8B, per tier")
+    print("4) POWER, primary comparison V2 (few-shot) vs V1 (zero-shot), 8B, per tier")
     analysis = NormalIndPower()
     for tier in TIERS:
         p1 = tier_acc.get(("V1", tier)); p2 = tier_acc.get(("V2", tier))

@@ -1,9 +1,9 @@
 """Result-set canonicalization and matching (spec §9.2).
 
 Comparison rules, documented in the README:
-  - Column order : IGNORED — values are sorted within each row
-  - Column names : IGNORED — we compare values, not headers
-  - Duplicate rows: PRESERVED — multiset comparison, not set
+  - Column order : IGNORED, values are sorted within each row
+  - Column names : IGNORED, we compare values, not headers
+  - Duplicate rows: PRESERVED, multiset comparison, not set
   - Numeric      : floats rounded to 4 dp before comparison
   - NULL         : treated as a single canonical token, NULL == NULL
   - Row order    : set_match ignores it; exact_match respects it

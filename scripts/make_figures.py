@@ -1,4 +1,4 @@
-"""Phase 11 — render the report figures from results/*.csv.
+"""Phase 11: render the report figures from results/*.csv.
 
 Reads only the committed CSVs (no database needed), so anyone cloning the repo can
 regenerate every figure. Output: results/figures/*.png at 2x for crisp display, plus
@@ -6,9 +6,9 @@ matching .svg for the web page.
 
 Visual language is borrowed from clinical-trial reporting, which is where
 pre-registration, forest plots, and minimum-detectable-effect all come from:
-  - one signal colour, used only where something is significant or alarming
-  - filled marker = interval excludes zero; hollow = does not (standard forest convention)
-  - no chartjunk: no top/right spines, no boxes, hairline reference rules only
+  one signal colour, used only where something is significant or alarming
+  filled marker means the interval excludes zero, hollow means it does not
+  no chartjunk: no top or right spines, no boxes, hairline reference rules only
 
 Run:  python scripts/make_figures.py
 """
@@ -32,7 +32,7 @@ MID      = "#6f6a63"
 RULE     = "#d9d4cc"
 FAINT    = "#efebe4"
 PAPER    = "#ffffff"
-SIGNAL   = "#a81f24"   # deep clinical red — the alarm colour, used sparingly
+SIGNAL   = "#a81f24"   # deep clinical red, the signal colour, used sparingly
 SLATE    = "#33566b"   # secondary encoding only
 
 SERIF = ["Charter", "Iowan Old Style", "Palatino", "Georgia", "serif"]
@@ -74,7 +74,7 @@ def caption(ax, text: str, y: float = -0.30):
 
 
 def plainbox(ax, text: str, y: float = -0.28):
-    """One boxed sentence in everyday language — what a non-specialist should take away.
+    """One boxed sentence in everyday language: what a non-specialist should take away.
     Sits between the chart and the technical note so the figure reads without the paper."""
     ax.text(0, y, text, transform=ax.transAxes, ha="left", va="top",
             fontsize=10, color=INK, fontfamily=SERIF, linespacing=1.45,
@@ -82,7 +82,7 @@ def plainbox(ax, text: str, y: float = -0.28):
                       edgecolor=RULE, linewidth=0.8))
 
 
-# ---- Figure 1 — the headline ---------------------------------------------------
+# ---- Figure 1: the headline ---------------------------------------------------
 def fig_silent():
     rows = {r["variant"]: r for r in read("variant_summary.csv")}
     order = sorted(rows, key=lambda v: float(rows[v]["accuracy"]))
@@ -92,7 +92,7 @@ def fig_silent():
 
     fig, ax = plt.subplots(figsize=(8.4, 3.5))
     y = range(len(order))
-    # Colour encodes MODEL FAMILY, not alarm — the 70B variants are the *accurate* ones,
+    # Colour encodes MODEL FAMILY, not alarm. The 70B variants are the accurate ones,
     # so painting them red would imply the opposite of the finding.
     fam = {"V1": "8B", "V2": "8B", "V3": "70B", "V4": "70B"}
     ax.barh(list(y), share, height=0.52,
@@ -128,7 +128,7 @@ def fig_silent():
     save(fig, "fig1_silent_failures")
 
 
-# ---- Figure 2 — forest plot ----------------------------------------------------
+# ---- Figure 2: forest plot ----------------------------------------------------
 def fig_forest():
     prim = {r["tier"]: r for r in read("primary_analysis.csv")}
     me = read("model_effect.csv")
@@ -156,8 +156,8 @@ def fig_forest():
 
     right = ax.get_yaxis_transform()      # x in axes fraction, y in data coords
     for (label, d, lo, hi, p, grp), yy in zip(rows, ypos):
-        ci_excl = lo > 0 or hi < 0     # marker fill encodes the interval …
-        p_sig = p < 0.05               # … text colour encodes the pre-specified test
+        ci_excl = lo > 0 or hi < 0     # marker fill encodes the interval
+        p_sig = p < 0.05               # text colour encodes the pre-specified test
         col = SIGNAL if ci_excl else MID
         ax.plot([lo, hi], [yy, yy], color=col, lw=1.5, zorder=3)
         for cap in (lo, hi):
@@ -192,15 +192,15 @@ def fig_forest():
         loc="upper left", bbox_to_anchor=(0.0, -0.16), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=1.8)
     plainbox(ax, "In plain terms: if a bar crosses the middle line, that change did nothing we can prove.\n"
-                 "Only one thing clearly worked — using the bigger model on the hardest questions.", y=-0.30)
-    caption(ax, "Marker filled = the interval excludes zero; text in red = the pre-specified test is significant.\n"
-                "They disagree on exploratory 'simple', where McNemar is conservative with few discordant pairs;\n"
-                "the pre-specified test governs. Minimum detectable effect at n = 50 is roughly 14–27 pts.",
+                 "Only one thing clearly worked: using the bigger model on the hardest questions.", y=-0.30)
+    caption(ax, "Filled marker = interval excludes zero. Red text = the pre-specified test is significant.\n"
+                "These disagree on exploratory 'simple', where McNemar is conservative with few discordant\n"
+                "pairs; the pre-specified test governs. Minimum detectable effect at n = 50 is 14 to 27 pts.",
             y=-0.62)
     save(fig, "fig2_forest")
 
 
-# ---- Figure 3 — calibration ----------------------------------------------------
+# ---- Figure 3: calibration ----------------------------------------------------
 def fig_calibration():
     rows = {r["variant"]: r for r in read("variant_summary.csv")}
     # Sorted by overconfidence gap (largest first) so the shrinking gap reads at a glance.
@@ -236,13 +236,13 @@ def fig_calibration():
         loc="upper left", bbox_to_anchor=(0.0, -0.20), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=2.2)
     plainbox(ax, "In plain terms: every model claims to be surer than it actually is. The gap shrinks as models\n"
-                 "improve, but never closes — so a model's own confidence score is not a safety check.", y=-0.34)
-    caption(ax, "Sorted by the size of the overconfidence gap. All four stay ~87–96% confident even on the\n"
-                "answers they get wrong.", y=-0.70)
+                 "improve, but never closes, so a model's own confidence score is not a safety check.", y=-0.34)
+    caption(ax, "Sorted by the size of the overconfidence gap. All four stay 87 to 96% confident even on\n"
+                "the answers they get wrong.", y=-0.70)
     save(fig, "fig3_calibration")
 
 
-# ---- Figure 4 — routing frontier -----------------------------------------------
+# ---- Figure 4: routing frontier -----------------------------------------------
 def fig_routing():
     rows = read("routing_comparison.csv")
     fig, ax = plt.subplots(figsize=(8.4, 4.6))
@@ -280,14 +280,14 @@ def fig_routing():
     ax.set_title("Difficulty routing did not beat random", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     plainbox(ax, "In plain terms: our 'smart' way of guessing which questions need the expensive model performed\n"
-                 "no better than picking at random. Cheaper, yes — but not smarter.", y=-0.22)
+                 "no better than picking at random. Cheaper, yes. Smarter, no.", y=-0.22)
     caption(ax, "Both scored 78.3% at the same escalation budget. The oracle (perfect foresight) beats\n"
-                "always-expensive at 63% less cost, so real headroom exists — these features could not reach it.",
+                "always expensive at 63% less cost, so real headroom exists. These features could not reach it.",
             y=-0.46)
     save(fig, "fig4_routing")
 
 
-# ---- Figure 5 — error taxonomy -------------------------------------------------
+# ---- Figure 5: error taxonomy -------------------------------------------------
 def fig_taxonomy():
     rows = read("error_taxonomy.csv")
     fams = {"V1": "8B", "V2": "8B", "V3": "70B", "V4": "70B"}
@@ -329,8 +329,8 @@ def fig_taxonomy():
                  fontsize=15.5, color=INK, pad=14)
     plainbox(ax, "In plain terms: most wrong answers come from linking the wrong tables together.\n"
                  "That is exactly the mistake the bigger model stops making.", y=-0.34)
-    caption(ax, "Wrong joins fall 33 → 13 with the larger model; invented tables/columns 10 → 1.\n"
-                "Only schema error fails loudly — every other category returns wrong numbers silently.",
+    caption(ax, "Wrong joins fall from 33 to 13 with the larger model. Invented tables or columns, 10 to 1.\n"
+                "Only schema error fails loudly. Every other category returns wrong numbers silently.",
             y=-0.68)
     save(fig, "fig5_taxonomy")
 

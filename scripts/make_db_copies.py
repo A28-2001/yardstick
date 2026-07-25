@@ -1,4 +1,4 @@
-"""Phase 1 — make read-only working copies of the sampled databases (spec §8.2).
+"""Phase 1, make read-only working copies of the sampled databases (spec §8.2).
 
 Generated SQL is untrusted; we always open databases read-only, but the spec also
 requires working on COPIES so the pristine download can never be mutated. This copies

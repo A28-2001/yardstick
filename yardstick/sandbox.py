@@ -1,6 +1,6 @@
 """Safe SQLite execution sandbox (spec §8.2).
 
-Every query — gold or model-generated — runs through here:
+Every query, gold or model-generated, runs through here:
   - database opened READ-ONLY (file:...?mode=ro), so nothing can mutate it
   - hard timeout via a watchdog thread that calls Connection.interrupt()
   - returned rows capped

@@ -2,7 +2,7 @@
 
 These functions are copied VERBATIM from the official Spider evaluation script
 (taoyds/spider `evaluation.py`, CC BY-SA 4.0) and operate on Spider's parsed
-`sql` dict — the structure already present in train_spider.json / dev.json.
+`sql` dict, the structure already present in train_spider.json / dev.json.
 Vendoring just this slice avoids pulling in `nltk` (which process_sql.py needs).
 
 Using the official algorithm means our complexity tiers are externally defined,

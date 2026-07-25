@@ -1,6 +1,6 @@
-"""Phase 8 — compute question/schema features and populate question_features (spec §11.3).
+"""Phase 8, compute question/schema features and populate question_features (spec §11.3).
 
-Reads ONLY question_text and schema_ddl from the questions table (never gold_sql — see
+Reads ONLY question_text and schema_ddl from the questions table (never gold_sql, see
 the leakage warning in yardstick/features.py) and upserts the 15 features per question.
 
 Run:  python scripts/compute_features.py
@@ -22,7 +22,7 @@ def main() -> int:
 
     with psycopg.connect(require("DATABASE_URL")) as conn:
         with conn.cursor() as cur:
-            # NOTE: gold_sql is deliberately NOT selected — it must never reach a feature.
+            # NOTE: gold_sql is deliberately NOT selected, it must never reach a feature.
             cur.execute("SELECT question_id, question_text, schema_ddl FROM questions")
             rows = cur.fetchall()
             payload = []
@@ -46,7 +46,7 @@ def main() -> int:
             stats = cur.fetchall()
 
     print(f"Populated question_features for {n} questions.\n")
-    print("Mean feature values by tier (sanity check — harder tiers should look 'bigger'):")
+    print("Mean feature values by tier (sanity check, harder tiers should look 'bigger'):")
     print(f"  {'tier':9} {'q_tokens':>9} {'tables':>7} {'columns':>8} {'fks':>5} {'clauses':>8}")
     for tier, qtok, tables, cols_, fks, clauses in stats:
         print(f"  {tier:9} {qtok:9} {tables:7} {cols_:8} {fks:5} {clauses:8}")

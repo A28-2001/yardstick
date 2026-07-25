@@ -8,11 +8,11 @@ repository:
 
 They are used for two purposes in Yardstick:
 
-1. **Tier labeling** — the query-hardness algorithm (`eval_hardness` and its helpers)
+1. **Tier labeling**, the query-hardness algorithm (`eval_hardness` and its helpers)
    is the basis for our complexity tiers. We re-implement just that slice in
    `yardstick/hardness.py` (verbatim) to avoid the `nltk` dependency that
    `process_sql.py` pulls in.
-2. **Scorer cross-check (Phase 3)** — we validate our own execution-accuracy scorer
+2. **Scorer cross-check (Phase 3)**, we validate our own execution-accuracy scorer
    against the official script on a subset of questions (spec §9.3).
 
 The **Spider dataset** itself (questions, gold SQL, databases) is distributed by

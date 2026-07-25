@@ -1,4 +1,4 @@
-"""Phase 2 — pick held-out few-shot examples and write configs/fewshot_examples.yaml.
+"""Phase 2, pick held-out few-shot examples and write configs/fewshot_examples.yaml.
 
 Hard constraints:
   - db_id must NOT appear in the 150-question sample (no leakage, §4.5/§11.3)

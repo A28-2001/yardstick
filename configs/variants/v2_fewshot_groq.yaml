@@ -1,9 +1,9 @@
-# V2 — few-shot, cheap model (Groq 8B). Prompt effect, cheap. (spec §4.1)
+# V2, few-shot, cheap model (Groq 8B). Prompt effect, cheap. (spec §4.1)
 # This is the TREATMENT in the primary comparison (V2 vs V1 within tier).
 variant_id: V2
 prompt_strategy: few-shot
 model: groq
-model_name: llama-3.1-8b-instant      # CHEAP/small model — same as V1, so V2 vs V1 isolates few-shot
+model_name: llama-3.1-8b-instant      # CHEAP/small model, same as V1, so V2 vs V1 isolates few-shot
 role: prompt effect, cheap
 prompt_version: "0.1.0"
 
@@ -12,7 +12,7 @@ max_tokens: 500
 
 schema_format: create_table_fk
 
-# Identical system prompt to V1 — ONLY the presence of examples differs,
+# Identical system prompt to V1. ONLY the presence of examples differs,
 # so the comparison isolates the few-shot effect.
 system_prompt: |
   You are an expert SQL analyst. You are given a SQLite database schema and a

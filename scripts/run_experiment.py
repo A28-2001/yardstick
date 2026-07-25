@@ -1,16 +1,16 @@
-"""Phase 2 — generation run loop (spec §8.1).
+"""Phase 2, generation run loop (spec §8.1).
 
 For each (question, variant, replicate) cell: if a run already exists it is SKIPPED
-(cache/resume — costs zero), otherwise we build the prompt, call Groq, extract the
+(cache/resume, costs zero), otherwise we build the prompt, call Groq, extract the
 SQL + confidence, and write the run to Postgres IMMEDIATELY (never batched, so a
 rate-limit interruption never loses progress).
 
 CACHE SEMANTICS: the resume key is (question_id, variant_id, replicate). It does NOT
 re-hash the prompt text, so if you EDIT a variant's prompt or bump its temperature,
-existing runs won't auto-invalidate — re-run that variant with --force to regenerate.
+existing runs won't auto-invalidate, re-run that variant with --force to regenerate.
 (Bump prompt_version in the config too, so the change is recorded.)
 
-Filters let you run a slice (one variant, one tier, a few questions) — used for the
+Filters let you run a slice (one variant, one tier, a few questions), used for the
 pilot and the single-tier run before the full sweep.
 
 Examples:
@@ -67,7 +67,7 @@ def fetch_questions(cur, tier=None, split=None, limit=None, pilot=False) -> list
 def run_exists(cur, qid, vid, replicate) -> bool:
     # A cell counts as done only if the API call SUCCEEDED (error_message IS NULL).
     # Generation failures (e.g. hitting the daily token cap) are retried on resume,
-    # not skipped — important for the multi-day full run.
+    # not skipped, important for the multi-day full run.
     cur.execute("SELECT 1 FROM runs WHERE question_id=%s AND variant_id=%s AND replicate=%s "
                 "AND error_message IS NULL", (qid, vid, replicate))
     return cur.fetchone() is not None

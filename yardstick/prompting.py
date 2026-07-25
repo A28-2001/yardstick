@@ -3,7 +3,7 @@
 Schema presentation is held CONSTANT across variants (configs/schema_format.yaml);
 the ONLY thing that differs between V1/V3 (zero-shot) and V2/V4 (few-shot) is the
 presence of the worked examples. Few-shot examples come from configs/fewshot_examples.yaml
-and are held-out (no db_id overlap with the 150-question sample — leakage constraint
+and are held-out (no db_id overlap with the 150-question sample, leakage constraint
 §4.5/§11.3), identical across all questions so the example prefix can be prompt-cached.
 """
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Phase 1, Steps 2-4 — tier, sample, validate ground truth, split.
+"""Phase 1, Steps 2-4, tier, sample, validate ground truth, split.
 
 Pipeline (spec §6.2, §6.3):
   1. Label every Spider example with a tier via the official hardness function.
@@ -8,10 +8,10 @@ Pipeline (spec §6.2, §6.3):
      capping at 3 questions per db_id, until 50 valid questions are collected.
   3. Record gold result hash, row/col counts, and schema DDL.
   4. Assign a train/test split, stratified by tier, with whole databases kept on
-     one side (so no db_id spans both splits — matters for routing validity §11.2).
+     one side (so no db_id spans both splits, matters for routing validity §11.2).
 
 Exclusions (gold errored / timed out / zero rows / db-cap) are counted and logged.
-Writes data/questions.json (gitignored). Nothing hits Supabase here — that's the
+Writes data/questions.json (gitignored). Nothing hits Supabase here, that's the
 next step (load_questions.py), so this can be re-run freely.
 
 Run:  python scripts/sample_and_validate.py
@@ -128,7 +128,7 @@ def main() -> int:
             print(f"⚠ tier {tier}: only {n_valid}/{N_PER_TIER} valid questions found!")
 
     # Train/test split at the db_id level GLOBALLY, so a whole database stays on one
-    # side (no db_id spans both splits — required for clean leave-one-database-out and
+    # side (no db_id spans both splits, required for clean leave-one-database-out and
     # to avoid schema leakage across the split). Target 60% of questions in train.
     split_of: dict[str, str] = {}
     db_to_qs: dict[str, list[dict]] = defaultdict(list)

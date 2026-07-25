@@ -3,9 +3,9 @@
 Three candidate signals for "is this generated query actually correct?", all available
 at inference time (no gold answer needed):
 
-  1. self_confidence      — what the model says about itself (§12.2)
-  2. result-set agreement — do the variants' EXECUTED results match each other? (§12.3)
-  3. AST agreement        — do their query structures match? (§12.3)
+  1. self_confidence, what the model says about itself (§12.2)
+  2. result-set agreement, do the variants' EXECUTED results match each other? (§12.3)
+  3. AST agreement, do their query structures match? (§12.3)
 
 We test whether each predicts correctness, rather than assuming confidence works.
 A poorly calibrated model is itself the finding.
@@ -70,8 +70,8 @@ def canonical_sql(sql: str | None) -> str | None:
 def flag_stats(flagged: np.ndarray, correct: np.ndarray) -> dict:
     """If we escalate every FLAGGED item to human review, how well does it work?
 
-    recall      — fraction of actual errors that get caught
-    false_alarm — fraction of correct answers needlessly flagged
+    recall, fraction of actual errors that get caught
+    false_alarm, fraction of correct answers needlessly flagged
     """
     flagged = np.asarray(flagged, bool)
     errors = ~np.asarray(correct, bool)

@@ -1,12 +1,12 @@
 """Difficulty prediction + routing simulation (spec §11).
 
 Routing decision: for each question, send it to the CHEAP model (V1, Llama-8B) or the
-STRONG model (V3, Llama-70B) — both zero-shot, so the only thing that varies is model
+STRONG model (V3, Llama-70B), both zero-shot, so the only thing that varies is model
 cost/capability. Because every variant ran on every question, the counterfactual matrix
 is complete and simulating any policy costs ZERO extra API calls (§11.1).
 
-The predictor uses ONLY question+schema features (yardstick/features.py) — never gold
-SQL — so the routing decision is available before generating anything.
+The predictor uses ONLY question+schema features (yardstick/features.py), never gold
+SQL, so the routing decision is available before generating anything.
 """
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ from sklearn.preprocessing import StandardScaler
 
 CHEAP, STRONG = "V1", "V3"
 
-# Spec §11.4: 4-6 features max at n=150 (more would overfit). Fixed a priori — not
-# selected on the data — to avoid selection bias.
+# Spec §11.4: 4-6 features max at n=150 (more would overfit). Fixed a priori, not
+# selected on the data, to avoid selection bias.
 ROUTER_FEATURES = [
     "question_token_count",   # length proxy
     "schema_table_count",     # search-space size

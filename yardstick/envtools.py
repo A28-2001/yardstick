@@ -1,7 +1,7 @@
 """Central .env loader. Use this everywhere instead of calling load_dotenv directly.
 
 `override=True` makes the repo's .env authoritative over any variable already
-exported in the shell — important because a stale value in ~/.zshrc (e.g. an old
+exported in the shell, important because a stale value in ~/.zshrc (e.g. an old
 GROQ_API_KEY) otherwise silently wins and causes confusing auth failures.
 """
 from __future__ import annotations

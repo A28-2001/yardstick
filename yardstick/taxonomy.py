@@ -1,6 +1,6 @@
 """Error taxonomy (spec §9.5). Classify each failure into exactly ONE type.
 
-Classification order matters — check in sequence, assign the first match, so each
+Classification order matters, check in sequence, assign the first match, so each
 failure lands in exactly one bucket:
 
   generation_failure  the API call itself failed (outside the spec's core 9; kept

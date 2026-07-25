@@ -1,4 +1,4 @@
-"""Phase 7/10 — export analysis tables to results/*.csv (spec §15).
+"""Phase 7/10, export analysis tables to results/*.csv (spec §15).
 
 Writes the CSVs the write-up and the Looker Studio dashboard consume. Every number
 comes from the same yardstick.stats functions the console analyses use, so the CSVs

@@ -16,7 +16,7 @@ mapping SELECT columns.
 | Disagree | 1 / 19 |
 | Unscorable by the official scorer (its parser rejected the prediction) | 11 / 30 |
 
-## The single disagreement — understood, not a bug
+## The single disagreement, understood, not a bug
 
 - **db:** `dorm_1`  ·  gold has no `ORDER BY`
 - **gold:** `SELECT count(*) FROM dorm_amenity` → returns `12`
@@ -34,10 +34,9 @@ The literature mitigates it with *test-suite* evaluation (many fuzzed database i
 that is out of scope here and is stated in Limitations.
 
 Crucially, this limitation affects **absolute** accuracy slightly and **equally across all
-four variants**, so the study's **comparative** conclusions (V2 vs V1, etc.) are unaffected —
-the same caveat as benchmark contamination.
+four variants**, so the study's **comparative** conclusions (V2 vs V1, etc.) are unaffected, the same caveat as benchmark contamination.
 
-## The 11 "unscorable" cases — a point FOR executable scoring
+## The 11 "unscorable" cases, a point FOR executable scoring
 
 The official `process_sql` parser could not parse 11/30 predictions (`pred_parse_error`),
 so the official scorer cannot judge them at all. Our executable scorer runs and scores every

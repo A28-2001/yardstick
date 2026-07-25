@@ -1,4 +1,4 @@
-# V3 — zero-shot, strong model (Groq 70B). Model effect. (spec §4.1)
+# V3, zero-shot, strong model (Groq 70B). Model effect. (spec §4.1)
 variant_id: V3
 prompt_strategy: zero-shot
 model: groq

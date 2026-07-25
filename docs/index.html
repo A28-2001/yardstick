@@ -28,7 +28,27 @@
   --measure:66ch;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* ---------- reading progress + sticky bar ---------- */
+#bar{position:fixed;top:0;left:0;height:2px;background:var(--signal);width:0;z-index:60}
+#top{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  background:rgba(253,252,250,.94);backdrop-filter:saturate(180%) blur(8px);
+  border-bottom:1px solid var(--rule);
+  transform:translateY(-100%);transition:transform .25s ease;
+}
+#top.on{transform:translateY(0)}
+#top .in{
+  max-width:1180px;margin:0 auto;padding:.62rem 5vw;
+  display:flex;align-items:baseline;gap:.9rem;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mid);
+}
+#top .nm{color:var(--ink);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+#top .sec{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#top a{color:var(--signal);text-decoration:none;border-bottom:1px solid var(--rule)}
+@media (prefers-reduced-motion:reduce){#top{transition:none}}
 body{
   margin:0;background:var(--paper);color:var(--ink);
   font-family:var(--serif);font-size:18px;line-height:1.62;
@@ -48,7 +68,18 @@ h1{
   letter-spacing:-.015em;margin:0 0 1.1rem;max-width:22ch;text-wrap:balance;
 }
 h1 .nb{white-space:nowrap}   /* keep "LLM-generated" from breaking at its hyphen */
-.deck{font-size:1.22rem;line-height:1.5;color:var(--mid);max-width:54ch;margin:0 0 2.4rem}
+.deck{font-size:1.22rem;line-height:1.5;color:var(--mid);max-width:54ch;margin:0 0 1.6rem}
+
+/* byline strip under the deck: date, author, links, all above the fold */
+.meta{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;align-items:baseline;margin:0 0 2.4rem;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--mid);
+}
+.meta .au{color:var(--ink);font-weight:600}
+.meta a{color:var(--signal);text-decoration:none;border-bottom:1px solid var(--rule);
+  padding-bottom:1px}
+.meta a:hover{border-bottom-color:var(--signal)}
+.meta .sep{color:var(--rule)}
 
 /* registration block, borrowed from trial reporting */
 .trial{
@@ -167,9 +198,35 @@ th{text-align:left;font-weight:500;color:var(--mid);letter-spacing:.06em;
   border-bottom:1px solid var(--ink);white-space:nowrap}
 td{padding:.5rem 1.1rem .5rem 0;border-bottom:1px solid var(--rule);white-space:nowrap}
 td.r,th.r{text-align:right}
+tbody tr:hover td{background:var(--faint)}
 tr.key td{background:var(--faint)}
+tr.key:hover td{background:#f0ebe1}
 td em{font-style:normal;color:var(--signal);font-weight:600}
 td .q{color:var(--mid)}
+
+/* ---------- worked failure example ---------- */
+.fail{margin:2rem 0 2.2rem;max-width:900px;border:1px solid var(--rule);background:var(--card)}
+.fail .q{padding:1.05rem 1.3rem;border-bottom:1px solid var(--rule);font-size:1.02rem}
+.fail .q span{font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--mid);display:block;margin-bottom:.4rem}
+.fail .pair{display:grid;grid-template-columns:1fr 1fr}
+.fail .side{padding:1.05rem 1.3rem}
+.fail .side + .side{border-left:1px solid var(--rule)}
+.fail .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  margin-bottom:.55rem}
+.fail .ok .lbl{color:var(--good)}
+.fail .bad .lbl{color:var(--ochre)}
+.fail code{display:block;background:none;padding:0;font-size:12.5px;line-height:1.75;
+  white-space:pre-wrap;word-break:break-word}
+.fail .diff{background:#f6e6c8;padding:.05em .25em;font-weight:600}
+.fail .ret{font-family:var(--mono);font-size:11px;color:var(--mid);margin-top:.75rem;
+  padding-top:.6rem;border-top:1px solid var(--rule)}
+.fail .verdict{padding:1rem 1.3rem;border-top:1px solid var(--rule);background:var(--faint);
+  font-size:.98rem}
+@media (max-width:720px){
+  .fail .pair{grid-template-columns:1fr}
+  .fail .side + .side{border-left:0;border-top:1px solid var(--rule)}
+}
 
 /* ---------- funnel ---------- */
 .funnel{margin:1.9rem 0 2.2rem;max-width:640px}
@@ -223,6 +280,14 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
 </style>
 </head>
 <body>
+
+<div id="bar"></div>
+<div id="top"><div class="in">
+  <span class="nm">Yardstick</span>
+  <span class="sec" id="topsec">When is LLM-generated SQL safe to trust?</span>
+  <a href="https://github.com/A28-2001/yardstick">GitHub</a>
+</div></div>
+
 <div class="sheet">
 
 <header>
@@ -232,6 +297,14 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
     A query that throws a syntax error is a visible failure. A query that runs cleanly and
     returns plausible but wrong numbers is an invisible one. This study measures how often
     each happens, and finds the invisible kind gets worse as models get better.
+  </p>
+
+  <p class="meta">
+    <span class="au">Aakash Mehta</span>
+    <span class="sep">/</span><span>July 2026</span>
+    <span class="sep">/</span><a href="https://github.com/A28-2001/yardstick">Code and data on GitHub</a>
+    <span class="sep">/</span><a href="mailto:aakashmehta893@gmail.com">Email</a>
+    <span class="sep">/</span><a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
   </p>
 
   <div class="abstract">
@@ -268,6 +341,9 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
     <div><dt>Primary endpoint</dt><dd>Execution accuracy</dd></div>
     <div><dt>Primary test</dt><dd>McNemar exact, BH corrected</dd></div>
     <div><dt>Data</dt><dd>Spider, CC BY-SA 4.0</dd></div>
+    <div><dt>Built with</dt><dd>Python, SQLite, Postgres, statsmodels,
+      scikit-learn, sqlglot, matplotlib</dd></div>
+    <div><dt>Cost</dt><dd>$0 actual, $0.19 at list price</dd></div>
   </dl>
 
   <div class="keys">
@@ -364,6 +440,40 @@ hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960
     The strong model also stated 95% average confidence on the answers it got wrong, so
     nothing in its own output flags the problem either.
   </p>
+
+  <h3>What one actually looks like</h3>
+  <p>
+    This is a real failure from the run, produced by the strongest variant. The difference
+    is one word.
+  </p>
+
+  <div class="fail">
+    <div class="q"><span>The question asked</span>
+      Which job titles correspond to jobs with salaries over 9000?</div>
+    <div class="pair">
+      <div class="side ok">
+        <div class="lbl">Correct answer</div>
+        <code>SELECT job_title
+FROM jobs
+WHERE <span class="diff">min_salary</span> &gt; 9000</code>
+        <div class="ret">returns 3 job titles</div>
+      </div>
+      <div class="side bad">
+        <div class="lbl">What the model wrote</div>
+        <code>SELECT JOB_TITLE
+FROM jobs
+WHERE <span class="diff">MAX_SALARY</span> &gt; 9000</code>
+        <div class="ret">returns 10 job titles, confidence 1.00</div>
+      </div>
+    </div>
+    <div class="verdict">
+      The query is valid SQL. It runs in milliseconds, returns a clean list of real job
+      titles from the right table, and raises nothing. It answers a different question:
+      jobs whose <em>ceiling</em> is above 9000 rather than jobs whose <em>floor</em> is.
+      The model reported maximum confidence. Without the correct answer sitting next to
+      it, there is nothing here for a reviewer to catch.
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================ -->
@@ -735,5 +845,39 @@ python scripts/simulate_routing.py</code></pre>
 </footer>
 
 </div>
+
+<script>
+(function(){
+  var bar=document.getElementById('bar'), top=document.getElementById('top'),
+      label=document.getElementById('topsec'),
+      head=document.querySelector('header'),
+      secs=[].slice.call(document.querySelectorAll('section'));
+
+  function heading(s){
+    var h=s.querySelector('h2'); if(!h) return '';
+    var n=h.querySelector('.num');
+    var t=h.textContent.replace(n?n.textContent:'','').trim();
+    return (n? n.textContent.trim()+'  '+t : t);
+  }
+  function tick(){
+    var y=window.scrollY||document.documentElement.scrollTop;
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(max>0? (y/max)*100 : 0)+'%';
+    top.classList.toggle('on', y > head.offsetHeight*0.7);
+    var cur='';
+    for(var i=0;i<secs.length;i++){
+      if(secs[i].offsetTop - 90 <= y) cur=heading(secs[i]); else break;
+    }
+    label.textContent = cur || 'When is LLM-generated SQL safe to trust?';
+  }
+  var raf=false;
+  addEventListener('scroll',function(){
+    if(raf) return; raf=true;
+    requestAnimationFrame(function(){ tick(); raf=false; });
+  },{passive:true});
+  addEventListener('resize',tick,{passive:true});
+  tick();
+})();
+</script>
 </body>
 </html>

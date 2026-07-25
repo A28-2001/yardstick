@@ -17,6 +17,9 @@ statsmodels==0.14.4
 # --- ML: logistic regression / shallow trees only (spec §11.4) ---
 scikit-learn==1.5.2
 
+# --- Figures for the report page (custom style, no default matplotlib look) ---
+matplotlib==3.9.2
+
 # --- SQL parsing / AST analysis & error taxonomy ---
 sqlglot==25.24.0
 

@@ -60,6 +60,19 @@ def main() -> int:
             GROUP BY r.variant_id, q.tier, e.error_type""")
         taxo = cur.fetchall()
 
+        # per-variant summary: accuracy, silent share OF ERRORS, confidence behaviour
+        cur.execute("""
+            SELECT r.variant_id, count(*) n,
+                   avg((e.set_match)::int)                                  accuracy,
+                   count(*) FILTER (WHERE NOT e.set_match)                  n_errors,
+                   count(*) FILTER (WHERE NOT e.set_match AND e.executed)   n_silent,
+                   avg(r.self_confidence)                                   mean_conf,
+                   avg(r.self_confidence) FILTER (WHERE NOT e.set_match)    conf_when_wrong
+            FROM runs r JOIN executions e ON e.run_id=r.run_id
+            WHERE r.replicate=1 AND r.error_message IS NULL
+            GROUP BY r.variant_id ORDER BY r.variant_id""")
+        summary = cur.fetchall()
+
         # per-question outcomes for paired stats
         cur.execute("""
             SELECT q.tier, r.variant_id, r.question_id, e.set_match, e.execution_time_ms
@@ -91,6 +104,16 @@ def main() -> int:
     # 3. error_taxonomy
     write_csv("error_taxonomy.csv", ["variant", "tier", "error_type", "count"],
               sorted([[v, t, et_, c] for v, t, et_, c in taxo]))
+
+    # 3b. per-variant summary (drives the report figures)
+    write_csv("variant_summary.csv",
+              ["variant", "n", "accuracy", "n_errors", "n_silent_errors",
+               "silent_share_of_errors", "mean_confidence", "confidence_when_wrong"],
+              [[v, n, round(float(a), 4), ne, ns,
+                round(ns / ne, 4) if ne else None,
+                round(float(mc), 4) if mc is not None else None,
+                round(float(cw), 4) if cw is not None else None]
+               for v, n, a, ne, ns, mc, cw in summary])
 
     def paired(tier, va, vb):
         qs = [q for q in sm[tier] if va in sm[tier][q] and vb in sm[tier][q]]

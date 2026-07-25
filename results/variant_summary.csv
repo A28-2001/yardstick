@@ -1,0 +1,5 @@
+variant,n,accuracy,n_errors,n_silent_errors,silent_share_of_errors,mean_confidence,confidence_when_wrong
+V1,150,0.7667,35,31,0.8857,0.986,0.9629
+V2,150,0.7867,32,26,0.8125,0.9387,0.9266
+V3,150,0.8867,17,17,1.0,0.984,0.9529
+V4,150,0.8667,20,19,0.95,0.926,0.8725

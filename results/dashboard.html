@@ -1,0 +1,533 @@
+<title>Yardstick — When is LLM-generated SQL safe?</title>
+
+<style>
+:root{
+  --ink:#141a1c; --ink-2:#3b4a4d; --ink-3:#6b7c7f;
+  --paper:#f6f7f6; --card:#ffffff; --line:#dde3e2; --line-2:#eef2f1;
+  --accent:#0e6b73; --accent-soft:#e0eeee;
+  --silent:#b07206; --silent-soft:#f6ead2;
+  --loud:#8c3a2e;  --loud-soft:#f6e2de;
+  --good:#2e6b4f;  --good-soft:#dfeee7;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e8eded; --ink-2:#aebbbb; --ink-3:#7e8f8f;
+    --paper:#0e1314; --card:#161d1e; --line:#2a3536; --line-2:#212a2b;
+    --accent:#4fb3ba; --accent-soft:#16302f;
+    --silent:#e0a63c; --silent-soft:#3a2c11;
+    --loud:#d97a68;  --loud-soft:#3a201c;
+    --good:#5aa984;  --good-soft:#16301f;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8eded; --ink-2:#aebbbb; --ink-3:#7e8f8f;
+  --paper:#0e1314; --card:#161d1e; --line:#2a3536; --line-2:#212a2b;
+  --accent:#4fb3ba; --accent-soft:#16302f;
+  --silent:#e0a63c; --silent-soft:#3a2c11;
+  --loud:#d97a68;  --loud-soft:#3a201c;
+  --good:#5aa984;  --good-soft:#16301f;
+}
+:root[data-theme="light"]{
+  --ink:#141a1c; --ink-2:#3b4a4d; --ink-3:#6b7c7f;
+  --paper:#f6f7f6; --card:#ffffff; --line:#dde3e2; --line-2:#eef2f1;
+  --accent:#0e6b73; --accent-soft:#e0eeee;
+  --silent:#b07206; --silent-soft:#f6ead2;
+  --loud:#8c3a2e;  --loud-soft:#f6e2de;
+  --good:#2e6b4f;  --good-soft:#dfeee7;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,40px) 96px}
+
+/* ---- masthead ---- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 18px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,5.6vw,58px);line-height:1.06;
+  letter-spacing:-.015em;margin:0 0 20px;text-wrap:balance;max-width:19ch}
+.standfirst{font-size:clamp(17px,2vw,20px);line-height:1.55;color:var(--ink-2);
+  max-width:62ch;margin:0 0 28px}
+.standfirst strong{color:var(--ink);font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.03em;margin-bottom:8px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  padding:5px 11px;border-radius:2px}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+hr.rule{border:0;border-top:1px solid var(--line);margin:52px 0 0}
+
+/* ---- sections ---- */
+section{margin-top:52px}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,3vw,30px);line-height:1.2;
+  letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:14.5px;margin:0 0 26px;max-width:70ch}
+.qtag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:7px}
+
+/* ---- verdict cards ---- */
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin-top:34px}
+.v{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:17px 18px 18px}
+.v .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:12px}
+.v .n{font-family:var(--mono);font-size:31px;font-weight:600;line-height:1;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;margin-bottom:9px}
+.v .d{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.v.alarm .n{color:var(--silent)} .v.win .n{color:var(--good)}
+.v.null .n{color:var(--ink-3)}  .v.acc .n{color:var(--accent)}
+
+/* ---- forest plot ---- */
+.forest{background:var(--card);border:1px solid var(--line);border-radius:3px;
+  padding:22px 20px 14px;overflow-x:auto}
+.frow{display:grid;grid-template-columns:112px 1fr 168px;align-items:center;gap:14px;
+  min-width:620px;padding:9px 0}
+.flabel{font-family:var(--mono);font-size:12px;color:var(--ink-2);letter-spacing:.02em}
+.ftrack{position:relative;height:26px}
+.fgrid{position:absolute;inset:0}
+.fgrid i{position:absolute;top:0;bottom:0;width:1px;background:var(--line-2)}
+.fzero{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--ink-3);opacity:.55}
+.fbar{position:absolute;top:50%;height:3px;transform:translateY(-50%);border-radius:2px;
+  background:var(--ink-3);opacity:.42}
+.fbar.sig{background:var(--good);opacity:.4}
+.fdot{position:absolute;top:50%;width:11px;height:11px;margin-left:-5.5px;transform:translateY(-50%);
+  border-radius:50%;background:var(--ink-3);border:2px solid var(--card)}
+.fdot.sig{background:var(--good)}
+.fstat{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+  text-align:right;white-space:nowrap}
+.fstat b{color:var(--ink);font-weight:600}
+.fstat .sig{color:var(--good);font-weight:600}
+.faxis{display:grid;grid-template-columns:112px 1fr 168px;gap:14px;min-width:620px;
+  margin-top:6px;padding-top:9px;border-top:1px solid var(--line-2)}
+.fticks{position:relative;height:15px;font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.fticks span{position:absolute;transform:translateX(-50%);font-variant-numeric:tabular-nums}
+.fcap{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);text-align:center;
+  margin-top:2px;letter-spacing:.02em}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:3px}
+table{border-collapse:collapse;width:100%;min-width:540px;font-size:14px}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line-2)}
+tbody tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;white-space:nowrap;background:var(--paper)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.lab{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+tr.hi td{background:var(--accent-soft)}
+tr.hi td.lab,tr.hi td{color:var(--ink)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:2px;
+  letter-spacing:.04em}
+.pill.s{background:var(--silent-soft);color:var(--silent)}
+.pill.l{background:var(--loud-soft);color:var(--loud)}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.pill.n{background:var(--line-2);color:var(--ink-3)}
+
+/* ---- silent bars ---- */
+.sbars{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:22px 20px}
+.sbar{display:grid;grid-template-columns:130px 1fr 52px;align-items:center;gap:14px;padding:8px 0}
+.sbar .nm{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.strack{position:relative;height:22px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.sfill{position:absolute;left:0;top:0;bottom:0;background:var(--silent);opacity:.85}
+.sval{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+  text-align:right;color:var(--silent);font-weight:600}
+.slegend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;
+  color:var(--ink-3);margin-top:16px;padding-top:14px;border-top:1px solid var(--line-2)}
+
+/* ---- callout ---- */
+.callout{border-left:3px solid var(--silent);background:var(--silent-soft);
+  padding:18px 22px;border-radius:0 3px 3px 0;margin-top:24px}
+.callout p{margin:0;font-size:15px;line-height:1.6;color:var(--ink)}
+.callout.teal{border-left-color:var(--accent);background:var(--accent-soft)}
+
+/* ---- recommendation list ---- */
+ol.recs{list-style:none;counter-reset:r;padding:0;margin:24px 0 0;
+  display:grid;gap:11px}
+ol.recs li{counter-increment:r;background:var(--card);border:1px solid var(--line);
+  border-radius:3px;padding:15px 18px 15px 52px;position:relative;font-size:14.5px;line-height:1.55}
+ol.recs li::before{content:counter(r);position:absolute;left:18px;top:15px;
+  font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+ol.recs strong{font-weight:600}
+
+.foot{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);line-height:1.8}
+.foot a{color:var(--accent)}
+@media (max-width:560px){
+  .frow,.faxis{grid-template-columns:88px 1fr 140px;gap:9px}
+  .sbar{grid-template-columns:104px 1fr 46px}
+}
+</style>
+
+<div class="wrap">
+
+<p class="eyebrow">Pre-registered study · 600/600 cells complete</p>
+<h1>When is LLM-generated SQL safe to trust?</h1>
+<p class="standfirst">
+  150 questions × 3 complexity tiers × 2 prompt strategies × 2 model sizes. Every generated
+  query executed against a real database and compared to a human-written answer.
+  <strong>The headline: as models get more accurate, a larger share of their errors stop
+  announcing themselves.</strong>
+</p>
+<div class="meta">
+  <span class="chip on">600 / 600 cells</span>
+  <span class="chip">0 extraction failures</span>
+  <span class="chip">0 timeouts</span>
+  <span class="chip">McNemar exact + bootstrap CI + BH</span>
+  <span class="chip">scorer 95% agreement vs official Spider</span>
+  <span class="chip">$0.19 list-price · $0 actual</span>
+</div>
+
+<div class="verdicts">
+  <div class="v alarm">
+    <div class="k">Silent failures</div>
+    <div class="n">100%</div>
+    <div class="d">of the most accurate model's errors executed cleanly and returned
+      plausible <em>wrong</em> numbers.</div>
+  </div>
+  <div class="v null">
+    <div class="k">RQ1 · Prompt effect</div>
+    <div class="n">n.s.</div>
+    <div class="d">Few-shot gave no significant lift on any tier. All BH-adjusted p ≈ 1.0.</div>
+  </div>
+  <div class="v win">
+    <div class="k">RQ2 · Model effect</div>
+    <div class="n">+28<span style="font-size:17px">pts</span></div>
+    <div class="d">Bigger model on complex queries — the only significant effect found
+      (p = 0.0013).</div>
+  </div>
+  <div class="v acc">
+    <div class="k">RQ3 · Best error signal</div>
+    <div class="n">0.861</div>
+    <div class="d">AUC for cross-model agreement, vs 0.647 for the model's own stated
+      confidence.</div>
+  </div>
+</div>
+
+<hr class="rule">
+
+<!-- ============ SILENT FAILURES ============ -->
+<section>
+  <span class="qtag">The finding that matters</span>
+  <h2>Better models fail more quietly</h2>
+  <p class="sub">Share of each variant's errors that were <em>silent</em> — the query ran
+    without error and returned a plausible but wrong result set. A syntax error gets caught
+    by whoever runs it; a believable wrong number flows into a dashboard.</p>
+
+  <div class="sbars">
+    <div class="sbar"><div class="nm">V2 · 8B few-shot</div>
+      <div class="strack"><div class="sfill" style="width:81%"></div></div><div class="sval">81%</div></div>
+    <div class="sbar"><div class="nm">V1 · 8B zero-shot</div>
+      <div class="strack"><div class="sfill" style="width:89%"></div></div><div class="sval">89%</div></div>
+    <div class="sbar"><div class="nm">V4 · 70B few-shot</div>
+      <div class="strack"><div class="sfill" style="width:95%"></div></div><div class="sval">95%</div></div>
+    <div class="sbar"><div class="nm">V3 · 70B zero-shot</div>
+      <div class="strack"><div class="sfill" style="width:100%"></div></div><div class="sval">100%</div></div>
+    <div class="slegend">
+      <span>Both 70B variants (95%, 100%) sit above both 8B variants (81%, 89%)</span>
+      <span>By tier — complex 82% · moderate 97% · simple 95%</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>The most accurate variant made the fewest errors — and every single one was
+    invisible.</strong> It also reported 95% average confidence on the answers it got wrong.
+    Selecting a model on benchmark score alone selects for quieter failures, not fewer
+    dangerous ones.</p>
+  </div>
+</section>
+
+<!-- ============ ACCURACY GRID ============ -->
+<section>
+  <h2>Accuracy by variant and complexity</h2>
+  <p class="sub">Execution accuracy, with silent-failure rate beneath. All cells n = 50.
+    Note the moderate tier: every variant lands at 82–84% regardless of model or prompt.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Tier</th><th>V1 · 8B zero</th><th>V2 · 8B few</th>
+      <th>V3 · 70B zero</th><th>V4 · 70B few</th></tr></thead>
+    <tbody>
+      <tr><td class="lab">simple</td>
+        <td class="n">0.88 <span class="pill s">sf .12</span></td>
+        <td class="n">0.86 <span class="pill s">sf .14</span></td>
+        <td class="n"><b>0.96</b> <span class="pill g">sf .04</span></td>
+        <td class="n">0.92 <span class="pill s">sf .06</span></td></tr>
+      <tr><td class="lab">moderate</td>
+        <td class="n">0.82 <span class="pill s">sf .18</span></td>
+        <td class="n">0.82 <span class="pill s">sf .16</span></td>
+        <td class="n">0.82 <span class="pill s">sf .18</span></td>
+        <td class="n">0.84 <span class="pill s">sf .16</span></td></tr>
+      <tr><td class="lab">complex</td>
+        <td class="n">0.60 <span class="pill l">sf .32</span></td>
+        <td class="n">0.68 <span class="pill s">sf .22</span></td>
+        <td class="n"><b>0.88</b> <span class="pill g">sf .12</span></td>
+        <td class="n">0.84 <span class="pill s">sf .16</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ RQ1 FOREST ============ -->
+<section>
+  <span class="qtag">RQ1 · pre-registered primary</span>
+  <h2>Does few-shot prompting help?</h2>
+  <p class="sub">V2 − V1 within each tier. McNemar's exact test on paired binary outcomes,
+    with bootstrap 95% CIs and Benjamini–Hochberg correction — all fixed in
+    <code>PREREGISTRATION.md</code> before the run.</p>
+
+  <div class="forest">
+    <div class="frow"><div class="flabel">simple</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:33.33%;width:7.70%"></div>
+        <div class="fdot" style="left:38.46%"></div>
+      </div>
+      <div class="fstat"><b>−2.0</b> [−6, 0] · p 1.000</div></div>
+
+    <div class="frow"><div class="flabel">moderate</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:25.64%;width:30.77%"></div>
+        <div class="fdot" style="left:41.03%"></div>
+      </div>
+      <div class="fstat"><b>0.0</b> [−12, +12] · p 1.000</div></div>
+
+    <div class="frow"><div class="flabel">complex</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:33.33%;width:35.90%"></div>
+        <div class="fdot" style="left:51.28%"></div>
+      </div>
+      <div class="fstat"><b>+8.0</b> [−6, +22] · p 0.424</div></div>
+
+    <div class="faxis"><div></div>
+      <div class="fticks"><span style="left:2.56%">−30</span><span style="left:15.38%">−20</span>
+        <span style="left:28.21%">−10</span><span style="left:41.03%">0</span>
+        <span style="left:53.85%">+10</span><span style="left:66.67%">+20</span>
+        <span style="left:79.49%">+30</span><span style="left:92.31%">+40</span></div>
+      <div></div></div>
+    <div class="fcap">accuracy difference (percentage points) · 95% bootstrap CI</div>
+  </div>
+
+  <div class="callout teal">
+    <p><strong>Every interval crosses zero.</strong> A 10-question pilot had suggested
+    few-shot nearly doubled complex-query accuracy (33% → 67%); at n = 50 that collapsed to
+    a non-significant +8. Pre-registration is the only reason this is reported as a null
+    rather than a discovery. Note the honest caveat: at n = 50 the study detects only large
+    effects (MDE ≈ 14–27 pts), so "not significant" is not "proven zero".</p>
+  </div>
+</section>
+
+<!-- ============ MODEL EFFECT FOREST ============ -->
+<section>
+  <span class="qtag">Exploratory · uncorrected</span>
+  <h2>Model size is the only lever that moved</h2>
+  <p class="sub">Upgrading 8B → 70B, under both prompt strategies. Green marks intervals
+    excluding zero.</p>
+
+  <div class="forest">
+    <div class="frow"><div class="flabel">simple · V3−V1</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:43.59%;width:17.95%"></div>
+        <div class="fdot" style="left:51.28%"></div>
+      </div>
+      <div class="fstat"><b>+8</b> [+2, +16] · p 0.125</div></div>
+
+    <div class="frow"><div class="flabel">moderate · V3−V1</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:28.21%;width:25.64%"></div>
+        <div class="fdot" style="left:41.03%"></div>
+      </div>
+      <div class="fstat"><b>0</b> [−10, +10] · p 1.000</div></div>
+
+    <div class="frow"><div class="flabel">complex · V3−V1</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar sig" style="left:58.97%;width:35.90%"></div>
+        <div class="fdot sig" style="left:76.92%"></div>
+      </div>
+      <div class="fstat"><span class="sig">+28</span> [+14, +42] · <span class="sig">p 0.0013</span></div></div>
+
+    <div class="frow"><div class="flabel">complex · V4−V2</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar sig" style="left:46.15%;width:33.34%"></div>
+        <div class="fdot sig" style="left:61.54%"></div>
+      </div>
+      <div class="fstat"><span class="sig">+16</span> [+4, +30] · <span class="sig">p 0.039</span></div></div>
+
+    <div class="frow"><div class="flabel">complex · V4−V3</div>
+      <div class="ftrack">
+        <div class="fgrid"><i style="left:2.56%"></i><i style="left:15.38%"></i><i style="left:28.21%"></i><i style="left:53.85%"></i><i style="left:66.67%"></i><i style="left:79.49%"></i><i style="left:92.31%"></i></div>
+        <div class="fzero" style="left:41.03%"></div>
+        <div class="fbar" style="left:25.64%;width:20.51%"></div>
+        <div class="fdot" style="left:35.90%"></div>
+      </div>
+      <div class="fstat"><b>−4</b> [−12, +4] · p 0.625</div></div>
+
+    <div class="faxis"><div></div>
+      <div class="fticks"><span style="left:2.56%">−30</span><span style="left:15.38%">−20</span>
+        <span style="left:28.21%">−10</span><span style="left:41.03%">0</span>
+        <span style="left:53.85%">+10</span><span style="left:66.67%">+20</span>
+        <span style="left:79.49%">+30</span><span style="left:92.31%">+40</span></div>
+      <div></div></div>
+    <div class="fcap">accuracy difference (percentage points) · 95% bootstrap CI</div>
+  </div>
+  <p class="sub" style="margin-top:18px">Adding examples to the strong model did nothing
+    (−4 pts). The 2×2 interaction was not significant on any tier. Mechanism, from the error
+    taxonomy: <code>wrong_join</code> errors fall from 16–17 on the 8B model to 6–7 on the
+    70B, and hallucinated tables/columns from 4–6 to 0–1.</p>
+</section>
+
+<!-- ============ CALIBRATION ============ -->
+<section>
+  <span class="qtag">RQ3 · calibration</span>
+  <h2>Models are confidently wrong</h2>
+  <p class="sub">Mean self-reported confidence against measured accuracy. Expected
+    Calibration Error (ECE): 0 would be perfect.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Variant</th><th>Says it's right</th><th>Actually right</th><th>ECE</th>
+      <th>Confidence when wrong</th></tr></thead>
+    <tbody>
+      <tr><td class="lab">V1 · 8B zero</td><td class="n">98.6%</td><td class="n">76.7%</td>
+        <td class="n"><span class="pill l">0.219</span></td><td class="n">0.963</td></tr>
+      <tr><td class="lab">V2 · 8B few</td><td class="n">93.9%</td><td class="n">78.7%</td>
+        <td class="n"><span class="pill s">0.152</span></td><td class="n">0.927</td></tr>
+      <tr><td class="lab">V3 · 70B zero</td><td class="n">98.4%</td><td class="n">88.7%</td>
+        <td class="n"><span class="pill s">0.097</span></td><td class="n">0.953</td></tr>
+      <tr><td class="lab">V4 · 70B few</td><td class="n">92.6%</td><td class="n">86.7%</td>
+        <td class="n"><span class="pill n">0.059</span></td><td class="n">0.872</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sub" style="margin-top:18px">The weakest variant claims <b>99% confidence while
+    being wrong 23% of the time</b>. All four are overconfident, and all four stay confident
+    on the answers they get wrong.</p>
+</section>
+
+<!-- ============ SIGNALS ============ -->
+<section>
+  <h2>What actually predicts a wrong answer</h2>
+  <p class="sub">AUC for predicting correctness. All three signals are available in
+    production — none requires the gold answer.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Signal</th><th>AUC</th><th>Flags</th><th>Errors caught</th><th>False alarms</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td class="lab">Cross-model result-set agreement</td>
+        <td class="n"><b>0.861</b></td><td class="n">28%</td>
+        <td class="n"><b>84%</b></td><td class="n">16%</td></tr>
+      <tr><td class="lab">AST (structural) agreement</td><td class="n">0.710</td>
+        <td class="n">74%</td><td class="n">100%</td><td class="n">69%</td></tr>
+      <tr><td class="lab">Self-reported confidence</td><td class="n">0.647</td>
+        <td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout teal">
+    <p><strong>Run two cheap models and compare their executed results.</strong> Reviewing
+    only the 28% where they disagree catches 84% of all errors at a 16% false-alarm rate.
+    Asking "do two models agree?" beats asking a model "are you sure?" — and costs one extra
+    cheap call.</p>
+  </div>
+</section>
+
+<!-- ============ ROUTING ============ -->
+<section>
+  <span class="qtag">RQ2 · routing</span>
+  <h2>Difficulty routing failed to beat random</h2>
+  <p class="sub">Test split, n = 60, escalation budget matched to the oracle (18 questions).
+    Reported as the negative result it is.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Policy</th><th>Accuracy</th><th>Cost</th><th>% of expensive acc</th>
+      <th>% of expensive cost</th></tr></thead>
+    <tbody>
+      <tr><td class="lab">always cheap</td><td class="n">0.700</td><td class="n">$0.0018</td>
+        <td class="n">79.2%</td><td class="n">8.7%</td></tr>
+      <tr><td class="lab">always expensive</td><td class="n">0.883</td><td class="n">$0.0205</td>
+        <td class="n">100%</td><td class="n">100%</td></tr>
+      <tr><td class="lab">random</td><td class="n">0.783</td><td class="n">$0.0073</td>
+        <td class="n">88.7%</td><td class="n">35.5%</td></tr>
+      <tr><td class="lab">length-only baseline</td><td class="n">0.750</td><td class="n">$0.0085</td>
+        <td class="n">84.9%</td><td class="n">41.2%</td></tr>
+      <tr class="hi"><td class="lab">difficulty routed</td><td class="n">0.783</td>
+        <td class="n">$0.0058</td><td class="n">88.7%</td><td class="n">28.0%</td></tr>
+      <tr><td class="lab">oracle (upper bound)</td><td class="n"><b>0.900</b></td>
+        <td class="n">$0.0076</td><td class="n">101.9%</td><td class="n">36.8%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sub" style="margin-top:18px">
+    Routing retained 88.7% of the expensive model's accuracy at 28% of its cost — but
+    <b>random routing matched it exactly</b>. Worse, the one-feature length baseline
+    (AUC 0.724) <b>beat the six-feature model</b> (0.665); schema size was pure noise
+    (0.507). Generalisation was weak: leave-one-tier-out fell to chance on complex (0.525),
+    leave-one-database-out held at 0.670.</p>
+  <div class="callout">
+    <p><strong>Two findings worth more than the routing number.</strong> The oracle (0.900)
+    beat always-expensive (0.883) at 63% less cost — real headroom exists, the predictor just
+    couldn't reach it. And <strong>cost and difficulty are decoupled</strong>: question length
+    predicts difficulty (r = 0.55) but not cost, while schema size predicts cost (r = 0.95)
+    and difficulty not at all. Input tokens are 95% of spend because the schema rides along
+    in every prompt.</p>
+  </div>
+</section>
+
+<!-- ============ RECOMMENDATION ============ -->
+<section>
+  <h2>Deployment recommendation</h2>
+  <ol class="recs">
+    <li><strong>Spend on the model, not the prompt — and only where it pays.</strong>
+      The upgrade bought +28 pts on complex queries and nothing on moderate ones.
+      Few-shot bought nothing anywhere.</li>
+    <li><strong>Never gate on self-reported confidence.</strong> A model claiming 99%
+      certainty was wrong 23% of the time and stayed ~95% confident on its own errors.</li>
+    <li><strong>Do gate on cross-model disagreement.</strong> Two cheap models, compare
+      executed results, route disagreements to review: 28% reviewed, 84% of errors caught.</li>
+    <li><strong>Assume wrong answers will look right.</strong> 82–97% of errors executed
+      cleanly. Put guardrails on <em>results</em> — row-count sanity, join-fanout checks,
+      reconciliation against known aggregates — not on error handling.</li>
+    <li><strong>Check a length-only baseline before building a difficulty router.</strong>
+      Mine lost to it, and both lost to random.</li>
+  </ol>
+</section>
+
+<!-- ============ LIMITATIONS ============ -->
+<section>
+  <h2>Limitations</h2>
+  <p class="sub">Stated plainly, because they bound every claim above.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Limitation</th><th>Effect on conclusions</th></tr></thead>
+    <tbody>
+      <tr><td class="lab">Benchmark contamination</td><td>Spider is public and predates these
+        models' training cutoffs. Absolute accuracies are likely optimistic; comparative
+        conclusions are more robust since all variants are equally affected.</td></tr>
+      <tr><td class="lab">Underpowered for small effects</td><td>MDE at n = 50 is ≈ +14 to +27
+        pts. A real moderate-sized few-shot effect could exist and go undetected.</td></tr>
+      <tr><td class="lab">Complexity ≈ length ≈ schema size</td><td>Harder tiers came from
+        bigger schemas and longer questions, so the two cannot be fully separated.</td></tr>
+      <tr><td class="lab">Single-instance execution accuracy</td><td>The scorer cross-check
+        found one spurious match — two different queries returning the same values by
+        coincidence. Test-suite evaluation would fix this.</td></tr>
+      <tr><td class="lab">Moderate tier is uninformative</td><td>All four variants landed at
+        82–84%; whatever limits accuracy there is not something this design manipulates.</td></tr>
+      <tr><td class="lab">One model family, list-price cost</td><td>Both models are Llama
+        variants on one provider; actual spend was $0 on a free tier.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="foot">
+  Yardstick · pre-registered before the full run · McNemar's exact test, 10,000-resample
+  bootstrap CIs, Benjamini–Hochberg FDR<br>
+  Data: Spider (Yale LILY, CC BY-SA 4.0) · scorer cross-validated against the official
+  Spider evaluator (18/19 agreement)<br>
+  Every figure traces to a CSV in <code>results/</code> · no LangChain, Ragas, or DeepEval —
+  the statistical layer is hand-built
+</div>
+
+</div>

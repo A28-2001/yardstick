@@ -32,7 +32,11 @@
   --term-bg:#1b1e20;
   --term-fg:#d8d5cc;
   --mono:ui-monospace,Menlo,"SF Mono","DejaVu Sans Mono",Consolas,monospace;
-  --hand:"Bradley Hand","Segoe Script","Chalkboard SE","Comic Neue",cursive;
+  /* Ends in the mono stack rather than generic `cursive`: on a machine with no script
+     face, a clean monospace annotation reads as deliberate, whereas the browser default
+     cursive looks broken. Mac gets Bradley Hand, Windows gets Segoe Print. */
+  --hand:"Bradley Hand","Segoe Print","Segoe Script","Chalkboard SE",
+         ui-monospace,Menlo,"SF Mono",monospace;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -194,10 +198,29 @@ figure.plate figcaption b{color:var(--ink);letter-spacing:.09em;font-size:10.5px
    viewBox coordinates no longer land on the chart */
 .ph{position:relative;line-height:0}
 .mk{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.mk path,.mk ellipse,.mk line{fill:none;stroke:var(--red);stroke-width:2.4;
-  stroke-linecap:round;opacity:.82}
-.mk text{fill:var(--red);font-family:var(--hand);font-size:26px;opacity:.9}
-@media (max-width:760px){.mk{display:none}}
+/* non-scaling-stroke keeps the pen a constant weight on screen no matter how far the
+   viewBox is scaled down, so the markup survives on a phone. Only the text needs a
+   breakpoint, since font-size is in viewBox units and would otherwise shrink to ~4px. */
+.mk path,.mk ellipse,.mk line{fill:none;stroke:var(--red);stroke-width:2;
+  vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+/* The note is HTML, not SVG text. Font-size inside a scaled viewBox is measured in
+   viewBox units, so it grows and shrinks with the plate: at 960px the rail folds and the
+   image gets WIDER, which made breakpoint-based sizing go the wrong way. Positioning the
+   note in percentages with a normal CSS size keeps it legible at every width. */
+.mknote{
+  position:absolute;transform:translate(-100%,-50%);white-space:nowrap;
+  font-family:var(--hand);color:var(--red);opacity:.95;line-height:1;
+  font-size:clamp(11px,1.15vw,15px);
+}
+/* On a narrow plate the longer note cannot fit beside the mark without shrinking to an
+   illegible size, so it drops underneath instead. The ellipse and arrow stay on the
+   chart; only the wording moves. */
+@media (max-width:700px){
+  .ph{line-height:inherit}
+  .mknote{position:static;transform:none;display:block;white-space:normal;
+    margin:.55rem 0 0;font-size:12px}
+  .mknote::before{content:"\2191 ";}
+}
 
 /* ---------- greenbar data tables ---------- */
 .tw{overflow-x:auto;margin:1.5rem 0}
@@ -265,6 +288,36 @@ footer a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--rul
 footer .ft{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;padding-bottom:.9rem;
   margin-bottom:.9rem;border-bottom:1px solid var(--hair)}
 footer .ft b{color:var(--ink);font-size:13px}
+
+/* keyboard focus, visible everywhere rather than only on the nav */
+a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1px}
+
+/* ---------- print ----------
+   The page is dressed as a printout, so it ought to survive being printed.
+   Drops the desk, the rail and the sheet furniture; inverts the terminal captures
+   so they do not burn a page of toner; keeps plates from splitting across pages. */
+@media print{
+  @page{margin:16mm}
+  body{background:#fff;font-size:10pt;line-height:1.5}
+  .sheet{max-width:none;box-shadow:none;border:0;padding:0}
+  .sheet::before,.sheet::after{display:none}
+  .layout{display:block}
+  nav.toc{display:none}
+  main{max-width:none}
+  .mk{display:none}
+  section{page-break-inside:auto;margin-bottom:1.4rem}
+  h2{page-break-after:avoid}
+  figure,.exh,.term,.tw,.keys{page-break-inside:avoid}
+  .term{background:#fff;border:1px solid #999}
+  .term .hd{background:#eee;color:#333;border-bottom:1px solid #999}
+  .term .hd .cmd{color:#000}
+  .term pre{color:#111}
+  .term .ok,.term .bad,.term .hi,.term .dim{color:#111}
+  .term figcaption{background:#fff;color:#444;border-top:1px solid #999}
+  a{color:#000;text-decoration:underline}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#555}
+  a[href^="#"]::after{content:none}
+}
 </style>
 </head>
 <body>
@@ -422,8 +475,8 @@ Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, bo
         <ellipse cx="1495" cy="622" rx="215" ry="60" transform="rotate(-1.4 1495 622)"/>
         <path d="M1290 640 C1120 700, 980 726, 880 736"/>
         <path d="M908 722 L872 737 L906 752"/>
-        <text x="855" y="748" text-anchor="end">never fails loudly</text>
       </svg>
+      <span class="mknote" style="left:39.9%;top:62.9%">never fails loudly</span>
     </div>
     <figcaption><b>PLATE 1</b> &nbsp; Share of each variant's errors that were silent.
       n = 150 per variant. Colour encodes model size, not severity.</figcaption>
@@ -475,8 +528,8 @@ WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
         <ellipse cx="1290" cy="757" rx="345" ry="52" transform="rotate(-.7 1290 757)"/>
         <path d="M960 780 C820 828, 700 852, 610 862"/>
         <path d="M640 848 L602 863 L638 878"/>
-        <text x="588" y="874" text-anchor="end">the only one that cleared zero</text>
       </svg>
+      <span class="mknote" style="left:28%;top:63.2%">only one clearing zero</span>
     </div>
     <figcaption><b>PLATE 2</b> &nbsp; Accuracy differences in percentage points, 95%
       bootstrap intervals. Upper block is the pre-registered primary comparison, Benjamini

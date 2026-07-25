@@ -46,7 +46,7 @@ body{
 
 /* the sheet: a physical printout on the desk */
 .sheet{
-  max-width:1120px;margin:0 auto;background:var(--sheet);
+  max-width:1240px;margin:0 auto;background:var(--sheet);
   border-left:1px solid var(--rule);border-right:1px solid var(--rule);
   box-shadow:0 0 0 1px rgba(0,0,0,.02),0 18px 50px rgba(20,20,18,.10);
   padding:0 clamp(20px,4.5vw,64px) 6rem;position:relative;
@@ -62,6 +62,46 @@ body{
 @media (max-width:760px){.sheet::before,.sheet::after{display:none}}
 
 .wrap{max-width:78ch;margin:0 auto}
+
+/* ---------- layout: sticky contents rail beside the body ---------- */
+.layout{display:grid;grid-template-columns:170px minmax(0,1fr);gap:0 3.2rem;
+  align-items:start}
+.layout > header{grid-column:1 / -1}
+main{min-width:0;max-width:80ch}
+
+nav.toc{position:sticky;top:1.6rem;align-self:start;padding-top:.6rem;
+  border-top:2px solid var(--ink)}
+nav.toc .lbl{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mid);padding:.55rem 0 .7rem}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0}
+nav.toc a{
+  display:grid;grid-template-columns:2.1rem 1fr;gap:.35rem;align-items:baseline;
+  padding:.42rem .45rem .42rem .1rem;font-size:11px;line-height:1.42;
+  color:var(--mid);text-decoration:none;border-left:2px solid transparent;
+  transition:color .15s ease,border-color .15s ease,background .15s ease;
+}
+nav.toc a .k{color:var(--rule);font-variant-numeric:tabular-nums}
+nav.toc a:hover{color:var(--ink);background:var(--bar)}
+nav.toc a:hover .k{color:var(--mid)}
+nav.toc a.on{color:var(--ink);font-weight:700;border-left-color:var(--red);
+  padding-left:.5rem;background:var(--bar)}
+nav.toc a.on .k{color:var(--red)}
+nav.toc a:focus-visible{outline:2px solid var(--red);outline-offset:1px}
+nav.toc .back{display:block;margin-top:.9rem;padding-top:.7rem;
+  border-top:1px solid var(--hair);font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mid);text-decoration:none}
+nav.toc .back:hover{color:var(--red)}
+
+/* below this width the rail has nowhere to live, so it folds away and the
+   sections simply run in sequence */
+@media (max-width:960px){
+  .layout{display:block}
+  nav.toc{display:none}
+  main{max-width:none}
+}
+/* anchored jumps must not tuck the heading under the top edge */
+section{scroll-margin-top:1.4rem}
 
 /* ---------- document header ---------- */
 header{padding:3.2rem 0 0}
@@ -228,7 +268,7 @@ footer .ft b{color:var(--ink);font-size:13px}
 </style>
 </head>
 <body>
-<div class="sheet"><div class="wrap">
+<div class="sheet" id="top"><div class="layout">
 
 <header>
   <div class="docline">
@@ -298,8 +338,25 @@ footer .ft b{color:var(--ink);font-size:13px}
   </div>
 </header>
 
+  <nav class="toc" aria-label="Contents">
+    <div class="lbl">Contents</div>
+    <ol>
+      <li><a href="#setup"><span class="k">01</span><span>Setup and verification</span></a></li>
+      <li><a href="#sample"><span class="k">02</span><span>Building the sample</span></a></li>
+      <li><a href="#silent"><span class="k">03</span><span>Better models fail more quietly</span></a></li>
+      <li><a href="#modelsize"><span class="k">04</span><span>Prompting did nothing, model size did</span></a></li>
+      <li><a href="#confidence"><span class="k">05</span><span>Confidence is useless, agreement is not</span></a></li>
+      <li><a href="#routing"><span class="k">06</span><span>Routing did not beat random</span></a></li>
+      <li><a href="#recommend"><span class="k">07</span><span>Deployment recommendation</span></a></li>
+      <li><a href="#validation"><span class="k">08</span><span>Validation and constraints</span></a></li>
+    </ol>
+    <a class="back" href="#top">&uarr; Top</a>
+  </nav>
+
+  <main>
+
 <!-- ================= 01 ================= -->
-<section>
+<section id="setup">
   <h2><span class="n">01</span><span class="t">Setup and verification</span></h2>
   <p>
     Everything runs on free infrastructure: two Llama models on Groq for generation,
@@ -323,7 +380,7 @@ Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, bo
 </section>
 
 <!-- ================= 02 ================= -->
-<section>
+<section id="sample">
   <h2><span class="n">02</span><span class="t">Building the sample</span></h2>
   <p>
     Difficulty tiers come from Spider's own <code>eval_hardness()</code> function rather
@@ -349,7 +406,7 @@ Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, bo
 </section>
 
 <!-- ================= 03 ================= -->
-<section>
+<section id="silent">
   <h2><span class="n">03</span><span class="t">Result: better models fail more quietly</span></h2>
   <p>
     A silent failure is a generated query that executed without error and returned the
@@ -407,7 +464,7 @@ WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
 </section>
 
 <!-- ================= 04 ================= -->
-<section>
+<section id="modelsize">
   <h2><span class="n">04</span><span class="t">Result: prompting did nothing, model size did</span></h2>
 
   <figure class="plate">
@@ -488,7 +545,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 </section>
 
 <!-- ================= 05 ================= -->
-<section>
+<section id="confidence">
   <h2><span class="n">05</span><span class="t">Result: confidence is useless, agreement is not</span></h2>
 
   <figure class="plate">
@@ -532,7 +589,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 </section>
 
 <!-- ================= 06 ================= -->
-<section>
+<section id="routing">
   <h2><span class="n">06</span><span class="t">Result: difficulty routing did not beat random</span></h2>
 
   <figure class="plate">
@@ -562,7 +619,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 </section>
 
 <!-- ================= 07 ================= -->
-<section>
+<section id="recommend">
   <h2><span class="n">07</span><span class="t">Deployment recommendation</span></h2>
   <ol class="rec">
     <li><b>Spend on the model, not the prompt, and only where it pays.</b> The upgrade
@@ -580,7 +637,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 </section>
 
 <!-- ================= 08 ================= -->
-<section>
+<section id="validation">
   <h2><span class="n">08</span><span class="t">Validation and constraints</span></h2>
 
   <p>
@@ -641,7 +698,9 @@ Generated 165, skipped(cached) 19, <span class="bad">failed 16</span>.</pre>
   </dl>
 </section>
 
-<footer>
+  </main>
+
+  <footer>
   <div class="ft">
     <b>Aakash Mehta</b>
     <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a>
@@ -657,5 +716,55 @@ Generated 165, skipped(cached) 19, <span class="bad">failed 16</span>.</pre>
 </footer>
 
 </div></div>
+
+<script>
+(function(){
+  var links = [].slice.call(document.querySelectorAll('nav.toc a[href^="#"]'))
+                 .filter(function(a){ return a.getAttribute('href') !== '#top'; });
+  if(!links.length) return;
+
+  var targets = links.map(function(a){
+    return document.getElementById(a.getAttribute('href').slice(1));
+  });
+
+  /* Offsets are cached and only recomputed on resize or image load, so the scroll
+     handler never forces layout. mark() is called directly rather than inside
+     requestAnimationFrame: rAF can be throttled in background or embedded contexts,
+     and a nav that silently stops tracking is worse than a few extra cheap calls. */
+  var tops = [];
+  function measure(){
+    tops = targets.map(function(t){
+      var y = 0, el = t;
+      while(el){ y += el.offsetTop; el = el.offsetParent; }
+      return y;
+    });
+  }
+
+  var current = -1;
+  function mark(){
+    var y = (window.scrollY || document.documentElement.scrollTop) + 120;
+    var idx = 0;
+    for(var i = 0; i < tops.length; i++){ if(tops[i] <= y) idx = i; else break; }
+    if(idx === current) return;
+    if(current > -1){
+      links[current].classList.remove('on');
+      links[current].removeAttribute('aria-current');
+    }
+    links[idx].classList.add('on');
+    links[idx].setAttribute('aria-current','true');
+    current = idx;
+  }
+
+  function refresh(){ measure(); mark(); }
+
+  addEventListener('scroll', mark, {passive:true});
+  addEventListener('resize', refresh, {passive:true});
+  addEventListener('load', refresh);            // images change the offsets
+  [].forEach.call(document.images, function(img){
+    if(!img.complete) img.addEventListener('load', refresh, {once:true});
+  });
+  refresh();
+})();
+</script>
 </body>
 </html>

@@ -4,568 +4,452 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yardstick: when is LLM-generated SQL safe to trust?</title>
-<meta name="description" content="A pre-registered study of 150 text-to-SQL questions across two prompt strategies and two model sizes. Few-shot prompting produced no significant lift; the most accurate model made errors that were 100% silent.">
+<meta name="description" content="A pre-registered study of 150 text-to-SQL questions across two prompt strategies and two model sizes. Few-shot prompting produced no significant lift. The most accurate model made errors that were 100% silent.">
 <meta property="og:title" content="Yardstick: when is LLM-generated SQL safe to trust?">
-<meta property="og:description" content="A pre-registered study. Few-shot prompting produced no significant lift. The most accurate model's errors were 100% silent: they ran cleanly and returned wrong numbers.">
+<meta property="og:description" content="Pre-registered. Few-shot prompting produced no significant lift. The most accurate model's errors were 100% silent: they ran cleanly and returned wrong numbers.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="figures/fig1_silent_failures.png">
 <meta name="twitter:card" content="summary_large_image">
 
 <style>
+/* ============================================================
+   Yardstick. Presented as a working logbook rather than an article:
+   monospace throughout, lineprinter greenbar for tabular data, real
+   captured terminal output, and pen markup over the plates.
+   ============================================================ */
 :root{
-  --paper:#fdfcfa;      /* barely warm, takes the clinical sterility off pure white */
-  --card:#ffffff;
-  --ink:#191919;
-  --mid:#6f6a63;
-  --rule:#d9d4cc;
-  --faint:#f7f4ee;
-  --signal:#a81f24;     /* significance, and the registration line */
-  --slate:#33566b;      /* the strong model, secondary encoding */
-  --ochre:#b07206;      /* silent failure: looks fine, is not */
-  --good:#2e6b4f;       /* the one thing that worked */
-  --serif:Charter,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-  --mono:Menlo,"SF Mono",Consolas,"Liberation Mono",monospace;
-  --measure:66ch;
+  --paper:#eceae3;        /* the desk the printout sits on */
+  --sheet:#fbfaf6;        /* fanfold stock */
+  --bar:#e3ebdd;          /* greenbar stripe */
+  --ink:#16181a;
+  --mid:#6a6960;
+  --rule:#c9c6bc;
+  --hair:#ddd9d0;
+  --red:#a8322c;          /* pen, and statistical significance */
+  --green:#2f6b45;
+  --amber:#8f6505;
+  --steel:#38566d;
+  --term-bg:#1b1e20;
+  --term-fg:#d8d5cc;
+  --mono:ui-monospace,Menlo,"SF Mono","DejaVu Sans Mono",Consolas,monospace;
+  --hand:"Bradley Hand","Segoe Script","Chalkboard SE","Comic Neue",cursive;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-
-/* ---------- paper grain ----------
-   A fixed, non-interactive noise layer. Borrowed from print: uncoated stock is never
-   perfectly flat, and a trace of tooth stops a large white page reading as sterile.
-   Kept under 4% opacity so it is felt rather than seen. */
-body::before{
-  content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;
-  background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>\
-<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/>\
-<feColorMatrix type='saturate' values='0'/></filter>\
-<rect width='160' height='160' filter='url(%23n)'/></svg>");
-}
-.sheet{position:relative;z-index:2}
-
-/* ---------- scroll reveal ----------
-   8px rise and a fade, once, on entry. Enough to make the page feel alive as you move
-   through it without turning into a slideshow. */
-/* box-shadow and border-color are listed here too, otherwise this rule replaces the
-   figure's own transition and the hover lift stops easing. */
-.rise{opacity:0;transform:translateY(8px);
-  transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1),
-             box-shadow .28s ease,border-color .28s ease}
-.rise.in{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){
-  .rise{opacity:1;transform:none;transition:none}
-}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
-/* ---------- reading progress + sticky bar ---------- */
-#bar{position:fixed;top:0;left:0;height:2px;background:var(--signal);width:0;z-index:60}
-#top{
-  position:fixed;top:0;left:0;right:0;z-index:50;
-  background:rgba(253,252,250,.94);backdrop-filter:saturate(180%) blur(8px);
-  border-bottom:1px solid var(--rule);
-  transform:translateY(-100%);transition:transform .25s ease;
-}
-#top.on{transform:translateY(0)}
-#top .in{
-  max-width:1180px;margin:0 auto;padding:.62rem 5vw;
-  display:flex;align-items:baseline;gap:.9rem;
-  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mid);
-}
-#top .nm{color:var(--ink);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-#top .sec{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#top a{color:var(--signal);text-decoration:none;border-bottom:1px solid var(--rule)}
-@media (prefers-reduced-motion:reduce){#top{transition:none}}
 body{
   margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--serif);font-size:18px;line-height:1.62;
+  font-family:var(--mono);font-size:14.5px;line-height:1.78;
   -webkit-font-smoothing:antialiased;
 }
-.sheet{max-width:1180px;margin:0 auto;padding:0 5vw 8rem}
-.col{max-width:var(--measure)}
 
-/* ---------- masthead ---------- */
-header{padding:5.5rem 0 4.2rem}
-.reg{
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--signal);margin:0 0 1.6rem;
+/* the sheet: a physical printout on the desk */
+.sheet{
+  max-width:1120px;margin:0 auto;background:var(--sheet);
+  border-left:1px solid var(--rule);border-right:1px solid var(--rule);
+  box-shadow:0 0 0 1px rgba(0,0,0,.02),0 18px 50px rgba(20,20,18,.10);
+  padding:0 clamp(20px,4.5vw,64px) 6rem;position:relative;
 }
+/* tractor-feed sprocket holes down both edges */
+.sheet::before,.sheet::after{
+  content:"";position:absolute;top:0;bottom:0;width:16px;pointer-events:none;
+  background-image:radial-gradient(circle at 8px 10px, var(--paper) 3.2px, transparent 3.4px);
+  background-size:16px 26px;opacity:.85;
+}
+.sheet::before{left:0}
+.sheet::after{right:0}
+@media (max-width:760px){.sheet::before,.sheet::after{display:none}}
+
+.wrap{max-width:78ch;margin:0 auto}
+
+/* ---------- document header ---------- */
+header{padding:3.2rem 0 0}
+.docline{
+  display:flex;flex-wrap:wrap;gap:.3rem 1.6rem;font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mid);
+  border-bottom:1px solid var(--ink);padding-bottom:.7rem;margin-bottom:2.4rem;
+}
+.docline .id{color:var(--red)}
 h1{
-  font-size:clamp(2.3rem,5.2vw,3.5rem);line-height:1.08;font-weight:600;
-  letter-spacing:-.015em;margin:0 0 1.1rem;max-width:22ch;text-wrap:balance;
+  font-size:clamp(1.55rem,3.4vw,2.3rem);line-height:1.24;font-weight:700;
+  letter-spacing:-.01em;margin:0 0 1.2rem;max-width:26ch;
 }
-h1 .nb{white-space:nowrap}   /* keep "LLM-generated" from breaking at its hyphen */
-.deck{font-size:1.22rem;line-height:1.5;color:var(--mid);max-width:54ch;margin:0 0 1.6rem}
+.deck{font-size:1rem;line-height:1.75;color:var(--ink);max-width:70ch;margin:0 0 1.6rem}
 
-/* byline strip under the deck: date, author, links, all above the fold */
-.meta{
-  display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;align-items:baseline;margin:0 0 2.4rem;
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--mid);
+.byline{
+  display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;font-size:12px;color:var(--mid);
+  margin:0 0 2.6rem;
 }
-.meta .au{color:var(--ink);font-weight:600}
-.meta a{color:var(--signal);text-decoration:none;border-bottom:1px solid var(--rule);
-  padding-bottom:1px}
-.meta a:hover{border-bottom-color:var(--signal)}
-.meta .sep{color:var(--rule)}
+.byline b{color:var(--ink);font-weight:700}
+.byline a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--rule)}
+.byline a:hover{border-bottom-color:var(--red)}
+.byline .s{color:var(--rule)}
 
-/* registration block, borrowed from trial reporting */
-.trial{
-  border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);
-  padding:1.1rem 0 1.2rem;margin-bottom:0;
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.2rem 2rem;
-}
-.trial div{font-family:var(--mono);font-size:12px;line-height:1.55}
-.trial dt{color:var(--mid);letter-spacing:.08em;text-transform:uppercase;font-size:10px;
-  margin-bottom:.35rem}
-.trial dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+/* ---------- abstract ---------- */
+.abs{border:1px solid var(--ink);padding:1.3rem 1.4rem;margin:0 0 2.4rem;background:#fff}
+.abs .t{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--red);
+  margin-bottom:.9rem}
+.abs p{margin:0 0 .85rem;max-width:none;font-size:14px}
+.abs p:last-child{margin-bottom:0}
+.abs b{font-weight:700}
 
-/* ---------- structure ---------- */
-section{margin:0 0 4.2rem}
-h2{
-  font-size:1.72rem;line-height:1.22;font-weight:600;letter-spacing:-.01em;
-  margin:0 0 .3rem;max-width:24ch;text-wrap:balance;
-}
-h2 .num{
-  font-family:var(--mono);font-size:.72rem;color:var(--signal);
-  letter-spacing:.12em;display:block;margin-bottom:.55rem;text-transform:uppercase;
-}
-/* a short coloured rule opens each section, tinted to that section's subject.
-   It draws itself left to right when the section arrives, like a pen stroke. */
-h2::after{content:"";display:block;width:2.6rem;height:3px;background:var(--signal);
-  margin:.85rem 0 1.35rem;transform-origin:left center;transform:scaleX(0);
-  transition:transform .55s cubic-bezier(.2,.7,.3,1) .1s}
-section.in h2::after{transform:scaleX(1)}
-@media (prefers-reduced-motion:reduce){
-  h2::after{transform:none;transition:none}
-}
-section.s-silent h2::after{background:var(--ochre)}
-section.s-model  h2::after{background:var(--good)}
-section.s-conf   h2::after{background:var(--slate)}
-section.s-route  h2::after{background:var(--mid)}
-section.s-silent h2 .num{color:var(--ochre)}
-section.s-model  h2 .num{color:var(--good)}
-section.s-conf   h2 .num{color:var(--slate)}
-section.s-route  h2 .num{color:var(--mid)}
+/* ---------- spec table ---------- */
+.spec{width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 2.4rem}
+.spec td{padding:.36rem .9rem .36rem 0;border-bottom:1px solid var(--hair);vertical-align:top}
+.spec td:first-child{color:var(--mid);letter-spacing:.07em;text-transform:uppercase;
+  font-size:10.5px;width:15ch;white-space:nowrap;padding-top:.52rem}
+.spec tr:nth-child(even){background:var(--bar)}
 
-/* abstract: the whole project in one block, for someone deciding whether to scroll */
-.abstract{
-  background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--ink);
-  padding:1.8rem 2rem 1.6rem;margin:0 0 2.6rem;max-width:74ch;
-}
-.abstract .tag{
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mid);display:block;margin-bottom:1rem;
-}
-.abstract p{font-size:1.05rem;line-height:1.6;max-width:none;margin:0 0 .95rem}
-.abstract p:last-child{margin-bottom:0}
-.abstract .pop{font-weight:600}
+/* ---------- key numbers ---------- */
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:0;margin:0 0 2.2rem;border:1px solid var(--ink)}
+.keys div{padding:.95rem 1rem;border-right:1px solid var(--hair)}
+.keys div:last-child{border-right:0}
+.keys .n{font-size:1.9rem;line-height:1;font-weight:700;display:block;margin-bottom:.45rem;
+  font-variant-numeric:tabular-nums}
+.keys .l{font-size:10.5px;line-height:1.5;color:var(--mid);display:block}
+.keys .k1 .n{color:var(--amber)} .keys .k2 .n{color:var(--mid)}
+.keys .k3 .n{color:var(--green)} .keys .k4 .n{color:var(--steel)}
+@media (max-width:640px){.keys div{border-right:0;border-bottom:1px solid var(--hair)}}
 
-/* scroll cue */
-.cue{
-  display:flex;align-items:center;gap:.85rem;margin:2.6rem 0 0;
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--mid);
-}
-.cue::after{content:"";flex:1;height:1px;background:var(--rule)}
-.cue .arrow{display:inline-block;animation:nudge 2.4s ease-in-out infinite}
-@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-@media (prefers-reduced-motion:reduce){.cue .arrow{animation:none}}
+/* ---------- sections ---------- */
+section{margin:0 0 3.4rem;padding-top:.6rem}
+h2{font-size:1.06rem;font-weight:700;letter-spacing:.01em;margin:0 0 1.1rem;
+  padding-bottom:.55rem;border-bottom:2px solid var(--ink);max-width:none;
+  display:flex;align-items:baseline;gap:.8rem}
+h2 .n{color:var(--red);font-size:11px;letter-spacing:.12em}
+h2 .t{flex:1}
+h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);
+  font-weight:700;margin:2.2rem 0 .7rem}
+p{margin:0 0 1rem;max-width:78ch}
+b,strong{font-weight:700}
+a{color:var(--red)}
+.note{border-left:3px solid var(--red);background:#fff;padding:.95rem 1.2rem;
+  margin:1.5rem 0;font-size:14px}
+.note p{margin:0}
 
-/* key numbers strip */
-.keys{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
-  gap:1.6rem 2rem;margin:2.2rem 0 .4rem;max-width:960px;
-}
-.keys div{border-top:1px solid var(--rule);padding-top:.8rem}
-.keys .n{font-size:2.5rem;line-height:1;font-weight:600;letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums;display:block;margin-bottom:.45rem}
-.keys .l{font-family:var(--mono);font-size:10.5px;line-height:1.55;color:var(--mid);
-  letter-spacing:.05em;display:block}
-.keys .k1 .n{color:var(--ochre)} .keys .k2 .n{color:var(--mid)}
-.keys .k3 .n{color:var(--good)}  .keys .k4 .n{color:var(--slate)}
+/* ---------- terminal capture ---------- */
+.term{margin:1.7rem 0;background:var(--term-bg);border:1px solid #0d0f10;overflow:hidden}
+.term .hd{display:flex;gap:.7rem;align-items:center;padding:.5rem .9rem;
+  background:#282c2e;color:#9a978d;font-size:11px;letter-spacing:.05em;
+  border-bottom:1px solid #0d0f10}
+.term .hd .dot{width:9px;height:9px;border-radius:50%;background:#4a4f51;flex:none}
+.term .hd .cmd{color:#cfcbc1}
+.term pre{margin:0;padding:.95rem 1.1rem;color:var(--term-fg);font-size:12.5px;
+  line-height:1.72;overflow-x:auto;white-space:pre}
+.term .ok{color:#7fbf8f} .term .bad{color:#e08b7f} .term .dim{color:#7d817f}
+.term .hi{color:#e8c98a}
+.term figcaption{padding:.6rem 1.1rem;background:#232728;color:#8d8a81;font-size:10.5px;
+  letter-spacing:.05em;border-top:1px solid #0d0f10}
 
-/* inline stat chip, so key numbers carry their meaning into the prose */
-.chip{font-family:var(--mono);font-size:.82em;padding:.08em .4em;
-  background:var(--faint);color:var(--ink);white-space:nowrap}
-.chip.o{color:var(--ochre)} .chip.g{color:var(--good)} .chip.s{color:var(--slate)}
-.chip.r{color:var(--signal)}
-h3{font-size:1.06rem;font-weight:600;margin:2.3rem 0 .5rem;letter-spacing:.005em}
-p{margin:0 0 1.05rem;max-width:var(--measure)}
-strong{font-weight:600}
-a{color:var(--signal);text-underline-offset:2px}
-.lede{font-size:1.06rem;color:var(--mid);margin-bottom:1.9rem;max-width:60ch}
+/* ---------- plates (figures) ---------- */
+figure.plate{margin:2rem 0;background:#fff;border:1px solid var(--rule);padding:1rem;
+  position:relative}
+figure.plate img{width:100%;height:auto;display:block}
+figure.plate figcaption{margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--hair);
+  font-size:11.5px;line-height:1.65;color:var(--mid)}
+figure.plate figcaption b{color:var(--ink);letter-spacing:.09em;font-size:10.5px}
+/* the markup layer must cover the plate EXACTLY, not the caption too, or the
+   viewBox coordinates no longer land on the chart */
+.ph{position:relative;line-height:0}
+.mk{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mk path,.mk ellipse,.mk line{fill:none;stroke:var(--red);stroke-width:2.4;
+  stroke-linecap:round;opacity:.82}
+.mk text{fill:var(--red);font-family:var(--hand);font-size:26px;opacity:.9}
+@media (max-width:760px){.mk{display:none}}
 
-/* Tufte style sidenotes. The section is full sheet width while prose is capped at the
-   measure, so floating right drops the note into the empty margin with no negative
-   offsets, which is what previously pushed the page into horizontal scroll. */
-.sn{
-  float:right;clear:right;width:16rem;margin:.35rem 0 1rem 2.5rem;
-  font-family:var(--mono);font-size:11.5px;line-height:1.62;color:var(--mid);
-  border-top:1px solid var(--rule);padding-top:.5rem;
-}
-@media (max-width:1080px){
-  .sn{float:none;width:auto;margin:1.1rem 0;max-width:var(--measure);
-      border-top:0;border-left:2px solid var(--rule);padding:.15rem 0 .15rem .9rem}
-}
+/* ---------- greenbar data tables ---------- */
+.tw{overflow-x:auto;margin:1.5rem 0}
+table.data{border-collapse:collapse;width:100%;min-width:480px;font-size:12.5px;
+  font-variant-numeric:tabular-nums}
+table.data caption{text-align:left;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--mid);padding-bottom:.5rem}
+table.data th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mid);font-weight:700;padding:.4rem .9rem .4rem .55rem;
+  border-bottom:1.5px solid var(--ink);white-space:nowrap}
+table.data td{padding:.4rem .9rem .4rem .55rem;white-space:nowrap;
+  border-bottom:1px solid var(--hair)}
+table.data tbody tr:nth-child(odd){background:var(--bar)}   /* lineprinter greenbar */
+table.data td.r,table.data th.r{text-align:right}
+table.data em{font-style:normal;font-weight:700;color:var(--red)}
+table.data .q{color:var(--mid)}
+table.data .amb{color:var(--amber)}
 
-/* ---------- figures ---------- */
-/* figures sit on white panels so they read as objects against the warm page */
-figure{margin:2.4rem 0 2.6rem;max-width:960px;background:var(--card);
-  border:1px solid var(--rule);padding:1.4rem 1.5rem 1.2rem;
-  transition:box-shadow .28s ease,border-color .28s ease,transform .28s ease}
-/* a plate lifting off the page, not a glass card */
-figure:hover{box-shadow:0 2px 4px rgba(25,25,25,.04),0 12px 28px rgba(25,25,25,.07);
-  border-color:#c8c2b8;transform:translateY(-2px)}
-@media (prefers-reduced-motion:reduce){figure,figure:hover{transition:none;transform:none}}
-figure img{width:100%;height:auto;display:block}
-figcaption{
-  font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--mid);
-  margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--rule);max-width:78ch;
-}
-figcaption b{color:var(--ink);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-  font-size:10.5px}
-
-/* ---------- tables ---------- */
-.tw{overflow-x:auto;margin:1.7rem 0 1.9rem;max-width:900px}
-table{border-collapse:collapse;width:100%;min-width:520px;
-  font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
-caption{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--mid);padding-bottom:.65rem}
-th{text-align:left;font-weight:500;color:var(--mid);letter-spacing:.06em;
-  text-transform:uppercase;font-size:10px;padding:0 1.1rem .5rem 0;
-  border-bottom:1px solid var(--ink);white-space:nowrap}
-td{padding:.5rem 1.1rem .5rem 0;border-bottom:1px solid var(--rule);white-space:nowrap}
-td.r,th.r{text-align:right}
-tbody tr:hover td{background:var(--faint)}
-tr.key td{background:var(--faint)}
-tr.key:hover td{background:#f0ebe1}
-td em{font-style:normal;color:var(--signal);font-weight:600}
-td .q{color:var(--mid)}
-
-/* ---------- worked failure example ---------- */
-.fail{margin:2rem 0 2.2rem;max-width:900px;border:1px solid var(--rule);background:var(--card)}
-.fail .q{padding:1.05rem 1.3rem;border-bottom:1px solid var(--rule);font-size:1.02rem}
-.fail .q span{font-family:var(--mono);font-size:10px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--mid);display:block;margin-bottom:.4rem}
-.fail .pair{display:grid;grid-template-columns:1fr 1fr}
-.fail .side{padding:1.05rem 1.3rem}
-.fail .side + .side{border-left:1px solid var(--rule)}
-.fail .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
-  margin-bottom:.55rem}
-.fail .ok .lbl{color:var(--good)}
-.fail .bad .lbl{color:var(--ochre)}
-.fail code{display:block;background:none;padding:0;font-size:12.5px;line-height:1.75;
-  white-space:pre-wrap;word-break:break-word}
-.fail .diff{background:#f6e6c8;padding:.05em .25em;font-weight:600}
-.fail .ret{font-family:var(--mono);font-size:11px;color:var(--mid);margin-top:.75rem;
-  padding-top:.6rem;border-top:1px solid var(--rule)}
-.fail .verdict{padding:1rem 1.3rem;border-top:1px solid var(--rule);background:var(--faint);
-  font-size:.98rem}
-@media (max-width:720px){
-  .fail .pair{grid-template-columns:1fr}
-  .fail .side + .side{border-left:0;border-top:1px solid var(--rule)}
+/* ---------- failure exhibit ---------- */
+.exh{border:1px solid var(--ink);margin:1.7rem 0;background:#fff}
+.exh .q{padding:.85rem 1.1rem;border-bottom:1px solid var(--hair);font-size:13.5px}
+.exh .q span{display:block;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:.35rem}
+.exh .pair{display:grid;grid-template-columns:1fr 1fr}
+.exh .side{padding:.9rem 1.1rem}
+.exh .side+.side{border-left:1px solid var(--hair)}
+.exh .lb{font-size:10px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:.5rem}
+.exh .ok .lb{color:var(--green)} .exh .no .lb{color:var(--amber)}
+.exh code{display:block;font-size:12.5px;line-height:1.7;white-space:pre-wrap;
+  word-break:break-word}
+.exh .d{background:#f6e2b8;font-weight:700;padding:0 .2em}
+.exh .ret{font-size:11px;color:var(--mid);margin-top:.6rem;padding-top:.5rem;
+  border-top:1px solid var(--hair)}
+.exh .vd{padding:.85rem 1.1rem;border-top:1px solid var(--hair);background:var(--bar);
+  font-size:13.5px}
+@media (max-width:700px){
+  .exh .pair{grid-template-columns:1fr}
+  .exh .side+.side{border-left:0;border-top:1px solid var(--hair)}
 }
 
 /* ---------- funnel ---------- */
-.funnel{margin:1.9rem 0 2.2rem;max-width:640px}
-.fstep{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;
-  border-left:2px solid var(--ink);padding:.62rem 0 .62rem 1.1rem;position:relative}
-.fstep + .fstep{border-top:1px solid var(--rule)}
-.fstep .what{font-size:.95rem}
-.fstep .n{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;
-  white-space:nowrap}
-.fstep.out{color:var(--mid);border-left-color:var(--rule)}
-.fstep.out .n{color:var(--signal)}
-.fstep.final{border-left-color:var(--signal);background:var(--faint)}
-.fstep.final .what,.fstep.final .n{font-weight:600}
+.fun{margin:1.5rem 0;max-width:62ch;font-size:13px}
+.fun div{display:flex;justify-content:space-between;gap:1.2rem;
+  padding:.42rem .6rem;border-bottom:1px solid var(--hair)}
+.fun div:nth-child(odd){background:var(--bar)}
+.fun .n{white-space:nowrap;font-variant-numeric:tabular-nums}
+.fun .out{color:var(--mid)} .fun .out .n{color:var(--red)}
+.fun .fin{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
+  font-weight:700;background:#fff}
 
-/* ---------- callout ---------- */
-.note{
-  background:var(--faint);border-left:2px solid var(--signal);
-  padding:1.15rem 1.4rem;margin:1.9rem 0;max-width:var(--measure);
-}
-.note p{margin:0;font-size:1.02rem}
-.note p + p{margin-top:.7rem}
-
-/* ---------- recommendation ---------- */
-ol.rec{list-style:none;counter-reset:rec;padding:0;margin:1.6rem 0 0;max-width:var(--measure)}
-ol.rec li{counter-increment:rec;position:relative;padding:0 0 1.15rem 2.5rem;
-  margin-bottom:1.15rem;border-bottom:1px solid var(--rule)}
+/* ---------- lists ---------- */
+ol.rec{counter-reset:r;list-style:none;padding:0;margin:1.3rem 0 0}
+ol.rec li{counter-increment:r;position:relative;padding:0 0 .9rem 3.2rem;margin-bottom:.9rem;
+  border-bottom:1px solid var(--hair);font-size:14px}
 ol.rec li:last-child{border-bottom:0}
-ol.rec li::before{content:counter(rec);position:absolute;left:0;top:.12rem;
-  font-family:var(--mono);font-size:.82rem;color:var(--signal);font-weight:600}
+ol.rec li::before{content:"[" counter(r) "]";position:absolute;left:0;top:0;
+  color:var(--red);font-weight:700;font-size:12px}
+dl.lim{margin:1.2rem 0 0}
+dl.lim dt{font-weight:700;margin-top:1.1rem;font-size:13.5px}
+dl.lim dd{margin:.15rem 0 0;color:var(--mid);font-size:13.5px}
 
-/* ---------- limitations ---------- */
-dl.lim{margin:1.5rem 0 0;max-width:var(--measure)}
-dl.lim dt{font-weight:600;font-size:1rem;margin-top:1.25rem}
-dl.lim dd{margin:.2rem 0 0;color:var(--mid);font-size:.98rem}
-
-code{font-family:var(--mono);font-size:.85em;background:var(--faint);padding:.1em .35em}
-pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--faint);
-  padding:1.1rem 1.3rem;overflow-x:auto;max-width:840px;border-left:2px solid var(--rule)}
-pre code{background:none;padding:0}
-
-footer{border-top:2px solid var(--ink);padding-top:1.3rem;margin-top:5rem;
-  font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--mid);max-width:80ch}
-footer a{color:var(--signal)}
-.byline{display:flex;flex-wrap:wrap;gap:.6rem 1.8rem;align-items:baseline;
-  padding-bottom:1.1rem;margin-bottom:1.1rem;border-bottom:1px solid var(--rule)}
-.byline .who{font-family:var(--serif);font-size:1.12rem;color:var(--ink);font-weight:600;
-  letter-spacing:-.005em}
-.byline a{text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:1px}
-.byline a:hover{border-bottom-color:var(--signal)}
-hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960px}
+footer{border-top:2px solid var(--ink);margin-top:3.5rem;padding-top:1.1rem;
+  font-size:11.5px;line-height:1.8;color:var(--mid)}
+footer a{color:var(--red);text-decoration:none;border-bottom:1px solid var(--rule)}
+footer .ft{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;padding-bottom:.9rem;
+  margin-bottom:.9rem;border-bottom:1px solid var(--hair)}
+footer .ft b{color:var(--ink);font-size:13px}
 </style>
 </head>
 <body>
-
-<div id="bar"></div>
-<div id="top"><div class="in">
-  <span class="nm">Yardstick</span>
-  <span class="sec" id="topsec">When is LLM-generated SQL safe to trust?</span>
-  <a href="https://github.com/A28-2001/yardstick">GitHub</a>
-</div></div>
-
-<div class="sheet">
+<div class="sheet"><div class="wrap">
 
 <header>
-  <p class="reg">Pre-registered study &middot; registration committed to Git before the full run</p>
-  <h1>When is <span class="nb">LLM-generated</span> SQL safe to trust?</h1>
+  <div class="docline">
+    <span class="id">Yardstick / 001</span>
+    <span>Pre-registered study</span>
+    <span>July 2026</span>
+    <span>600 / 600 observations</span>
+  </div>
+
+  <h1>When is LLM-generated SQL safe to trust?</h1>
+
   <p class="deck">
     A query that throws a syntax error is a visible failure. A query that runs cleanly and
     returns plausible but wrong numbers is an invisible one. This study measures how often
-    each happens, and finds the invisible kind gets worse as models get better.
+    each happens across two prompting strategies and two model sizes, and finds the
+    invisible kind gets worse as models get better.
   </p>
 
-  <p class="meta">
-    <span class="au">Aakash Mehta</span>
-    <span class="sep">/</span><span>July 2026</span>
-    <span class="sep">/</span><a href="https://github.com/A28-2001/yardstick">Code and data on GitHub</a>
-    <span class="sep">/</span><a href="mailto:aakashmehta893@gmail.com">Email</a>
-    <span class="sep">/</span><a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
+  <p class="byline">
+    <b>Aakash Mehta</b><span class="s">/</span>
+    <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a><span class="s">/</span>
+    <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a><span class="s">/</span>
+    <a href="https://github.com/A28-2001/yardstick">Source and data</a>
   </p>
 
-  <div class="abstract">
-    <span class="tag">The short version</span>
+  <div class="abs">
+    <div class="t">Abstract</div>
     <p>
-      I ran a controlled experiment to test whether the normal way of shipping
-      LLM-generated SQL is safe. 150 natural-language questions went to four
-      configurations, two prompting strategies crossed with two model sizes, and all 600
-      generated queries were executed against real databases and compared to
-      human-written answers. The hypothesis, the metric and the statistical test were
-      committed to version control <span class="pop">before</span> the full run, so the
-      results could not be reshaped after the fact.
+      150 natural-language questions were put to four configurations, two prompting
+      strategies crossed with two model sizes. All 600 generated queries were executed
+      against real SQLite databases and compared to human-written gold answers. The
+      hypothesis, the primary metric and the statistical test were committed to version
+      control <b>before</b> the full run.
     </p>
     <p>
-      <span class="pop">Three things came out of it.</span> Few-shot prompting produced no
-      significant improvement at any difficulty level, which was a null result and is
-      reported as one. Model size did help, but only on hard queries, and not at all in
-      the middle. And the most accurate configuration turned out to be the most dangerous:
-      <span class="pop">every single error it made ran without complaint and returned
-      believable wrong numbers.</span>
+      Few-shot prompting produced no significant improvement at any difficulty tier. Model
+      size did, but only on complex queries, and not at all in the middle tier. The most
+      accurate configuration proved the most hazardous: <b>every error it made executed
+      without complaint and returned believable wrong numbers</b>, at a mean self-reported
+      confidence of 0.95.
     </p>
     <p>
-      That last point is the reason the study exists. A query that crashes gets
-      investigated. A query that quietly returns the wrong revenue figure goes into a
-      board deck. The practical recommendation is at the end, and it does not involve
-      trusting the model's own confidence score.
+      Cross-model result disagreement predicted incorrectness far better than any model's
+      own confidence (AUC 0.861 against 0.647), which is the basis for the deployment
+      recommendation in section 07.
     </p>
   </div>
 
-  <dl class="trial">
-    <div><dt>Design</dt><dd>2 &times; 2 factorial, 3 tiers</dd></div>
-    <div><dt>Sample</dt><dd>150 questions, 93 databases</dd></div>
-    <div><dt>Observations</dt><dd>600 / 600 complete</dd></div>
-    <div><dt>Primary endpoint</dt><dd>Execution accuracy</dd></div>
-    <div><dt>Primary test</dt><dd>McNemar exact, BH corrected</dd></div>
-    <div><dt>Data</dt><dd>Spider, CC BY-SA 4.0</dd></div>
-    <div><dt>Built with</dt><dd>Python, SQLite, Postgres, statsmodels,
-      scikit-learn, sqlglot, matplotlib</dd></div>
-    <div><dt>Cost</dt><dd>$0 actual, $0.19 at list price</dd></div>
-  </dl>
+  <table class="spec">
+    <tr><td>Design</td><td>2 &times; 2 factorial (prompt strategy &times; model size), three complexity tiers</td></tr>
+    <tr><td>Corpus</td><td>Spider, 150 questions across 93 databases, CC BY-SA 4.0</td></tr>
+    <tr><td>Endpoint</td><td>Execution accuracy, binary per question, set comparison against gold</td></tr>
+    <tr><td>Test</td><td>McNemar exact on paired outcomes, 10,000 resample bootstrap CI, Benjamini Hochberg</td></tr>
+    <tr><td>Stack</td><td>Python, SQLite, Postgres, statsmodels, scikit-learn, sqlglot, matplotlib</td></tr>
+    <tr><td>Cost</td><td>$0.00 actual, $0.19 at published list prices</td></tr>
+  </table>
 
   <div class="keys">
-    <div class="k1"><span class="n">100%</span><span class="l">of the best model's
-      errors ran cleanly and returned wrong numbers</span></div>
-    <div class="k2"><span class="n">0</span><span class="l">tiers where few-shot
-      prompting produced a significant gain</span></div>
-    <div class="k3"><span class="n">+28</span><span class="l">points from the bigger
-      model on complex queries, p = 0.0013</span></div>
-    <div class="k4"><span class="n">84%</span><span class="l">of errors caught by
-      reviewing the 28% where two models disagree</span></div>
+    <div class="k1"><span class="n">100%</span><span class="l">of the best model's errors
+      ran clean and returned wrong rows</span></div>
+    <div class="k2"><span class="n">0</span><span class="l">tiers where few-shot prompting
+      gave a significant gain</span></div>
+    <div class="k3"><span class="n">+28</span><span class="l">points from the larger model
+      on complex queries, p=0.0013</span></div>
+    <div class="k4"><span class="n">84%</span><span class="l">of errors caught by reviewing
+      the 28% where models disagree</span></div>
   </div>
-
-  <p class="cue"><span class="arrow">&darr;</span> Full study below: five figures, the
-    statistics, the negative results, and what to deploy</p>
 </header>
 
-<!-- ============================================================ -->
+<!-- ================= 01 ================= -->
 <section>
-  <h2><span class="num">Summary</span>What the study found</h2>
-
-  <p class="lede">
-    Teams are letting language models write SQL against production warehouses. The usual
-    process is to validate on a benchmark, pick the prompt that wins, and deploy it
-    everywhere. This study asks whether that is safe.
-  </p>
-
+  <h2><span class="n">01</span><span class="t">Setup and verification</span></h2>
   <p>
-    <strong>Few-shot prompting did nothing that could be distinguished from noise.</strong>
-    Across all three complexity tiers the lift was &minus;2, 0, and +8 percentage points,
-    and every one of those was non-significant after correction. A ten-question pilot had
-    suggested few-shot nearly doubled accuracy on hard queries. At the full sample that
-    collapsed. Pre-registration is the only reason this is written up as a null result
-    instead of a discovery.
+    Everything runs on free infrastructure: two Llama models on Groq for generation,
+    Postgres for results, SQLite for the target databases. Before any experiment code ran,
+    a verification script confirmed every dependency end to end.
   </p>
 
-  <p class="sn">
-    The pilot showed 33% to 67% on complex queries. The full run showed 60% to 68%,
-    p = 1.00 after correction. Committing the hypothesis and the test to Git beforehand
-    removed the option of building a story around the pilot.
-  </p>
+  <figure class="term">
+    <div class="hd"><span class="dot"></span><span class="cmd">$ python scripts/verify_setup.py</span></div>
+<pre>Yardstick. Phase 0 verification
 
-  <p>
-    <strong>Model size was the only lever that moved anything</strong>, and only on the
-    hardest queries: +28 points, and nothing at all on the middle tier. But the most
-    interesting result is not about accuracy.
-    <strong>The most accurate variant in the study made errors that were 100% silent.</strong>
-    Every single one executed without complaint and returned believable wrong numbers.
-    The weakest model at least failed loudly some of the time.
-  </p>
+  <span class="ok">✓ PASS</span> env  <span class="dim">(.env loaded; set: GROQ_API_KEY, DATABASE_URL)</span>
+  <span class="ok">✓ PASS</span> supabase-postgres  <span class="dim">(connected; all 5 tables present)</span>
+  <span class="ok">✓ PASS</span> groq-api  <span class="dim">(llama-3.1-8b-instant ✓  llama-3.3-70b-versatile ✓)</span>
+  <span class="ok">✓ PASS</span> sqlite-readonly  <span class="dim">(opened mode=ro, read 3 rows, writes blocked)</span>
 
-  <div class="note">
-    <p>
-      Choosing a model by benchmark score selects for <em>quieter</em> failures, not
-      necessarily fewer dangerous ones. A wrong number that arrives with an error message
-      gets investigated. A wrong number that arrives looking correct goes into a dashboard.
-    </p>
-  </div>
+Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, both providers, read-only SQLite all verified)</span></pre>
+    <figcaption>Captured output. Generated SQL is untrusted, so every database is opened
+      read-only and the check asserts that writes are actually rejected.</figcaption>
+  </figure>
 </section>
 
-<hr class="div">
-
-<!-- ============================================================ -->
-<section class="s-silent">
-  <h2><span class="num">Finding 1</span>Better models fail more quietly</h2>
-  <p class="lede">
-    Silent failure means the generated query ran without error and returned the wrong rows.
+<!-- ================= 02 ================= -->
+<section>
+  <h2><span class="n">02</span><span class="t">Building the sample</span></h2>
+  <p>
+    Difficulty tiers come from Spider's own <code>eval_hardness()</code> function rather
+    than from my judgement, so the tier boundaries cannot be accused of being drawn to fit
+    the conclusion. Every gold query was executed before its question entered the sample.
   </p>
 
-  <figure>
-    <img src="figures/fig1_silent_failures.png"
-         alt="Horizontal bars showing the share of each variant's errors that were silent: V2 81 percent, V1 89 percent, V4 95 percent, V3 100 percent. The two 70B variants are both above the two 8B variants.">
-    <figcaption><b>Figure 1</b><br>
-      Share of each variant's errors that ran cleanly and returned wrong rows, ordered by
-      accuracy. Both strong-model variants sit above both cheap-model variants.
-      n = 150 per variant.</figcaption>
+  <div class="fun">
+    <div><span>Spider train and dev examples</span><span class="n">8,034</span></div>
+    <div><span>Labelled into three tiers by the official hardness function</span><span class="n">8,034</span></div>
+    <div><span>Seeded sample, capped at 3 questions per database</span><span class="n">159</span></div>
+    <div class="out"><span>Excluded, gold query returned zero rows</span><span class="n">-7</span></div>
+    <div class="out"><span>Excluded, broken gold SQL found by hand review</span><span class="n">-2</span></div>
+    <div class="fin"><span>Analysed, 50 per tier across 93 databases</span><span class="n">150</span></div>
+  </div>
+
+  <p>
+    The two hand-review exclusions shared a defect: a join condition comparing a column to
+    itself, which silently produces a cartesian product, plus a select list returning last
+    names where the question asked for first names. Benchmarks contain broken ground truth.
+    Including it would have measured that rather than the models.
+  </p>
+</section>
+
+<!-- ================= 03 ================= -->
+<section>
+  <h2><span class="n">03</span><span class="t">Result: better models fail more quietly</span></h2>
+  <p>
+    A silent failure is a generated query that executed without error and returned the
+    wrong rows. Ordered by accuracy, both large-model variants sit above both small-model
+    variants on this measure.
+  </p>
+
+  <figure class="plate" id="p1">
+    <div class="ph">
+      <img src="figures/fig1_silent_failures.png"
+           alt="Bars showing the share of each variant's errors that were silent: V2 81 percent, V1 89 percent, V4 95 percent, V3 100 percent.">
+      <svg class="mk" viewBox="0 0 2142 1189" preserveAspectRatio="none" aria-hidden="true">
+        <ellipse cx="1495" cy="622" rx="215" ry="60" transform="rotate(-1.4 1495 622)"/>
+        <path d="M1290 640 C1120 700, 980 726, 880 736"/>
+        <path d="M908 722 L872 737 L906 752"/>
+        <text x="855" y="748" text-anchor="end">never fails loudly</text>
+      </svg>
+    </div>
+    <figcaption><b>PLATE 1</b> &nbsp; Share of each variant's errors that were silent.
+      n = 150 per variant. Colour encodes model size, not severity.</figcaption>
   </figure>
 
   <p>
-    The ordering is not perfectly monotonic, and it should not be over-read at four points.
-    What is clear is the grouping: the two 70B variants are 95% and 100% silent, and the two
-    8B variants are 81% and 89%. Broken out by question difficulty rather than by variant,
-    <strong>82% of errors on complex questions were silent, 95% on simple ones, and 97% on
-    the middle tier.</strong>
+    Broken out by question difficulty rather than by variant, <b>82% of errors on complex
+    questions were silent, 95% on simple, and 97% on the middle tier.</b> The strongest
+    model also reported 95% average confidence on the answers it got wrong, so nothing in
+    its own output flags the problem.
   </p>
 
-  <p class="sn">
-    The mechanism is visible in the error taxonomy. Loud failures are almost entirely
-    <code>schema_error</code>, meaning the model invented a table or column. Stronger models
-    stop doing that, so what remains is subtly wrong logic that executes fine.
-  </p>
-
-  <p>
-    The strong model also stated 95% average confidence on the answers it got wrong, so
-    nothing in its own output flags the problem either.
-  </p>
-
-  <h3>What one actually looks like</h3>
-  <p>
-    This is a real failure from the run, produced by the strongest variant. The difference
-    is one word.
-  </p>
-
-  <div class="fail">
-    <div class="q"><span>The question asked</span>
-      Which job titles correspond to jobs with salaries over 9000?</div>
+  <h3>Exhibit: one real failure</h3>
+  <div class="exh">
+    <div class="q"><span>Question</span>Which job titles correspond to jobs with salaries over 9000?</div>
     <div class="pair">
       <div class="side ok">
-        <div class="lbl">Correct answer</div>
+        <div class="lb">Gold</div>
         <code>SELECT job_title
 FROM jobs
-WHERE <span class="diff">min_salary</span> &gt; 9000</code>
-        <div class="ret">returns 3 job titles</div>
+WHERE <span class="d">min_salary</span> &gt; 9000</code>
+        <div class="ret">3 rows</div>
       </div>
-      <div class="side bad">
-        <div class="lbl">What the model wrote</div>
+      <div class="side no">
+        <div class="lb">Generated, 70B zero-shot</div>
         <code>SELECT JOB_TITLE
 FROM jobs
-WHERE <span class="diff">MAX_SALARY</span> &gt; 9000</code>
-        <div class="ret">returns 10 job titles, confidence 1.00</div>
+WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
+        <div class="ret">10 rows, self-reported confidence 1.00</div>
       </div>
     </div>
-    <div class="verdict">
-      The query is valid SQL. It runs in milliseconds, returns a clean list of real job
-      titles from the right table, and raises nothing. It answers a different question:
-      jobs whose <em>ceiling</em> is above 9000 rather than jobs whose <em>floor</em> is.
-      The model reported maximum confidence. Without the correct answer sitting next to
-      it, there is nothing here for a reviewer to catch.
+    <div class="vd">
+      Valid SQL. Runs in milliseconds against the right table and returns real job titles.
+      It answers a different question: jobs whose ceiling is above 9000 rather than jobs
+      whose floor is. One word, no error, maximum stated confidence.
     </div>
   </div>
 </section>
 
-<!-- ============================================================ -->
-<section class="s-model">
-  <h2><span class="num">Finding 2</span>Prompting did nothing, model size did</h2>
+<!-- ================= 04 ================= -->
+<section>
+  <h2><span class="n">04</span><span class="t">Result: prompting did nothing, model size did</span></h2>
 
-  <figure>
-    <img src="figures/fig2_forest.png"
-         alt="Forest plot. The three primary prompt-effect comparisons all have confidence intervals crossing zero. Below them, the model effect is significant on complex queries at plus 28 points.">
-    <figcaption><b>Figure 2</b><br>
-      Accuracy differences in percentage points with 95% bootstrap confidence intervals.
-      Top block is the pre-registered primary comparison, few-shot against zero-shot on the
-      cheap model, Benjamini Hochberg corrected. Bottom block is the exploratory model
-      effect, uncorrected.</figcaption>
+  <figure class="plate">
+    <div class="ph">
+      <img src="figures/fig2_forest.png"
+           alt="Forest plot. All three primary prompt-effect intervals cross zero. The model effect on complex queries is plus 28 points and significant.">
+      <svg class="mk" viewBox="0 0 2121 1382" preserveAspectRatio="none" aria-hidden="true">
+        <ellipse cx="1290" cy="757" rx="345" ry="52" transform="rotate(-.7 1290 757)"/>
+        <path d="M960 780 C820 828, 700 852, 610 862"/>
+        <path d="M640 848 L602 863 L638 878"/>
+        <text x="588" y="874" text-anchor="end">the only one that cleared zero</text>
+      </svg>
+    </div>
+    <figcaption><b>PLATE 2</b> &nbsp; Accuracy differences in percentage points, 95%
+      bootstrap intervals. Upper block is the pre-registered primary comparison, Benjamini
+      Hochberg corrected. Lower block is the exploratory model effect, uncorrected.</figcaption>
+  </figure>
+
+  <p>
+    Every prompt-effect interval crosses zero. A ten-question pilot had suggested few-shot
+    nearly doubled accuracy on complex queries. At the full sample it collapsed to a
+    non-significant eight points. The pre-registration is the reason this appears as a null
+    result rather than a discovery.
+  </p>
+
+  <figure class="term">
+    <div class="hd"><span class="dot"></span><span class="cmd">$ python scripts/analyze_primary.py</span></div>
+<pre>  complex (n=50 paired)
+    V1 acc=0.600  V2 acc=0.680  diff=+8.0 pts  95% CI [-6.0, +22.0]
+    discordant: V1-only=5  V2-only=9  <span class="dim">(both correct=25, both wrong=11)</span>
+    McNemar exact p = 0.4240
+
+Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
+  simple    raw p=1.0000  adj p=1.0000  <span class="dim">not significant</span>
+  moderate  raw p=1.0000  adj p=1.0000  <span class="dim">not significant</span>
+  complex   raw p=0.4240  adj p=1.0000  <span class="dim">not significant</span></pre>
+    <figcaption>Captured output. The primary hypothesis was that few-shot lift would differ
+      across tiers. There is no lift anywhere to differ.</figcaption>
   </figure>
 
   <div class="tw">
-    <table>
-      <caption>Primary comparison, few-shot against zero-shot, by tier</caption>
-      <thead><tr><th>Tier</th><th class="r">Zero-shot</th><th class="r">Few-shot</th>
-        <th class="r">Difference</th><th>95% CI</th><th class="r">Adjusted p</th></tr></thead>
-      <tbody>
-        <tr><td>simple</td><td class="r">0.88</td><td class="r">0.86</td>
-          <td class="r">&minus;2.0</td><td>[&minus;6, 0]</td><td class="r">1.000</td></tr>
-        <tr><td>moderate</td><td class="r">0.82</td><td class="r">0.82</td>
-          <td class="r">0.0</td><td>[&minus;12, +12]</td><td class="r">1.000</td></tr>
-        <tr><td>complex</td><td class="r">0.60</td><td class="r">0.68</td>
-          <td class="r">+8.0</td><td>[&minus;6, +22]</td><td class="r">1.000</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <p>
-    The hypothesis was that few-shot lift would differ across complexity tiers. It does not,
-    because there is no lift anywhere to differ.
-  </p>
-
-  <p class="sn">
-    Not significant is not the same as zero. The complex-tier point estimate is positive and
-    its interval reaches +22, so a real moderate effect there cannot be ruled out. At 50
-    questions per tier this study can only detect differences of roughly 14 to 27 points.
-  </p>
-
-  <p>
-    The model effect is a different story. Upgrading from the 8B to the 70B model produced
-    <strong>+28 points on complex queries</strong> (95% CI [+14, +42], p = 0.0013) under
-    zero-shot prompting, and +16 points (p = 0.039) under few-shot. Those are the only
-    significant effects anywhere in the study. On the moderate tier the same upgrade
-    produced <strong>exactly zero</strong>: every variant landed between 82% and 84%,
-    which suggests whatever limits accuracy there is not something this design manipulates.
-  </p>
-
-  <div class="tw">
-    <table>
+    <table class="data">
       <caption>Execution accuracy by variant and tier, silent-failure rate in brackets</caption>
       <thead><tr><th>Tier</th><th class="r">V1 8B zero</th><th class="r">V2 8B few</th>
         <th class="r">V3 70B zero</th><th class="r">V4 70B few</th></tr></thead>
@@ -586,397 +470,192 @@ WHERE <span class="diff">MAX_SALARY</span> &gt; 9000</code>
     </table>
   </div>
 
-  <figure>
+  <p>
+    The 8B to 70B upgrade gave <b>+28 points on complex queries</b> (95% CI [+14, +42],
+    p = 0.0013) zero-shot and +16 points (p = 0.039) few-shot. Those are the only
+    significant effects in the study. On the moderate tier the same upgrade gave exactly
+    zero: every variant landed between 0.82 and 0.84, which suggests whatever limits
+    accuracy there is not something this design manipulates.
+  </p>
+
+  <figure class="plate">
     <img src="figures/fig5_taxonomy.png"
-         alt="Grouped bar chart of error types. Wrong joins fall from 33 with the 8B model to 13 with the 70B model. Schema errors fall from 10 to 1.">
-    <figcaption><b>Figure 3</b><br>
-      What the model upgrade actually fixes. Wrong joins fall from 33 to 13 and invented
-      tables or columns from 10 to 1. Every category except schema error is a silent
-      failure mode.</figcaption>
+         alt="Grouped bars of error types. Wrong joins fall from 33 with the small model to 13 with the large one.">
+    <figcaption><b>PLATE 3</b> &nbsp; What the upgrade actually fixes. Wrong joins fall
+      from 33 to 13, invented tables or columns from 10 to 1. Every category except schema
+      error is a silent failure mode.</figcaption>
   </figure>
 </section>
 
-<!-- ============================================================ -->
-<section class="s-conf">
-  <h2><span class="num">Finding 3</span>Confidence is useless, agreement is not</h2>
+<!-- ================= 05 ================= -->
+<section>
+  <h2><span class="n">05</span><span class="t">Result: confidence is useless, agreement is not</span></h2>
 
-  <figure>
+  <figure class="plate">
     <img src="figures/fig3_calibration.png"
-         alt="Dumbbell chart comparing stated confidence with measured accuracy for each variant. Gaps run from 22 points down to 6 points, all in the overconfident direction.">
-    <figcaption><b>Figure 4</b><br>
-      Stated confidence against measured accuracy, sorted by the size of the gap. Every
-      variant is overconfident. The gap narrows as models improve but never closes.</figcaption>
+         alt="Dumbbell chart of stated confidence against measured accuracy. Gaps run from 22 points down to 6, all overconfident.">
+    <figcaption><b>PLATE 4</b> &nbsp; Stated confidence against measured accuracy, sorted
+      by gap. Every variant is overconfident. The gap narrows as models improve but never
+      closes.</figcaption>
   </figure>
 
   <p>
-    The weakest variant reported an average confidence of 98.6% while being correct 76.7%
-    of the time. Even the best-calibrated variant overstates itself by 6 points. All four
-    remain between 87% and 96% confident on the answers they get wrong, so confidence
-    carries almost no information about whether a specific query is right.
-  </p>
-
-  <p>
-    A signal that does work costs one extra cheap call: <strong>run two models and compare
-    what their queries actually return.</strong>
+    The weakest variant reported 98.6% average confidence while being correct 76.7% of the
+    time. All four stay between 87% and 96% confident on the answers they get wrong, so
+    confidence carries almost no information about whether any specific query is right.
   </p>
 
   <div class="tw">
-    <table>
+    <table class="data">
       <caption>Predicting correctness, area under the ROC curve</caption>
       <thead><tr><th>Signal</th><th class="r">AUC</th><th class="r">Flags</th>
         <th class="r">Errors caught</th><th class="r">False alarms</th></tr></thead>
       <tbody>
-        <tr class="key"><td>Result-set agreement</td><td class="r"><em>0.861</em></td>
+        <tr><td>Cross-model result agreement</td><td class="r"><em>0.861</em></td>
           <td class="r">28%</td><td class="r"><em>84%</em></td><td class="r">16%</td></tr>
-        <tr><td>Query structure agreement</td><td class="r">0.710</td>
-          <td class="r">74%</td><td class="r">100%</td><td class="r">69%</td></tr>
+        <tr><td>Query structure agreement</td><td class="r">0.710</td><td class="r">74%</td>
+          <td class="r">100%</td><td class="r">69%</td></tr>
         <tr><td>Self-reported confidence</td><td class="r">0.647</td>
-          <td class="r"><span class="q">n/a</span></td>
-          <td class="r"><span class="q">n/a</span></td>
-          <td class="r"><span class="q">n/a</span></td></tr>
+          <td class="r q">n/a</td><td class="r q">n/a</td><td class="r q">n/a</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p class="sn">
-    None of these signals needs the correct answer, so all three are available in
-    production. Noticing that two models disagree requires no ground truth, which is
-    exactly what makes it deployable.
-  </p>
-
-  <p>
-    Reviewing only the 28% of queries where two models disagree on the executed result
-    catches 84% of all errors, at a 16% false-alarm rate. Comparing query structure instead
-    catches everything but flags three quarters of all output, which is too noisy to act on.
-  </p>
+  <div class="note">
+    <p>
+      None of these signals requires the correct answer, so all three are available in
+      production. Reviewing only the 28% of queries where two models disagree on the
+      executed result catches 84% of all errors, at a 16% false-alarm rate. That costs one
+      extra call to a cheap model.
+    </p>
+  </div>
 </section>
 
-<!-- ============================================================ -->
-<section class="s-route">
-  <h2><span class="num">Finding 4</span>Difficulty routing did not beat random</h2>
-  <p class="lede">
-    Reported as the negative result it is.
-  </p>
+<!-- ================= 06 ================= -->
+<section>
+  <h2><span class="n">06</span><span class="t">Result: difficulty routing did not beat random</span></h2>
 
-  <figure>
+  <figure class="plate">
     <img src="figures/fig4_routing.png"
-         alt="Scatter plot of cost against accuracy for six routing policies. Difficulty routing and random routing both sit at 78.3 percent accuracy. The oracle sits above always-expensive at lower cost.">
-    <figcaption><b>Figure 5</b><br>
-      Six routing policies on the held-out test set. Difficulty routing is cheaper than
-      random but no more accurate. The oracle, which has perfect foresight, is both cheaper
-      and more accurate than always using the expensive model.</figcaption>
+         alt="Cost against accuracy for six routing policies. Difficulty routing and random both reach 78.3 percent.">
+    <figcaption><b>PLATE 5</b> &nbsp; Six routing policies on the held-out test split.
+      Difficulty routing is cheaper than random but no more accurate. The oracle is both
+      cheaper and more accurate than always using the expensive model.</figcaption>
   </figure>
 
   <p>
     The predictor uses only features computable from the question text and the schema,
-    before any SQL is generated. That constraint is what makes routing worthwhile at all,
-    since a feature requiring a model call would defeat the purpose.
-    <strong>A single feature, question length, scored AUC 0.724 and beat the six-feature
-    model at 0.665.</strong> Schema size was pure noise at 0.507.
-  </p>
-
-  <p class="sn">
-    Generalisation was weak too. Holding out an entire tier dropped complex-tier prediction
-    to chance (0.525). Holding out entire databases, which is the real production question,
-    held at 0.670 across 93 folds.
+    before any SQL is generated. <b>A single feature, question length, scored AUC 0.724 and
+    beat the six-feature model at 0.665.</b> Schema size was noise at 0.507. Holding out an
+    entire tier dropped complex-tier prediction to chance. Holding out entire databases,
+    which is the production question, held at 0.670 across 93 folds.
   </p>
 
   <p>
-    Two things here are worth more than the routing number itself. The oracle reached 90.0%
+    Two findings here matter more than the routing number. The oracle reached 0.900
     accuracy at 37% of the always-expensive cost, beating always-expensive on both axes, so
-    <strong>real headroom exists and these features simply could not reach it.</strong> And
-    <strong>cost and difficulty turn out to be driven by different things</strong>: question
-    length predicts difficulty but not cost, while schema size predicts cost almost perfectly
-    (r = 0.95) and difficulty not at all. Input tokens are 95% of spend because the schema is
-    pasted into every prompt, so the thing that makes a query expensive is not the thing that
-    makes it hard.
-  </p>
-
-  <div class="tw">
-    <table>
-      <caption>Routing policies, test split, n = 60</caption>
-      <thead><tr><th>Policy</th><th class="r">Accuracy</th><th class="r">Cost</th>
-        <th class="r">% of expensive accuracy</th><th class="r">% of expensive cost</th></tr></thead>
-      <tbody>
-        <tr><td>always cheap</td><td class="r">0.700</td><td class="r">$0.0018</td>
-          <td class="r">79.2</td><td class="r">8.7</td></tr>
-        <tr><td>always expensive</td><td class="r">0.883</td><td class="r">$0.0205</td>
-          <td class="r">100.0</td><td class="r">100.0</td></tr>
-        <tr><td>random</td><td class="r">0.783</td><td class="r">$0.0073</td>
-          <td class="r">88.7</td><td class="r">35.5</td></tr>
-        <tr><td>length only</td><td class="r">0.750</td><td class="r">$0.0085</td>
-          <td class="r">84.9</td><td class="r">41.2</td></tr>
-        <tr class="key"><td>difficulty routed</td><td class="r">0.783</td><td class="r">$0.0058</td>
-          <td class="r">88.7</td><td class="r">28.0</td></tr>
-        <tr><td>oracle</td><td class="r"><em>0.900</em></td><td class="r">$0.0076</td>
-          <td class="r">101.9</td><td class="r">36.8</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<hr class="div">
-
-<!-- ============================================================ -->
-<section>
-  <h2><span class="num">Method</span>How the sample was built</h2>
-
-  <p>
-    Everything runs on <a href="https://yale-lily.github.io/spider">Spider</a>, the text-to-SQL
-    benchmark that ships executable SQLite databases. Execution accuracy is impossible without
-    them. Difficulty tiers come from Spider's own <code>eval_hardness()</code> function rather
-    than from my judgement, so a reader cannot accuse me of drawing the boundaries to fit the
-    conclusion.
-  </p>
-
-  <div class="funnel">
-    <div class="fstep"><span class="what">Spider train and dev examples</span><span class="n">8,034</span></div>
-    <div class="fstep"><span class="what">Labelled into three tiers by the official hardness function</span><span class="n">8,034</span></div>
-    <div class="fstep"><span class="what">Seeded sample, capped at 3 questions per database</span><span class="n">159</span></div>
-    <div class="fstep out"><span class="what">Excluded: gold query returned zero rows</span><span class="n">&minus;7</span></div>
-    <div class="fstep out"><span class="what">Excluded: broken gold SQL found by hand review</span><span class="n">&minus;2</span></div>
-    <div class="fstep final"><span class="what">Analysed, 50 per tier across 93 databases</span><span class="n">150</span></div>
-  </div>
-
-  <p class="sn">
-    The two hand-review exclusions both came from the same database and shared the same
-    defect: a join condition comparing a column to itself, which silently produces a
-    cartesian product, plus a select list that returned last names when the question asked
-    for first names. Benchmarks contain broken ground truth, and including it would have
-    measured that instead of the models.
-  </p>
-
-  <p>
-    Every gold query was executed before its question entered the sample. Twenty were read by
-    hand for ambiguity. The train and test split was assigned before any feature engineering,
-    with whole databases kept on one side so no schema appears in both.
-  </p>
-
-  <h3>Scoring</h3>
-  <p>
-    A generated query counts as correct when it executes and its result set matches the gold
-    query's. Row order is ignored, column names and order are ignored, duplicate rows are
-    preserved so <code>DISTINCT</code> remains a real difference, and floats are rounded to
-    four decimal places. There is no model acting as judge; correctness is a comparison of
-    two result sets.
-  </p>
-
-  <p>
-    Generated SQL is untrusted input, so every query ran against a read-only copy of the
-    database with a 30 second timeout and a 10,000 row cap. The cap earned its place: one
-    query added a spurious join and tried to return more rows than that.
-  </p>
-
-  <p class="sn">
-    Validated against the official Spider scorer on 30 predictions: <b>18 of 19 agreed</b>
-    where both could score. The one disagreement is a spurious match, two structurally
-    different queries that both happened to return 12. The official parser could not score
-    11 of the 30 at all; the executable scorer handled every one.
-  </p>
-
-  <h3>Statistics</h3>
-  <p>
-    The primary comparison uses <strong>McNemar's exact test</strong>, which is the correct
-    test for paired binary outcomes and looks only at the questions where two variants
-    disagree. A paired t-test on binary data is the standard mistake here and was avoided.
-    Confidence intervals come from 10,000 bootstrap resamples of the questions, which
-    preserves the pairing. The three primary comparisons carry a Benjamini Hochberg
-    correction. Everything else is labelled exploratory and reported uncorrected.
-  </p>
-
-  <p>
-    At temperature 0 the outcome was identical across three pilot replicates in all 40 cells,
-    so the full run uses one replicate per cell. The whole experiment is 680 successful
-    calls costing $0.19 at list prices, and nothing at all in practice, since both models
-    run on a free tier.
+    real headroom exists and these features could not reach it. And <b>cost and difficulty
+    are driven by different things</b>: question length predicts difficulty but not cost,
+    while schema size predicts cost almost perfectly (r = 0.95) and difficulty not at all.
+    Input tokens are 95% of spend because the schema is pasted into every prompt.
   </p>
 </section>
 
-<!-- ============================================================ -->
+<!-- ================= 07 ================= -->
 <section>
-  <h2><span class="num">Recommendation</span>What to actually do</h2>
+  <h2><span class="n">07</span><span class="t">Deployment recommendation</span></h2>
   <ol class="rec">
-    <li><strong>Spend on the model, not the prompt, and only where it pays.</strong>
-      The upgrade bought 28 points on complex queries and nothing on moderate ones.
-      Few-shot bought nothing anywhere.</li>
-    <li><strong>Never gate on self-reported confidence.</strong> A model claiming 99%
-      certainty was wrong 23% of the time and stayed roughly 95% confident on its own
-      mistakes.</li>
-    <li><strong>Do gate on cross-model disagreement.</strong> Two cheap models, compare the
-      executed results, send disagreements to review. That is 28% reviewed for 84% of errors
-      caught.</li>
-    <li><strong>Assume wrong answers will look right.</strong> Between 82% and 97% of errors
-      executed cleanly, so guardrails belong on results, meaning row-count sanity checks,
-      join fan-out checks, and reconciliation against known totals, rather than on error
-      handling.</li>
-    <li><strong>Check a length-only baseline before building a difficulty router.</strong>
-      Mine lost to it, and both lost to random.</li>
+    <li><b>Spend on the model, not the prompt, and only where it pays.</b> The upgrade
+      bought 28 points on complex queries and nothing on moderate ones.</li>
+    <li><b>Never gate on self-reported confidence.</b> A model claiming 99% certainty was
+      wrong 23% of the time and stayed roughly 95% confident on its own mistakes.</li>
+    <li><b>Gate on cross-model disagreement instead.</b> Two cheap models, compare the
+      executed results, route disagreements to review. 28% reviewed, 84% of errors caught.</li>
+    <li><b>Assume wrong answers will look right.</b> Between 82% and 97% of errors executed
+      cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
+      reconciliation against known totals.</li>
+    <li><b>Check a length-only baseline before building a difficulty router.</b> Mine lost
+      to it, and both lost to random.</li>
   </ol>
 </section>
 
-<!-- ============================================================ -->
+<!-- ================= 08 ================= -->
 <section>
-  <h2><span class="num">Limitations</span>What bounds these claims</h2>
+  <h2><span class="n">08</span><span class="t">Validation and constraints</span></h2>
+
+  <p>
+    The scorer was cross-validated against the official Spider evaluation script. The one
+    disagreement is a spurious match, two structurally different queries that both happened
+    to return 12, which is the known limitation of single-instance execution accuracy
+    rather than a defect in the comparison logic.
+  </p>
+
+  <figure class="term">
+    <div class="hd"><span class="dot"></span><span class="cmd">$ python scripts/crosscheck_official.py --variant V1 --limit 30</span></div>
+<pre>Cross-check of 30 V1 predictions vs official eval_exec_match:
+
+  scored by both : 19
+  <span class="ok">AGREE          : 18/19  (95%)</span>
+  disagree       : 1
+  <span class="dim">unscorable by official (parser/schema limits): 11</span></pre>
+    <figcaption>Captured output. The official parser could not score 11 of the 30
+      predictions at all. The executable scorer handled every one.</figcaption>
+  </figure>
+
+  <p>
+    The experiment ran entirely on free-tier infrastructure, which imposed a real
+    constraint. The 70B model carries a hard daily token ceiling, and the run hit it:
+  </p>
+
+  <figure class="term">
+    <div class="hd"><span class="dot"></span><span class="cmd">$ python scripts/run_experiment.py --variant V4 --tier complex</span></div>
+<pre><span class="bad">Error code: 429</span> {'error': {'message': 'Rate limit reached for model
+`llama-3.3-70b-versatile` in organization `org_01kv...` service tier
+`on_demand` on <span class="hi">tokens per day (TPD): Limit 100000, Used 99060,
+Requested 1048</span>. Please try again in 12m16s.'}}
+
+Generated 165, skipped(cached) 19, <span class="bad">failed 16</span>.</pre>
+    <figcaption>Captured output. Generation writes to Postgres after every call and the
+      resume logic treats a failed call as pending rather than done, so the run continued
+      the next day and completed all 600 cells at zero re-cost.</figcaption>
+  </figure>
+
+  <h3>Limitations</h3>
   <dl class="lim">
     <dt>Benchmark contamination</dt>
-    <dd>Spider is public and predates these models' training cutoffs, so absolute accuracies
-      are probably optimistic. It affects all four variants equally, which makes the
-      comparisons more trustworthy than the raw numbers.</dd>
-
+    <dd>Spider is public and predates these models' training cutoffs, so absolute
+      accuracies are probably optimistic. All four variants are affected equally, which
+      makes the comparisons more trustworthy than the raw numbers.</dd>
     <dt>Underpowered for small effects</dt>
-    <dd>The minimum detectable effect at 50 questions per tier is roughly 14 to 27 points.
-      A real but moderate few-shot benefit would not have been detected.</dd>
-
+    <dd>Minimum detectable effect at 50 questions per tier is roughly 14 to 27 points. A
+      real but moderate few-shot benefit would not have been detected.</dd>
     <dt>Complexity is tangled with length and schema size</dt>
     <dd>Harder tiers came from larger databases and longer questions, so the complexity
       effect cannot be fully separated from a context-length effect.</dd>
-
-    <dt>Single-instance execution accuracy</dt>
-    <dd>Two different queries can return the same values by coincidence and both be scored
-      correct. The cross-check found exactly one such case. Test-suite evaluation across
-      many fuzzed databases would fix it and was out of scope.</dd>
-
-    <dt>The moderate tier tells us nothing</dt>
-    <dd>All four variants landed between 82% and 84%, so neither factor in this design
+    <dt>The moderate tier is uninformative</dt>
+    <dd>All four variants landed between 0.82 and 0.84, so neither factor in this design
       moves it.</dd>
-
     <dt>One model family, list-price costs</dt>
     <dd>Both models are Llama variants from one provider, so the model effect means size
-      within a family rather than a comparison between vendors. Actual spend was zero on a
-      free tier.</dd>
+      within a family rather than a comparison between vendors.</dd>
   </dl>
 </section>
 
-<!-- ============================================================ -->
-<section>
-  <h2><span class="num">Reproducing</span>Running it yourself</h2>
-  <p>
-    Every figure on this page regenerates from committed CSVs, so no database access is
-    needed to check the numbers behind them.
-  </p>
-<pre><code>pip install -r requirements.txt &amp;&amp; pip install -e .
-python scripts/make_figures.py      # figures, from results/*.csv
-python scripts/analyze_primary.py   # McNemar, bootstrap, BH
-python scripts/analyze_calibration.py
-python scripts/simulate_routing.py</code></pre>
-  <p>
-    Reproducing the experiment end to end additionally needs a Groq key and a Postgres
-    connection string. Generation is cached and resumable, so an interrupted run costs
-    nothing to restart, and re-scoring is always free because executions are stored
-    separately from generations.
-  </p>
-</section>
-
 <footer>
-  <div class="byline">
-    <span class="who">Aakash Mehta</span>
+  <div class="ft">
+    <b>Aakash Mehta</b>
     <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a>
     <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
-    <a href="https://github.com/A28-2001/yardstick">Source on GitHub</a>
+    <a href="https://github.com/A28-2001/yardstick">github.com/A28-2001/yardstick</a>
   </div>
-  Yardstick &middot; pre-registered before the full run &middot; McNemar's exact test,
-  10,000 resample bootstrap intervals, Benjamini Hochberg correction<br>
-  Data: Spider, Yale LILY, CC BY-SA 4.0 &middot; scorer cross-validated against the official
-  Spider evaluator<br>
-  Every number traces to a CSV in <code>results/</code> &middot; no LangChain, Ragas or
-  DeepEval; the statistical layer is hand-built
+  Pre-registered before the full run. McNemar's exact test, 10,000 resample bootstrap
+  intervals, Benjamini Hochberg correction.<br>
+  Data: Spider, Yale LILY, CC BY-SA 4.0. Scorer cross-validated against the official Spider
+  evaluator.<br>
+  Every figure regenerates from committed CSVs. No LangChain, Ragas or DeepEval; the
+  statistical layer is hand-built.
 </footer>
 
-</div>
-
-<script>
-(function(){
-  var bar=document.getElementById('bar'), top=document.getElementById('top'),
-      label=document.getElementById('topsec'),
-      head=document.querySelector('header'),
-      secs=[].slice.call(document.querySelectorAll('section'));
-
-  function heading(s){
-    var h=s.querySelector('h2'); if(!h) return '';
-    var n=h.querySelector('.num');
-    var t=h.textContent.replace(n?n.textContent:'','').trim();
-    return (n? n.textContent.trim()+'  '+t : t);
-  }
-  function tick(){
-    var y=window.scrollY||document.documentElement.scrollTop;
-    var max=document.documentElement.scrollHeight-window.innerHeight;
-    bar.style.width=(max>0? (y/max)*100 : 0)+'%';
-    top.classList.toggle('on', y > head.offsetHeight*0.7);
-    var cur='';
-    for(var i=0;i<secs.length;i++){
-      if(secs[i].offsetTop - 90 <= y) cur=heading(secs[i]); else break;
-    }
-    label.textContent = cur || 'When is LLM-generated SQL safe to trust?';
-  }
-  var raf=false;
-  addEventListener('scroll',function(){
-    if(raf) return; raf=true;
-    requestAnimationFrame(function(){ tick(); raf=false; });
-  },{passive:true});
-  addEventListener('resize',tick,{passive:true});
-  tick();
-
-  /* ---- entrance reveals ---------------------------------------------------
-     Figures and tables rise in once; section rules draw themselves.
-
-     Two hard rules, because this page has to survive a recruiter on an unknown
-     browser: content is never hidden unless we are confident we can show it
-     again, and a failsafe reveals everything regardless after 2.5s. A stalled
-     observer must never leave the page blank. */
-  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var targets = [].slice.call(
-    document.querySelectorAll('figure, .tw, .fail, .funnel, .note, ol.rec'));
-
-  function revealAll(){
-    targets.forEach(function(el){ el.classList.add('in'); });
-    secs.forEach(function(s){ s.classList.add('in'); });
-    countUp(document);
-  }
-
-  if(!('IntersectionObserver' in window) || still){
-    revealAll();
-  } else {
-    targets.forEach(function(el){ el.classList.add('rise'); });
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(!e.isIntersecting) return;
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-        if(e.target.tagName === 'SECTION') countUp(e.target);
-      });
-    }, {rootMargin:'0px 0px -12% 0px', threshold:0.08});
-    targets.concat(secs).forEach(function(el){ io.observe(el); });
-    setTimeout(revealAll, 2500);   // failsafe: nothing stays hidden
-  }
-
-  /* ---- key numbers count up ----
-     The real value is written into data-target first and restored by a
-     guaranteed timeout, so a throttled rAF can never leave "0%" on screen
-     where "100%" belongs. */
-  function countUp(scope){
-    [].slice.call((scope||document).querySelectorAll('.keys .n:not([data-done])'))
-      .forEach(function(el){
-        var raw = (el.getAttribute('data-target') || el.textContent).trim();
-        el.setAttribute('data-target', raw);
-        el.setAttribute('data-done','1');
-        var m = raw.match(/^([+]?)(\d+)(%?)$/);
-        if(!m || still){ el.textContent = raw; return; }
-
-        var sign=m[1], target=parseInt(m[2],10), suffix=m[3], t0=null;
-        var settle = setTimeout(function(){ el.textContent = raw; }, 1200);
-        function step(ts){
-          if(!t0) t0=ts;
-          var p = Math.min((ts-t0)/700, 1);
-          el.textContent = sign + Math.round(target*(1-Math.pow(1-p,3))) + suffix;
-          if(p<1){ requestAnimationFrame(step); }
-          else { clearTimeout(settle); el.textContent = raw; }
-        }
-        el.textContent = sign + '0' + suffix;
-        requestAnimationFrame(step);
-      });
-  }
-  countUp(document.querySelector('header'));
-})();
-</script>
+</div></div>
 </body>
 </html>

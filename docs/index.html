@@ -70,7 +70,11 @@ body{
 /* ---------- layout: sticky contents rail beside the body ---------- */
 .layout{display:grid;grid-template-columns:170px minmax(0,1fr);gap:0 3.2rem;
   align-items:start}
-.layout > header{grid-column:1 / -1}
+/* Both must span the full grid. Without this the footer auto-places into the next free
+   cell, which is column 1 of row 3, so it renders 170px wide underneath the sticky rail
+   and the two overlap. */
+.layout > header,
+.layout > footer{grid-column:1 / -1}
 main{min-width:0;max-width:80ch}
 
 nav.toc{position:sticky;top:1.6rem;align-self:start;padding-top:.6rem;

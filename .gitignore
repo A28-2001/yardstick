@@ -23,6 +23,4 @@ env/
 .idea/
 .vscode/
 
-# Large regenerated figures (CSVs under results/ are tracked deliverables)
-results/figures/*.png
-results/figures/*.pdf
+# Figures are tracked: docs/figures/ is what GitHub Pages and the README serve.

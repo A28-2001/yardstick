@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yardstick: when is LLM-generated SQL safe to trust?</title>
+<meta name="description" content="A pre-registered study of 150 text-to-SQL questions across two prompt strategies and two model sizes. Few-shot prompting produced no significant lift; the most accurate model made errors that were 100% silent.">
+<meta property="og:title" content="Yardstick: when is LLM-generated SQL safe to trust?">
+<meta property="og:description" content="A pre-registered study. Few-shot prompting produced no significant lift. The most accurate model's errors were 100% silent: they ran cleanly and returned wrong numbers.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="figures/fig1_silent_failures.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+:root{
+  --paper:#ffffff;
+  --ink:#191919;
+  --mid:#6f6a63;
+  --rule:#d9d4cc;
+  --faint:#f7f4ee;
+  --signal:#a81f24;
+  --slate:#33566b;
+  --serif:Charter,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:Menlo,"SF Mono",Consolas,"Liberation Mono",monospace;
+  --measure:66ch;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:18px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.sheet{max-width:1180px;margin:0 auto;padding:0 5vw 8rem}
+.col{max-width:var(--measure)}
+
+/* ---------- masthead ---------- */
+header{padding:5.5rem 0 0}
+.reg{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--signal);margin:0 0 1.6rem;
+}
+h1{
+  font-size:clamp(2.3rem,5.2vw,3.5rem);line-height:1.08;font-weight:600;
+  letter-spacing:-.015em;margin:0 0 1.1rem;max-width:22ch;text-wrap:balance;
+}
+h1 .nb{white-space:nowrap}   /* keep "LLM-generated" from breaking at its hyphen */
+.deck{font-size:1.22rem;line-height:1.5;color:var(--mid);max-width:54ch;margin:0 0 2.4rem}
+
+/* registration block, borrowed from trial reporting */
+.trial{
+  border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);
+  padding:1.1rem 0 1.2rem;margin-bottom:3.5rem;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.2rem 2rem;
+}
+.trial div{font-family:var(--mono);font-size:12px;line-height:1.55}
+.trial dt{color:var(--mid);letter-spacing:.08em;text-transform:uppercase;font-size:10px;
+  margin-bottom:.35rem}
+.trial dd{margin:0;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- structure ---------- */
+section{margin:0 0 4.2rem}
+h2{
+  font-size:1.72rem;line-height:1.22;font-weight:600;letter-spacing:-.01em;
+  margin:0 0 .3rem;max-width:24ch;text-wrap:balance;
+}
+h2 .num{
+  font-family:var(--mono);font-size:.72rem;color:var(--signal);
+  letter-spacing:.12em;display:block;margin-bottom:.55rem;text-transform:uppercase;
+}
+h3{font-size:1.06rem;font-weight:600;margin:2.3rem 0 .5rem;letter-spacing:.005em}
+p{margin:0 0 1.05rem;max-width:var(--measure)}
+strong{font-weight:600}
+a{color:var(--signal);text-underline-offset:2px}
+.lede{font-size:1.06rem;color:var(--mid);margin-bottom:1.9rem;max-width:60ch}
+
+/* Tufte style sidenotes. The section is full sheet width while prose is capped at the
+   measure, so floating right drops the note into the empty margin with no negative
+   offsets, which is what previously pushed the page into horizontal scroll. */
+.sn{
+  float:right;clear:right;width:16rem;margin:.35rem 0 1rem 2.5rem;
+  font-family:var(--mono);font-size:11.5px;line-height:1.62;color:var(--mid);
+  border-top:1px solid var(--rule);padding-top:.5rem;
+}
+@media (max-width:1080px){
+  .sn{float:none;width:auto;margin:1.1rem 0;max-width:var(--measure);
+      border-top:0;border-left:2px solid var(--rule);padding:.15rem 0 .15rem .9rem}
+}
+
+/* ---------- figures ---------- */
+figure{margin:2.4rem 0 2.6rem;max-width:960px}
+figure img{width:100%;height:auto;display:block}
+figcaption{
+  font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--mid);
+  margin-top:.7rem;max-width:78ch;
+}
+figcaption b{color:var(--ink);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:10.5px}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;margin:1.7rem 0 1.9rem;max-width:900px}
+table{border-collapse:collapse;width:100%;min-width:520px;
+  font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+caption{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--mid);padding-bottom:.65rem}
+th{text-align:left;font-weight:500;color:var(--mid);letter-spacing:.06em;
+  text-transform:uppercase;font-size:10px;padding:0 1.1rem .5rem 0;
+  border-bottom:1px solid var(--ink);white-space:nowrap}
+td{padding:.5rem 1.1rem .5rem 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+td.r,th.r{text-align:right}
+tr.key td{background:var(--faint)}
+td em{font-style:normal;color:var(--signal);font-weight:600}
+td .q{color:var(--mid)}
+
+/* ---------- funnel ---------- */
+.funnel{margin:1.9rem 0 2.2rem;max-width:640px}
+.fstep{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;
+  border-left:2px solid var(--ink);padding:.62rem 0 .62rem 1.1rem;position:relative}
+.fstep + .fstep{border-top:1px solid var(--rule)}
+.fstep .what{font-size:.95rem}
+.fstep .n{font-family:var(--mono);font-size:.95rem;font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.fstep.out{color:var(--mid);border-left-color:var(--rule)}
+.fstep.out .n{color:var(--signal)}
+.fstep.final{border-left-color:var(--signal);background:var(--faint)}
+.fstep.final .what,.fstep.final .n{font-weight:600}
+
+/* ---------- callout ---------- */
+.note{
+  background:var(--faint);border-left:2px solid var(--signal);
+  padding:1.15rem 1.4rem;margin:1.9rem 0;max-width:var(--measure);
+}
+.note p{margin:0;font-size:1.02rem}
+.note p + p{margin-top:.7rem}
+
+/* ---------- recommendation ---------- */
+ol.rec{list-style:none;counter-reset:rec;padding:0;margin:1.6rem 0 0;max-width:var(--measure)}
+ol.rec li{counter-increment:rec;position:relative;padding:0 0 1.15rem 2.5rem;
+  margin-bottom:1.15rem;border-bottom:1px solid var(--rule)}
+ol.rec li:last-child{border-bottom:0}
+ol.rec li::before{content:counter(rec);position:absolute;left:0;top:.12rem;
+  font-family:var(--mono);font-size:.82rem;color:var(--signal);font-weight:600}
+
+/* ---------- limitations ---------- */
+dl.lim{margin:1.5rem 0 0;max-width:var(--measure)}
+dl.lim dt{font-weight:600;font-size:1rem;margin-top:1.25rem}
+dl.lim dd{margin:.2rem 0 0;color:var(--mid);font-size:.98rem}
+
+code{font-family:var(--mono);font-size:.85em;background:var(--faint);padding:.1em .35em}
+pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--faint);
+  padding:1.1rem 1.3rem;overflow-x:auto;max-width:840px;border-left:2px solid var(--rule)}
+pre code{background:none;padding:0}
+
+footer{border-top:2px solid var(--ink);padding-top:1.3rem;margin-top:5rem;
+  font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--mid);max-width:80ch}
+footer a{color:var(--signal)}
+hr.div{border:0;border-top:1px solid var(--rule);margin:0 0 3.6rem;max-width:960px}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header>
+  <p class="reg">Pre-registered study &middot; registration committed to Git before the full run</p>
+  <h1>When is <span class="nb">LLM-generated</span> SQL safe to trust?</h1>
+  <p class="deck">
+    A query that throws a syntax error is a visible failure. A query that runs cleanly and
+    returns plausible but wrong numbers is an invisible one. This study measures how often
+    each happens, and finds the invisible kind gets worse as models get better.
+  </p>
+
+  <dl class="trial">
+    <div><dt>Design</dt><dd>2 &times; 2 factorial, 3 tiers</dd></div>
+    <div><dt>Sample</dt><dd>150 questions, 93 databases</dd></div>
+    <div><dt>Observations</dt><dd>600 / 600 complete</dd></div>
+    <div><dt>Primary endpoint</dt><dd>Execution accuracy</dd></div>
+    <div><dt>Primary test</dt><dd>McNemar exact, BH corrected</dd></div>
+    <div><dt>Data</dt><dd>Spider, CC BY-SA 4.0</dd></div>
+  </dl>
+</header>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Summary</span>What the study found</h2>
+
+  <p class="lede">
+    Teams are letting language models write SQL against production warehouses. The usual
+    process is to validate on a benchmark, pick the prompt that wins, and deploy it
+    everywhere. This study asks whether that is safe.
+  </p>
+
+  <p>
+    <strong>Few-shot prompting did nothing that could be distinguished from noise.</strong>
+    Across all three complexity tiers the lift was &minus;2, 0, and +8 percentage points,
+    and every one of those was non-significant after correction. A ten-question pilot had
+    suggested few-shot nearly doubled accuracy on hard queries. At the full sample that
+    collapsed. Pre-registration is the only reason this is written up as a null result
+    instead of a discovery.
+  </p>
+
+  <p class="sn">
+    The pilot showed 33% to 67% on complex queries. The full run showed 60% to 68%,
+    p = 1.00 after correction. Committing the hypothesis and the test to Git beforehand
+    removed the option of building a story around the pilot.
+  </p>
+
+  <p>
+    <strong>Model size was the only lever that moved anything</strong>, and only on the
+    hardest queries: +28 points, and nothing at all on the middle tier. But the most
+    interesting result is not about accuracy.
+    <strong>The most accurate variant in the study made errors that were 100% silent.</strong>
+    Every single one executed without complaint and returned believable wrong numbers.
+    The weakest model at least failed loudly some of the time.
+  </p>
+
+  <div class="note">
+    <p>
+      Choosing a model by benchmark score selects for <em>quieter</em> failures, not
+      necessarily fewer dangerous ones. A wrong number that arrives with an error message
+      gets investigated. A wrong number that arrives looking correct goes into a dashboard.
+    </p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Finding 1</span>Better models fail more quietly</h2>
+  <p class="lede">
+    Silent failure means the generated query ran without error and returned the wrong rows.
+  </p>
+
+  <figure>
+    <img src="figures/fig1_silent_failures.png"
+         alt="Horizontal bars showing the share of each variant's errors that were silent: V2 81 percent, V1 89 percent, V4 95 percent, V3 100 percent. The two 70B variants are both above the two 8B variants.">
+    <figcaption><b>Figure 1</b><br>
+      Share of each variant's errors that ran cleanly and returned wrong rows, ordered by
+      accuracy. Both strong-model variants sit above both cheap-model variants.
+      n = 150 per variant.</figcaption>
+  </figure>
+
+  <p>
+    The ordering is not perfectly monotonic, and it should not be over-read at four points.
+    What is clear is the grouping: the two 70B variants are 95% and 100% silent, and the two
+    8B variants are 81% and 89%. Broken out by question difficulty rather than by variant,
+    <strong>82% of errors on complex questions were silent, 95% on simple ones, and 97% on
+    the middle tier.</strong>
+  </p>
+
+  <p class="sn">
+    The mechanism is visible in the error taxonomy. Loud failures are almost entirely
+    <code>schema_error</code>, meaning the model invented a table or column. Stronger models
+    stop doing that, so what remains is subtly wrong logic that executes fine.
+  </p>
+
+  <p>
+    The strong model also stated 95% average confidence on the answers it got wrong, so
+    nothing in its own output flags the problem either.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Finding 2</span>Prompting did nothing, model size did</h2>
+
+  <figure>
+    <img src="figures/fig2_forest.png"
+         alt="Forest plot. The three primary prompt-effect comparisons all have confidence intervals crossing zero. Below them, the model effect is significant on complex queries at plus 28 points.">
+    <figcaption><b>Figure 2</b><br>
+      Accuracy differences in percentage points with 95% bootstrap confidence intervals.
+      Top block is the pre-registered primary comparison, few-shot against zero-shot on the
+      cheap model, Benjamini Hochberg corrected. Bottom block is the exploratory model
+      effect, uncorrected.</figcaption>
+  </figure>
+
+  <div class="tw">
+    <table>
+      <caption>Primary comparison, few-shot against zero-shot, by tier</caption>
+      <thead><tr><th>Tier</th><th class="r">Zero-shot</th><th class="r">Few-shot</th>
+        <th class="r">Difference</th><th>95% CI</th><th class="r">Adjusted p</th></tr></thead>
+      <tbody>
+        <tr><td>simple</td><td class="r">0.88</td><td class="r">0.86</td>
+          <td class="r">&minus;2.0</td><td>[&minus;6, 0]</td><td class="r">1.000</td></tr>
+        <tr><td>moderate</td><td class="r">0.82</td><td class="r">0.82</td>
+          <td class="r">0.0</td><td>[&minus;12, +12]</td><td class="r">1.000</td></tr>
+        <tr><td>complex</td><td class="r">0.60</td><td class="r">0.68</td>
+          <td class="r">+8.0</td><td>[&minus;6, +22]</td><td class="r">1.000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The hypothesis was that few-shot lift would differ across complexity tiers. It does not,
+    because there is no lift anywhere to differ.
+  </p>
+
+  <p class="sn">
+    Not significant is not the same as zero. The complex-tier point estimate is positive and
+    its interval reaches +22, so a real moderate effect there cannot be ruled out. At 50
+    questions per tier this study can only detect differences of roughly 14 to 27 points.
+  </p>
+
+  <p>
+    The model effect is a different story. Upgrading from the 8B to the 70B model produced
+    <strong>+28 points on complex queries</strong> (95% CI [+14, +42], p = 0.0013) under
+    zero-shot prompting, and +16 points (p = 0.039) under few-shot. Those are the only
+    significant effects anywhere in the study. On the moderate tier the same upgrade
+    produced <strong>exactly zero</strong>: every variant landed between 82% and 84%,
+    which suggests whatever limits accuracy there is not something this design manipulates.
+  </p>
+
+  <div class="tw">
+    <table>
+      <caption>Execution accuracy by variant and tier, silent-failure rate in brackets</caption>
+      <thead><tr><th>Tier</th><th class="r">V1 8B zero</th><th class="r">V2 8B few</th>
+        <th class="r">V3 70B zero</th><th class="r">V4 70B few</th></tr></thead>
+      <tbody>
+        <tr><td>simple</td><td class="r">0.88 <span class="q">[.12]</span></td>
+          <td class="r">0.86 <span class="q">[.14]</span></td>
+          <td class="r"><em>0.96</em> <span class="q">[.04]</span></td>
+          <td class="r">0.92 <span class="q">[.06]</span></td></tr>
+        <tr><td>moderate</td><td class="r">0.82 <span class="q">[.18]</span></td>
+          <td class="r">0.82 <span class="q">[.16]</span></td>
+          <td class="r">0.82 <span class="q">[.18]</span></td>
+          <td class="r">0.84 <span class="q">[.16]</span></td></tr>
+        <tr><td>complex</td><td class="r">0.60 <span class="q">[.32]</span></td>
+          <td class="r">0.68 <span class="q">[.22]</span></td>
+          <td class="r"><em>0.88</em> <span class="q">[.12]</span></td>
+          <td class="r">0.84 <span class="q">[.16]</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure>
+    <img src="figures/fig5_taxonomy.png"
+         alt="Grouped bar chart of error types. Wrong joins fall from 33 with the 8B model to 13 with the 70B model. Schema errors fall from 10 to 1.">
+    <figcaption><b>Figure 3</b><br>
+      What the model upgrade actually fixes. Wrong joins fall from 33 to 13 and invented
+      tables or columns from 10 to 1. Every category except schema error is a silent
+      failure mode.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Finding 3</span>Confidence is useless, agreement is not</h2>
+
+  <figure>
+    <img src="figures/fig3_calibration.png"
+         alt="Dumbbell chart comparing stated confidence with measured accuracy for each variant. Gaps run from 22 points down to 6 points, all in the overconfident direction.">
+    <figcaption><b>Figure 4</b><br>
+      Stated confidence against measured accuracy, sorted by the size of the gap. Every
+      variant is overconfident. The gap narrows as models improve but never closes.</figcaption>
+  </figure>
+
+  <p>
+    The weakest variant reported an average confidence of 98.6% while being correct 76.7%
+    of the time. Even the best-calibrated variant overstates itself by 6 points. All four
+    remain between 87% and 96% confident on the answers they get wrong, so confidence
+    carries almost no information about whether a specific query is right.
+  </p>
+
+  <p>
+    A signal that does work costs one extra cheap call: <strong>run two models and compare
+    what their queries actually return.</strong>
+  </p>
+
+  <div class="tw">
+    <table>
+      <caption>Predicting correctness, area under the ROC curve</caption>
+      <thead><tr><th>Signal</th><th class="r">AUC</th><th class="r">Flags</th>
+        <th class="r">Errors caught</th><th class="r">False alarms</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Result-set agreement</td><td class="r"><em>0.861</em></td>
+          <td class="r">28%</td><td class="r"><em>84%</em></td><td class="r">16%</td></tr>
+        <tr><td>Query structure agreement</td><td class="r">0.710</td>
+          <td class="r">74%</td><td class="r">100%</td><td class="r">69%</td></tr>
+        <tr><td>Self-reported confidence</td><td class="r">0.647</td>
+          <td class="r"><span class="q">n/a</span></td>
+          <td class="r"><span class="q">n/a</span></td>
+          <td class="r"><span class="q">n/a</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sn">
+    None of these signals needs the correct answer, so all three are available in
+    production. Noticing that two models disagree requires no ground truth, which is
+    exactly what makes it deployable.
+  </p>
+
+  <p>
+    Reviewing only the 28% of queries where two models disagree on the executed result
+    catches 84% of all errors, at a 16% false-alarm rate. Comparing query structure instead
+    catches everything but flags three quarters of all output, which is too noisy to act on.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Finding 4</span>Difficulty routing did not beat random</h2>
+  <p class="lede">
+    Reported as the negative result it is.
+  </p>
+
+  <figure>
+    <img src="figures/fig4_routing.png"
+         alt="Scatter plot of cost against accuracy for six routing policies. Difficulty routing and random routing both sit at 78.3 percent accuracy. The oracle sits above always-expensive at lower cost.">
+    <figcaption><b>Figure 5</b><br>
+      Six routing policies on the held-out test set. Difficulty routing is cheaper than
+      random but no more accurate. The oracle, which has perfect foresight, is both cheaper
+      and more accurate than always using the expensive model.</figcaption>
+  </figure>
+
+  <p>
+    The predictor uses only features computable from the question text and the schema,
+    before any SQL is generated. That constraint is what makes routing worthwhile at all,
+    since a feature requiring a model call would defeat the purpose.
+    <strong>A single feature, question length, scored AUC 0.724 and beat the six-feature
+    model at 0.665.</strong> Schema size was pure noise at 0.507.
+  </p>
+
+  <p class="sn">
+    Generalisation was weak too. Holding out an entire tier dropped complex-tier prediction
+    to chance (0.525). Holding out entire databases, which is the real production question,
+    held at 0.670 across 93 folds.
+  </p>
+
+  <p>
+    Two things here are worth more than the routing number itself. The oracle reached 90.0%
+    accuracy at 37% of the always-expensive cost, beating always-expensive on both axes, so
+    <strong>real headroom exists and these features simply could not reach it.</strong> And
+    <strong>cost and difficulty turn out to be driven by different things</strong>: question
+    length predicts difficulty but not cost, while schema size predicts cost almost perfectly
+    (r = 0.95) and difficulty not at all. Input tokens are 95% of spend because the schema is
+    pasted into every prompt, so the thing that makes a query expensive is not the thing that
+    makes it hard.
+  </p>
+
+  <div class="tw">
+    <table>
+      <caption>Routing policies, test split, n = 60</caption>
+      <thead><tr><th>Policy</th><th class="r">Accuracy</th><th class="r">Cost</th>
+        <th class="r">% of expensive accuracy</th><th class="r">% of expensive cost</th></tr></thead>
+      <tbody>
+        <tr><td>always cheap</td><td class="r">0.700</td><td class="r">$0.0018</td>
+          <td class="r">79.2</td><td class="r">8.7</td></tr>
+        <tr><td>always expensive</td><td class="r">0.883</td><td class="r">$0.0205</td>
+          <td class="r">100.0</td><td class="r">100.0</td></tr>
+        <tr><td>random</td><td class="r">0.783</td><td class="r">$0.0073</td>
+          <td class="r">88.7</td><td class="r">35.5</td></tr>
+        <tr><td>length only</td><td class="r">0.750</td><td class="r">$0.0085</td>
+          <td class="r">84.9</td><td class="r">41.2</td></tr>
+        <tr class="key"><td>difficulty routed</td><td class="r">0.783</td><td class="r">$0.0058</td>
+          <td class="r">88.7</td><td class="r">28.0</td></tr>
+        <tr><td>oracle</td><td class="r"><em>0.900</em></td><td class="r">$0.0076</td>
+          <td class="r">101.9</td><td class="r">36.8</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Method</span>How the sample was built</h2>
+
+  <p>
+    Everything runs on <a href="https://yale-lily.github.io/spider">Spider</a>, the text-to-SQL
+    benchmark that ships executable SQLite databases. Execution accuracy is impossible without
+    them. Difficulty tiers come from Spider's own <code>eval_hardness()</code> function rather
+    than from my judgement, so a reader cannot accuse me of drawing the boundaries to fit the
+    conclusion.
+  </p>
+
+  <div class="funnel">
+    <div class="fstep"><span class="what">Spider train and dev examples</span><span class="n">8,034</span></div>
+    <div class="fstep"><span class="what">Labelled into three tiers by the official hardness function</span><span class="n">8,034</span></div>
+    <div class="fstep"><span class="what">Seeded sample, capped at 3 questions per database</span><span class="n">159</span></div>
+    <div class="fstep out"><span class="what">Excluded: gold query returned zero rows</span><span class="n">&minus;7</span></div>
+    <div class="fstep out"><span class="what">Excluded: broken gold SQL found by hand review</span><span class="n">&minus;2</span></div>
+    <div class="fstep final"><span class="what">Analysed, 50 per tier across 93 databases</span><span class="n">150</span></div>
+  </div>
+
+  <p class="sn">
+    The two hand-review exclusions both came from the same database and shared the same
+    defect: a join condition comparing a column to itself, which silently produces a
+    cartesian product, plus a select list that returned last names when the question asked
+    for first names. Benchmarks contain broken ground truth, and including it would have
+    measured that instead of the models.
+  </p>
+
+  <p>
+    Every gold query was executed before its question entered the sample. Twenty were read by
+    hand for ambiguity. The train and test split was assigned before any feature engineering,
+    with whole databases kept on one side so no schema appears in both.
+  </p>
+
+  <h3>Scoring</h3>
+  <p>
+    A generated query counts as correct when it executes and its result set matches the gold
+    query's. Row order is ignored, column names and order are ignored, duplicate rows are
+    preserved so <code>DISTINCT</code> remains a real difference, and floats are rounded to
+    four decimal places. There is no model acting as judge; correctness is a comparison of
+    two result sets.
+  </p>
+
+  <p>
+    Generated SQL is untrusted input, so every query ran against a read-only copy of the
+    database with a 30 second timeout and a 10,000 row cap. The cap earned its place: one
+    query added a spurious join and tried to return more rows than that.
+  </p>
+
+  <p class="sn">
+    Validated against the official Spider scorer on 30 predictions: <b>18 of 19 agreed</b>
+    where both could score. The one disagreement is a spurious match, two structurally
+    different queries that both happened to return 12. The official parser could not score
+    11 of the 30 at all; the executable scorer handled every one.
+  </p>
+
+  <h3>Statistics</h3>
+  <p>
+    The primary comparison uses <strong>McNemar's exact test</strong>, which is the correct
+    test for paired binary outcomes and looks only at the questions where two variants
+    disagree. A paired t-test on binary data is the standard mistake here and was avoided.
+    Confidence intervals come from 10,000 bootstrap resamples of the questions, which
+    preserves the pairing. The three primary comparisons carry a Benjamini Hochberg
+    correction. Everything else is labelled exploratory and reported uncorrected.
+  </p>
+
+  <p>
+    At temperature 0 the outcome was identical across three pilot replicates in all 40 cells,
+    so the full run uses one replicate per cell. The whole experiment is 680 successful
+    calls costing $0.19 at list prices, and nothing at all in practice, since both models
+    run on a free tier.
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Recommendation</span>What to actually do</h2>
+  <ol class="rec">
+    <li><strong>Spend on the model, not the prompt, and only where it pays.</strong>
+      The upgrade bought 28 points on complex queries and nothing on moderate ones.
+      Few-shot bought nothing anywhere.</li>
+    <li><strong>Never gate on self-reported confidence.</strong> A model claiming 99%
+      certainty was wrong 23% of the time and stayed roughly 95% confident on its own
+      mistakes.</li>
+    <li><strong>Do gate on cross-model disagreement.</strong> Two cheap models, compare the
+      executed results, send disagreements to review. That is 28% reviewed for 84% of errors
+      caught.</li>
+    <li><strong>Assume wrong answers will look right.</strong> Between 82% and 97% of errors
+      executed cleanly, so guardrails belong on results, meaning row-count sanity checks,
+      join fan-out checks, and reconciliation against known totals, rather than on error
+      handling.</li>
+    <li><strong>Check a length-only baseline before building a difficulty router.</strong>
+      Mine lost to it, and both lost to random.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Limitations</span>What bounds these claims</h2>
+  <dl class="lim">
+    <dt>Benchmark contamination</dt>
+    <dd>Spider is public and predates these models' training cutoffs, so absolute accuracies
+      are probably optimistic. It affects all four variants equally, which makes the
+      comparisons more trustworthy than the raw numbers.</dd>
+
+    <dt>Underpowered for small effects</dt>
+    <dd>The minimum detectable effect at 50 questions per tier is roughly 14 to 27 points.
+      A real but moderate few-shot benefit would not have been detected.</dd>
+
+    <dt>Complexity is tangled with length and schema size</dt>
+    <dd>Harder tiers came from larger databases and longer questions, so the complexity
+      effect cannot be fully separated from a context-length effect.</dd>
+
+    <dt>Single-instance execution accuracy</dt>
+    <dd>Two different queries can return the same values by coincidence and both be scored
+      correct. The cross-check found exactly one such case. Test-suite evaluation across
+      many fuzzed databases would fix it and was out of scope.</dd>
+
+    <dt>The moderate tier tells us nothing</dt>
+    <dd>All four variants landed between 82% and 84%, so neither factor in this design
+      moves it.</dd>
+
+    <dt>One model family, list-price costs</dt>
+    <dd>Both models are Llama variants from one provider, so the model effect means size
+      within a family rather than a comparison between vendors. Actual spend was zero on a
+      free tier.</dd>
+  </dl>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2><span class="num">Reproducing</span>Running it yourself</h2>
+  <p>
+    Every figure on this page regenerates from committed CSVs, so no database access is
+    needed to check the numbers behind them.
+  </p>
+<pre><code>pip install -r requirements.txt &amp;&amp; pip install -e .
+python scripts/make_figures.py      # figures, from results/*.csv
+python scripts/analyze_primary.py   # McNemar, bootstrap, BH
+python scripts/analyze_calibration.py
+python scripts/simulate_routing.py</code></pre>
+  <p>
+    Reproducing the experiment end to end additionally needs a Groq key and a Postgres
+    connection string. Generation is cached and resumable, so an interrupted run costs
+    nothing to restart, and re-scoring is always free because executions are stored
+    separately from generations.
+  </p>
+</section>
+
+<footer>
+  Yardstick &middot; pre-registered before the full run &middot; McNemar's exact test,
+  10,000 resample bootstrap intervals, Benjamini Hochberg correction<br>
+  Data: Spider, Yale LILY, CC BY-SA 4.0 &middot; scorer cross-validated against the official
+  Spider evaluator<br>
+  Every number traces to a CSV in <code>results/</code> &middot; no LangChain, Ragas or
+  DeepEval; the statistical layer is hand-built
+</footer>
+
+</div>
+</body>
+</html>

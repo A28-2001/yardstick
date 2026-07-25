@@ -1,8 +1,8 @@
 """Phase 11: render the report figures from results/*.csv.
 
 Reads only the committed CSVs (no database needed), so anyone cloning the repo can
-regenerate every figure. Output: results/figures/*.png at 2x for crisp display, plus
-matching .svg for the web page.
+regenerate every figure. Output goes to docs/figures/ so GitHub Pages and the README
+share one copy: PNG at 200 dpi plus a matching SVG.
 
 Visual language is borrowed from clinical-trial reporting, which is where
 pre-registration, forest plots, and minimum-detectable-effect all come from:
@@ -24,7 +24,9 @@ from matplotlib.lines import Line2D
 
 REPO = Path(__file__).resolve().parents[1]
 RESULTS = REPO / "results"
-FIGDIR = RESULTS / "figures"
+# Figures live under docs/ so GitHub Pages can serve them directly and the README can
+# embed the same single copy. No duplication between results/ and the site.
+FIGDIR = REPO / "docs" / "figures"
 
 # ---- design tokens -------------------------------------------------------------
 INK      = "#191919"

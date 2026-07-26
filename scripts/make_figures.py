@@ -337,7 +337,57 @@ def fig_taxonomy():
     save(fig, "fig5_taxonomy")
 
 
+# ---- Share card: what link previews actually show ------------------------------
+def fig_sharecard():
+    """1200x630 open-graph card. Link scrapers crop to roughly 1.91:1 and render at
+    thumbnail size, so a chart pasted in is unreadable. This is built for that size:
+    one number, one sentence, nothing else."""
+    rows = {r["variant"]: r for r in read("variant_summary.csv")}
+    share = float(rows["V3"]["silent_share_of_errors"]) * 100
+
+    # 12in at 100dpi rather than 6in at 200: identical output size, but point sizes
+    # then map to pixels at a sane 1.39x instead of 2.78x, which is what made the first
+    # attempt collide with itself.
+    fig = plt.figure(figsize=(12.0, 6.3), dpi=100)
+    fig.patch.set_facecolor("#fbfaf6")
+    ax = fig.add_axes([0, 0, 1, 1]); ax.axis("off")
+    ax.set_xlim(0, 1200); ax.set_ylim(0, 630)
+
+    ax.add_patch(plt.Rectangle((0, 600), 1200, 30, color=SIGNAL, zorder=2))
+
+    ax.text(60, 548, "PRE-REGISTERED STUDY    ·    150 QUESTIONS    ·    600 OBSERVATIONS",
+            fontsize=11, color=MID, fontfamily=MONO, va="baseline")
+
+    ax.text(60, 478, "When is LLM-generated SQL", fontsize=34, color=INK,
+            fontweight="bold", fontfamily=SERIF, va="baseline")
+    ax.text(60, 420, "safe to trust?", fontsize=34, color=INK,
+            fontweight="bold", fontfamily=SERIF, va="baseline")
+
+    ax.text(60, 248, f"{share:.0f}%", fontsize=88, color=SIGNAL, fontweight="bold",
+            fontfamily=SERIF, va="baseline")
+    for i, line in enumerate(["of the most accurate model's errors",
+                              "executed cleanly and returned",
+                              "plausible wrong numbers."]):
+        ax.text(392, 318 - i * 34, line, fontsize=17, color=INK,
+                fontfamily=SERIF, va="baseline")
+
+    ax.plot([60, 1140], [172, 172], color=RULE, lw=1.2)
+    ax.text(60, 128, "Aakash Mehta", fontsize=15, color=INK, fontweight="bold",
+            fontfamily=MONO, va="baseline")
+    ax.text(60, 96, "a28-2001.github.io/yardstick", fontsize=13, color=SIGNAL,
+            fontfamily=MONO, va="baseline")
+    ax.text(1140, 96, "McNemar exact · bootstrap CI · BH corrected", fontsize=12,
+            color=MID, fontfamily=MONO, ha="right", va="baseline")
+
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    fig.savefig(FIGDIR / "share_card.png", dpi=100, facecolor="#fbfaf6",
+                bbox_inches=None, pad_inches=0)
+    plt.close(fig)
+    print("  share_card.png")
+
+
 if __name__ == "__main__":
     print("Rendering figures ->", FIGDIR)
     fig_silent(); fig_forest(); fig_calibration(); fig_routing(); fig_taxonomy()
+    fig_sharecard()
     print("Done.")

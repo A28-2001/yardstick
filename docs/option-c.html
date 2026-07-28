@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Option C: Editorial</title>
+<style>
+:root{
+  --pap:#f1efea; --card:#fbfaf8; --ink:#14130f; --mid:#6e6a61; --rule:#d5d1c8;
+  --acc:#cf3a22;            /* vermilion, used loudly and rarely */
+  --ink2:#1f3d4a;
+  --disp:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,Menlo,"SF Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pap);color:var(--ink);font-family:var(--sans);
+  font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.w{max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+.col{max-width:60ch}
+
+/* ---- masthead: loud ---- */
+header{padding:clamp(3rem,7vw,6rem) 0 clamp(2rem,4vw,3.5rem)}
+.rail{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 clamp(1.5rem,3vw,2.6rem)}
+h1{font-family:var(--disp);font-size:clamp(2.6rem,8.2vw,6.4rem);line-height:.96;
+  font-weight:700;letter-spacing:-.028em;margin:0 0 clamp(1.4rem,3vw,2.2rem);
+  max-width:14ch;text-wrap:balance}
+h1 em{font-style:italic;color:var(--acc)}
+.stand{font-family:var(--disp);font-size:clamp(1.1rem,2.2vw,1.55rem);line-height:1.42;
+  max-width:44ch;margin:0 0 2rem;color:#33312c}
+.who{font-family:var(--mono);font-size:12px;color:var(--mid);display:flex;flex-wrap:wrap;
+  gap:.35rem 1.5rem;padding-top:1.4rem;border-top:2px solid var(--ink)}
+.who b{color:var(--ink)}
+.who a{color:var(--acc);text-decoration:none;border-bottom:1px solid var(--rule)}
+
+/* ---- giant stat band ---- */
+.band{background:var(--ink);color:var(--pap);margin:0 0 clamp(3rem,6vw,5rem);
+  padding:clamp(2rem,4vw,3.2rem) 0}
+.band .w{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:clamp(1.6rem,3vw,2.6rem)}
+.band .n{font-family:var(--disp);font-size:clamp(2.6rem,5vw,4rem);line-height:.92;
+  font-weight:700;display:block;margin-bottom:.6rem;letter-spacing:-.02em}
+.band .l{font-family:var(--mono);font-size:11px;line-height:1.6;color:#a9a49a;display:block}
+.band .a .n{color:#e8a33c} .band .b .n{color:#8f8a80}
+.band .c .n{color:#7fc196} .band .d .n{color:#87b3cc}
+
+/* ---- sections, numeral in the margin ---- */
+section{margin:0 0 clamp(3.5rem,7vw,6rem)}
+.head{display:grid;grid-template-columns:clamp(56px,7vw,110px) 1fr;gap:clamp(1rem,2.5vw,2.4rem);
+  align-items:start;margin:0 0 1.6rem}
+.head .num{font-family:var(--disp);font-size:clamp(2.4rem,5.5vw,4.4rem);line-height:.8;
+  font-weight:700;color:var(--acc);letter-spacing:-.03em}
+.head h2{font-family:var(--disp);font-size:clamp(1.5rem,3.4vw,2.5rem);line-height:1.1;
+  font-weight:700;letter-spacing:-.018em;margin:0;max-width:18ch;text-wrap:balance}
+.body{padding-left:0}
+@media(min-width:760px){.body{padding-left:calc(clamp(56px,7vw,110px) + clamp(1rem,2.5vw,2.4rem))}}
+.body p{max-width:58ch;margin:0 0 1.1rem}
+.body b{font-weight:700}
+
+/* pull statement */
+.pull{font-family:var(--disp);font-size:clamp(1.3rem,2.6vw,1.9rem);line-height:1.28;
+  font-weight:700;max-width:26ch;margin:0 0 1.6rem;color:var(--acc);
+  letter-spacing:-.012em}
+
+/* ---- full bleed figures ---- */
+.bleed{width:100vw;margin-left:calc(50% - 50vw);background:var(--card);
+  border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  padding:clamp(1.6rem,3.5vw,3rem) 0;margin-top:2.2rem;margin-bottom:2.2rem}
+.bleed img{display:block;width:100%;height:auto;max-width:1000px;margin:0 auto}
+.bleed .cap{font-family:var(--mono);font-size:11.5px;color:var(--mid);line-height:1.6;
+  max-width:1000px;margin:1rem auto 0;padding:0 clamp(20px,5vw,0px)}
+.bleed .cap b{color:var(--ink);letter-spacing:.1em;font-size:10.5px}
+
+/* ---- the exhibit ---- */
+.ex{background:var(--card);border:2px solid var(--ink);margin:2rem 0}
+.ex .q{padding:1.1rem 1.3rem;border-bottom:1px solid var(--rule);font-family:var(--disp);
+  font-size:1.12rem}
+.ex .q span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--mid);margin-bottom:.45rem}
+.ex .g2{display:grid;grid-template-columns:1fr 1fr}
+.ex .s{padding:1.1rem 1.3rem;font-family:var(--mono)}
+.ex .s+.s{border-left:1px solid var(--rule)}
+.ex .t{font-size:10px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.6rem}
+.ex .ok .t{color:#1f6b42} .ex .no .t{color:var(--acc)}
+.ex code{display:block;font-size:13px;line-height:1.75;white-space:pre-wrap}
+.ex mark{background:#f6d9a6;padding:0 .2em}
+.ex .rr{font-size:11px;color:var(--mid);margin-top:.7rem;padding-top:.6rem;
+  border-top:1px solid var(--rule)}
+@media(max-width:700px){.ex .g2{grid-template-columns:1fr}
+  .ex .s+.s{border-left:0;border-top:1px solid var(--rule)}}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto;margin:1.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:480px;font-family:var(--mono);
+  font-size:13px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mid);font-weight:400;padding:0 1.1rem .5rem .6rem;
+  border-bottom:2px solid var(--ink)}
+td{padding:.5rem 1.1rem .5rem .6rem;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody tr:hover td{background:var(--card)}
+.r{text-align:right}
+em.hi{font-style:normal;font-weight:700;color:var(--acc)}
+.q3{color:var(--mid)}
+
+.fine{font-family:var(--mono);font-size:12px;line-height:1.85;color:var(--mid);
+  max-width:74ch}
+.fine b{color:var(--ink)}
+footer{border-top:2px solid var(--ink);margin-top:clamp(3rem,6vw,5rem);
+  padding:1.4rem 0 5rem;font-family:var(--mono);font-size:12px;color:var(--mid);
+  line-height:1.85}
+footer a{color:var(--acc);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="w">
+  <header>
+    <p class="rail">Pre-registered study &nbsp;·&nbsp; July 2026 &nbsp;·&nbsp; 600 of 600 observations</p>
+    <h1>The best model got it wrong <em>silently</em>.</h1>
+    <p class="stand">
+      150 questions. Two prompt strategies, two model sizes, 600 generated SQL queries, every
+      one run against a real database. Prompting changed nothing. The most accurate model
+      made the fewest mistakes and not one of them was visible.
+    </p>
+    <p class="who">
+      <b>Aakash Mehta</b>
+      <a href="mailto:aakashmehta893@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
+      <a href="https://github.com/A28-2001/yardstick">Code and data</a>
+    </p>
+  </header>
+</div>
+
+<div class="band"><div class="w">
+  <div class="a"><span class="n">100%</span><span class="l">of the best model's errors ran
+    clean and returned wrong rows</span></div>
+  <div class="b"><span class="n">0</span><span class="l">tiers where few-shot prompting
+    gained anything significant</span></div>
+  <div class="c"><span class="n">+28</span><span class="l">points from the larger model on
+    complex queries, p = 0.0013</span></div>
+  <div class="d"><span class="n">84%</span><span class="l">of errors caught by reviewing
+    where two models disagree</span></div>
+</div></div>
+
+<div class="w">
+
+<section>
+  <div class="head"><span class="num">01</span><h2>One word, no error, wrong answer</h2></div>
+  <div class="body">
+    <p>This is a real failure from the run, made by the strongest model in the study.</p>
+    <div class="ex">
+      <div class="q"><span>The question</span>Which job titles correspond to jobs with salaries over 9000?</div>
+      <div class="g2">
+        <div class="s ok"><div class="t">Correct</div>
+          <code>SELECT job_title
+FROM jobs
+WHERE <mark>min_salary</mark> &gt; 9000</code>
+          <div class="rr">3 rows</div></div>
+        <div class="s no"><div class="t">What the model wrote</div>
+          <code>SELECT JOB_TITLE
+FROM jobs
+WHERE <mark>MAX_SALARY</mark> &gt; 9000</code>
+          <div class="rr">10 rows &nbsp;·&nbsp; stated confidence 1.00</div></div>
+      </div>
+    </div>
+    <p>Valid SQL. Right table. Real job titles. It answers a different question, and the
+      model reported maximum confidence. A query that crashes gets investigated. This one
+      goes into a dashboard.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="num">02</span><h2>Better models fail more quietly</h2></div>
+  <div class="body">
+    <p class="pull">Every error the most accurate model made was invisible. All 17.</p>
+  </div>
+  <div class="bleed">
+    <img src="figures/fig1_silent_failures.png" alt="Silent failure share by variant.">
+    <div class="cap"><b>FIG 1</b> &nbsp; Share of each variant's errors that executed
+      cleanly and returned the wrong rows, ordered by accuracy. n = 150 per variant.</div>
+  </div>
+  <div class="body">
+    <p>Both large-model variants sit at 95 and 100 percent. Both small ones sit at 81 and
+      89. By question difficulty: <b>82 percent of errors on complex queries were silent,
+      95 percent on simple, 97 percent in the middle tier.</b></p>
+    <p>The strong model also reported 95 percent average confidence on the answers it got
+      wrong. Choose a model on benchmark score and you are selecting for quieter failures,
+      not safer ones.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="num">03</span><h2>Prompting did nothing. Size did.</h2></div>
+  <div class="body">
+    <p class="pull">Few-shot prompting produced no significant gain at any difficulty.</p>
+    <p>Lift was minus 2, zero, and plus 8 points across the three tiers. Every confidence
+      interval crosses zero and every corrected p-value is 1.0. A ten-question pilot had
+      suggested few-shot nearly doubled accuracy on hard queries; at the full sample it
+      vanished. The hypothesis was committed to Git before the run, which is the only
+      reason this appears as a null result rather than a discovery.</p>
+  </div>
+  <div class="bleed">
+    <img src="figures/fig2_forest.png" alt="Forest plot of prompt and model effects.">
+    <div class="cap"><b>FIG 2</b> &nbsp; Percentage-point differences with 95 percent
+      bootstrap intervals. Upper block is the pre-registered comparison, corrected. Lower
+      block is the exploratory model effect.</div>
+  </div>
+  <div class="body">
+    <p>Model size is the exception, and only on hard queries. Going from 8B to 70B bought
+      <b>28 points on complex queries</b> (95% CI [+14, +42], p = 0.0013) and
+      <b>exactly zero</b> in the middle tier, where all four variants land between 0.82 and
+      0.84. Those are the only significant effects in the entire study.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Tier</th><th class="r">8B zero</th><th class="r">8B few</th>
+        <th class="r">70B zero</th><th class="r">70B few</th></tr></thead>
+      <tbody>
+        <tr><td>simple</td><td class="r">0.88 <span class="q3">[.12]</span></td>
+          <td class="r">0.86 <span class="q3">[.14]</span></td>
+          <td class="r"><em class="hi">0.96</em> <span class="q3">[.04]</span></td>
+          <td class="r">0.92 <span class="q3">[.06]</span></td></tr>
+        <tr><td>moderate</td><td class="r">0.82 <span class="q3">[.18]</span></td>
+          <td class="r">0.82 <span class="q3">[.16]</span></td>
+          <td class="r">0.82 <span class="q3">[.18]</span></td>
+          <td class="r">0.84 <span class="q3">[.16]</span></td></tr>
+        <tr><td>complex</td><td class="r">0.60 <span class="q3">[.32]</span></td>
+          <td class="r">0.68 <span class="q3">[.22]</span></td>
+          <td class="r"><em class="hi">0.88</em> <span class="q3">[.12]</span></td>
+          <td class="r">0.84 <span class="q3">[.16]</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="fine">Accuracy with silent-failure rate in brackets. All cells n = 50.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="num">04</span><h2>Never trust a model's own confidence</h2></div>
+  <div class="body">
+    <p class="pull">Ask two models instead. Review only where they disagree.</p>
+    <p>The weakest variant claims 98.6 percent confidence and is right 76.7 percent of the
+      time. All four stay between 87 and 96 percent confident on the answers they get
+      wrong. Confidence carries almost no information about whether a specific query is
+      right.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Signal</th><th class="r">AUC</th><th class="r">Flags</th>
+        <th class="r">Errors caught</th><th class="r">False alarms</th></tr></thead>
+      <tbody>
+        <tr><td>Cross-model result agreement</td><td class="r"><em class="hi">0.861</em></td>
+          <td class="r">28%</td><td class="r"><em class="hi">84%</em></td><td class="r">16%</td></tr>
+        <tr><td>Query structure agreement</td><td class="r">0.710</td><td class="r">74%</td>
+          <td class="r">100%</td><td class="r">69%</td></tr>
+        <tr><td>The model's own confidence</td><td class="r">0.647</td>
+          <td class="r q3">n/a</td><td class="r q3">n/a</td><td class="r q3">n/a</td></tr>
+      </tbody>
+    </table></div>
+    <p>None of these three needs the correct answer, so all three work in production. Only
+      one of them works at all. Run two cheap models, compare what their queries actually
+      return, and send the disagreements to review: <b>28 percent reviewed, 84 percent of
+      errors caught, 16 percent false alarms.</b></p>
+  </div>
+  <div class="bleed">
+    <img src="figures/fig3_calibration.png" alt="Stated confidence against measured accuracy.">
+    <div class="cap"><b>FIG 3</b> &nbsp; Stated confidence against measured accuracy,
+      sorted by gap. Every variant overconfident. The gap narrows as models improve but
+      never closes.</div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="num">05</span><h2>My router lost to a coin flip</h2></div>
+  <div class="body">
+    <p class="pull">Question length alone beat my six-feature difficulty model.</p>
+    <p>The predictor scored AUC 0.665. A single feature, question length, scored 0.724.
+      Schema size was noise at 0.507. Routing kept 88.7 percent of the expensive model's
+      accuracy at 28 percent of its cost, and <b>random routing at the same budget scored
+      identically</b>. Reported as the negative result it is.</p>
+  </div>
+  <div class="bleed">
+    <img src="figures/fig4_routing.png" alt="Cost against accuracy for six routing policies.">
+    <div class="cap"><b>FIG 4</b> &nbsp; Six routing policies on the held-out split.
+      Difficulty routing is cheaper than random and no more accurate. The oracle is both
+      cheaper and more accurate than always using the expensive model.</div>
+  </div>
+  <div class="body">
+    <p>Two things here matter more than the failure. The oracle beat always-expensive on
+      both axes, so the headroom is real and these features simply could not reach it. And
+      <b>cost and difficulty turn out to be unrelated</b>: question length predicts
+      difficulty, schema size predicts cost at r = 0.95 and predicts difficulty not at all.
+      Input tokens are 95 percent of spend because the schema goes into every prompt.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="num">06</span><h2>What to actually do</h2></div>
+  <div class="body">
+    <p>Spend on the model, not the prompt, and only on hard queries. Never gate on
+      self-reported confidence. Gate on two models disagreeing instead. Assume wrong
+      answers will look right, because 82 to 97 percent of them did, and put your guardrails
+      on results rather than on error handling: row-count sanity, join fan-out checks,
+      reconciliation against totals you already know. Check a length-only baseline before
+      building a difficulty router, because mine lost to one.</p>
+    <p class="fine">
+      <b>Limits.</b> Spider is public and may sit in training data, so absolute accuracies
+      are probably optimistic, though all four variants are affected equally. At 50
+      questions per tier this detects effects of roughly 14 to 27 points and no smaller.
+      Complexity is tangled with question length and schema size. Two different queries can
+      return identical values by coincidence and both score correct; the cross-check found
+      one. Both models are Llama variants, so the model effect means size within a family
+      rather than a vendor comparison. Nothing here was deployed.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <a href="https://github.com/A28-2001/yardstick">github.com/A28-2001/yardstick</a> &nbsp;·&nbsp;
+  <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a> &nbsp;·&nbsp;
+  <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a><br>
+  Pre-registered before the full run. McNemar exact test, 10,000 resample bootstrap
+  intervals, Benjamini Hochberg correction. Scorer agrees with the official Spider
+  evaluator on 18 of 19. Every figure regenerates from committed CSVs. Total cost $0.
+</footer>
+
+</div>
+</body>
+</html>

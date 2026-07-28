@@ -188,6 +188,61 @@ td.num{text-align:right}
   background:#f2f7fb;border:1px solid #cfe0ee;border-radius:3px;margin:0 0 1.1rem;
   font-size:13.5px;color:#1c3d57}
 .howto b{font-weight:650}
+.howto .keys{font-family:var(--mono);font-size:11px;opacity:.8}
+kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bottom-width:2px;
+  border-radius:3px;padding:.05rem .3rem;background:#fff}
+
+/* ---------- the point ---------- */
+.point{border-left:3px solid var(--acc);background:#f7fafc;border:1px solid var(--line);
+  border-left:3px solid var(--acc);border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;
+  margin:0 0 1.5rem}
+.point h3{margin:0 0 .6rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--acc)}
+.point p{margin:0 0 .7rem;max-width:66ch}
+.point p:last-child{margin:0}
+.point b{font-weight:650;color:var(--ink)}
+
+/* ---------- count-up stats ---------- */
+.facts .n{transition:none}
+
+/* ---------- quiz dot pop ---------- */
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.55)}100%{transform:scale(1)}}
+.dot.fresh{animation:pop .34s cubic-bezier(.3,1.4,.5,1)}
+@media(prefers-reduced-motion:reduce){.dot.fresh{animation:none}}
+
+/* ---------- reveal slide ---------- */
+@keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.reveal{animation:slidein .3s cubic-bezier(.2,.7,.3,1)}
+@media(prefers-reduced-motion:reduce){.reveal{animation:none}}
+
+/* ---------- row hover preview ---------- */
+.peek{border-top:1px solid var(--line);background:#f7f9fa;padding:.5rem .75rem;
+  font-family:var(--mono);font-size:11.5px;color:var(--mid);min-height:2.3rem;
+  display:flex;gap:.6rem;align-items:baseline}
+.peek .pk{color:var(--soft);flex:none}
+.peek code{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peek .idle{color:var(--soft);font-style:italic}
+
+/* ---------- scoreboard ---------- */
+.board{margin-top:1.1rem}
+.brow{display:grid;grid-template-columns:minmax(140px,auto) 1fr 54px;gap:.7rem;
+  align-items:center;padding:.35rem 0}
+.brow .bl{font-size:12.5px}
+.brow .bl b{font-weight:650}
+.btrack{background:#e6eaed;border-radius:2px;height:16px;overflow:hidden}
+.bfill{height:100%;width:0;border-radius:2px;transition:width .8s cubic-bezier(.2,.8,.3,1)}
+.bfill.you{background:var(--acc)} .bfill.chance{background:#b9c0c5}
+.bfill.mech{background:var(--good)}
+.bval{font-family:var(--mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){.bfill{transition:none}}
+.beat{margin-top:.9rem;padding:.7rem .9rem;border-radius:3px;font-size:13.5px;
+  background:#e9f4ee;border:1px solid #bcdcc9;color:#14512f}
+.beat.no{background:#f9f0ef;border-color:#e2c6c2;color:#6d2b25}
+.shareRow{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.9rem}
+.shareRow button{padding:.42rem .9rem;border:1px solid var(--ink);background:var(--panel);
+  border-radius:3px;font-size:13px;font-weight:600}
+.shareRow button:hover{background:var(--ink);color:var(--panel)}
+.shareRow .said{font-family:var(--mono);font-size:11.5px;color:var(--good)}
 footer{border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 4rem;
   font-family:var(--mono);font-size:11.5px;color:var(--soft);line-height:1.8}
 footer a{color:var(--acc);text-decoration:none}
@@ -237,12 +292,36 @@ footer a{color:var(--acc);text-decoration:none}
   </div>
 </div>
 
+<div class="point">
+  <h3>Why this exists</h3>
+  <p>
+    Teams are wiring language models into their data stack right now, and the evidence
+    they use to decide it is safe is almost always a single number: how often the model
+    got the right answer on some benchmark.
+  </p>
+  <p>
+    <b>That number does not tell you the thing you actually need to know.</b> It counts how
+    often the model is wrong. It says nothing about whether anyone would notice. A model
+    that fails loudly at 80 percent accuracy is far safer to deploy than one that fails
+    silently at 90, and an accuracy score cannot tell those two apart.
+  </p>
+  <p>
+    So this study measures the second thing. It runs a proper controlled experiment,
+    with the hypothesis and the statistics committed to version control before the data
+    was collected, and it asks: when the model is wrong, is the failure catchable, and
+    what is the cheapest check that catches it? <b>The answer turned out to be one you can
+    act on, and it is not the one most teams are using.</b>
+  </p>
+</div>
+
 <div class="howto">
   <span>▸</span>
   <div><b>How this works:</b> you will see six real queries, one at a time, with the
     question each was meant to answer. Decide whether each returned the right rows.
     You are not shown the correct answer until after you commit, because whoever reviews
-    this in a real job does not have it either.</div>
+    this in a real job does not have it either.
+    <span class="keys">Keyboard: <kbd>Y</kbd> right, <kbd>N</kbd> wrong,
+    <kbd>Enter</kbd> next.</span></div>
 </div>
 
 <!-- ============ 1. QUIZ ============ -->
@@ -295,6 +374,8 @@ footer a{color:var(--acc);text-decoration:none}
     </tr></thead>
     <tbody id="xbody"></tbody>
   </table></div>
+  <div class="peek" id="peek"><span class="idle">Hover a row to preview the generated SQL.
+    Click to open it against the human answer.</span></div>
 </div>
 
 <!-- ============ 3. CONSOLE ============ -->
@@ -398,12 +479,13 @@ function renderQuiz(){
   host.appendChild(scoreStrip());
 }
 
-function scoreStrip(){
+function scoreStrip(fresh){
   var s = el("div","score");
   s.style.marginTop = "1rem";
   var dots = el("div","dots");
   for(var i=0;i<QN;i++){
-    var d = el("span","dot" + (qscore[i]===true?" rt":qscore[i]===false?" wr":""));
+    var d = el("span","dot" + (qscore[i]===true?" rt":qscore[i]===false?" wr":"") +
+                       (fresh===i ? " fresh" : ""));
     dots.appendChild(d);
   }
   s.appendChild(dots);
@@ -448,29 +530,96 @@ function answer(saidCorrect){
   rev.appendChild(nx);
 
   host.appendChild(rev);
-  host.appendChild(scoreStrip());
+  host.appendChild(scoreStrip(qi));
+  btn.focus();
 }
 
 function renderFinal(host){
   document.getElementById("qprog").textContent = "done";
   var n = qscore.filter(function(x){return x===true;}).length;
+  var pct = Math.round(100*n/qscore.length);
+
   var box = el("div","final");
   var h = el("p"); h.style.margin="0 0 .6rem";
-  h.innerHTML = "<b>You scored " + n + " out of " + qscore.length + ".</b>";
+  h.innerHTML = "<b>You scored " + n + " out of " + qscore.length +
+                ", so " + pct + " percent.</b>";
   box.appendChild(h);
   var p = el("p"); p.style.margin="0";
-  p.innerHTML = "Chance is " + (qscore.length/2) + ". Reading SQL against a schema you have " +
-    "never seen, with no correct answer to compare against, is close to the position a " +
-    "reviewer is actually in. That is why these matter: <b>93 of the 104 errors in this " +
-    "study executed without any error at all</b> and returned believable wrong numbers. " +
-    "The most accurate model in the study had a silent-failure rate of 100 percent.";
+  p.innerHTML = "The set was balanced, half right and half wrong, so guessing scores 50. " +
+    "Judging SQL against a schema you have never seen, with no correct answer to compare " +
+    "against, is roughly the position a reviewer is in on a real team. <b>93 of the 104 " +
+    "errors in this study ran without any error at all</b> and returned believable wrong " +
+    "numbers.";
   box.appendChild(p);
+
+  /* Comparing your score to a model's accuracy would be dishonest: you are detecting
+     errors, the models are writing SQL. Two different jobs. These three are all the same
+     job, judging the same balanced set, so they can sit on one axis. */
+  var board = el("div","board");
+  [
+    ["you",    "<b>You</b>, by eye",                       pct,  "you"],
+    ["chance", "Guessing at random",                        50,   "chance"],
+    ["mech",   "<b>Two models compared</b> automatically",  84,   "mech"]
+  ].forEach(function(row){
+    var r = el("div","brow");
+    var lab = el("div","bl"); lab.innerHTML = row[1];
+    var track = el("div","btrack");
+    var fill = el("div","bfill " + row[3]);
+    track.appendChild(fill);
+    var val = el("div","bval", row[2] + "%");
+    r.appendChild(lab); r.appendChild(track); r.appendChild(val);
+    board.appendChild(r);
+    setTimeout(function(){ fill.style.width = row[2] + "%"; }, 60);
+  });
+  var note = el("p","hint");
+  note.style.marginTop = ".5rem";
+  note.innerHTML = "All three are the same task: judging whether a query is right, on a " +
+    "balanced set. The last one needs no human at all. It runs the question through a " +
+    "second cheap model and flags it when the two return different rows.";
+  board.appendChild(note);
+  box.appendChild(board);
+
+  var beat = el("div","beat" + (pct > 50 ? "" : " no"));
+  beat.innerHTML = pct >= 84
+    ? "You matched the automated check. Most people do not, and it does this on every query, forever, for a fraction of a cent."
+    : pct > 50
+      ? "Better than chance, and still below a check that costs one extra API call and never gets tired."
+      : "At or below chance. That is the finding, not an insult: these failures are built to be invisible.";
+  box.appendChild(beat);
+
+  var share = el("div","shareRow");
+  var sb = el("button",null,"Copy my result");
+  sb.onclick = function(){
+    var txt = "I scored " + n + "/" + qscore.length + " (" + pct + "%) spotting broken " +
+      "AI-generated SQL by eye. An automatic check of two models against each other gets " +
+      "84%. From Yardstick, a pre-registered study of 600 generated queries: " +
+      location.href;
+    var done = function(){
+      var s = share.querySelector(".said");
+      if(!s){ s = el("span","said","copied"); share.appendChild(s); }
+      s.textContent = "copied";
+      setTimeout(function(){ if(s) s.textContent = ""; }, 2200);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, function(){ fallbackCopy(txt, done); });
+    } else fallbackCopy(txt, done);
+  };
+  var again = el("button",null,"Try six more");
+  again.onclick = function(){ qi=0; qscore=[]; qpool=buildPool(); renderQuiz(); };
+  share.appendChild(sb); share.appendChild(again);
+  box.appendChild(share);
+
   host.appendChild(box);
   host.appendChild(scoreStrip());
-  var again = el("div","choices"); again.style.marginTop=".9rem";
-  var b = el("button",null,"Try six more");
-  b.onclick = function(){ qi=0; qscore=[]; qpool=buildPool(); renderQuiz(); };
-  again.appendChild(b); host.appendChild(again);
+}
+
+function fallbackCopy(text, done){
+  var ta = document.createElement("textarea");
+  ta.value = text; ta.setAttribute("readonly","");
+  ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch(e){}
+  document.body.removeChild(ta);
 }
 
 /* ============================================================= 2. EXPLORER */
@@ -553,6 +702,7 @@ function drawTable(){
     tr.appendChild(el("td","num", r.conf==null?"—":r.conf.toFixed(2)));
     tr.appendChild(el("td","num", r.prows==null?"—":String(r.prows)));
     tr.onclick = function(){ toggleDetail(tr, r); };
+    tr.onmouseenter = function(){ peek(r); };
     body.appendChild(tr);
   });
   if(rows.length > 400){
@@ -560,6 +710,18 @@ function drawTable(){
     td2.appendChild(el("div","empty","Showing the first 400. Filter to narrow."));
     tr2.appendChild(td2); body.appendChild(tr2);
   }
+}
+
+/* Hovering a row shows the generated SQL in a fixed strip under the table rather than a
+   floating tooltip, so it never covers the row you are pointing at. */
+function peek(r){
+  var host = document.getElementById("peek");
+  host.innerHTML = "";
+  var o = outcome(r);
+  host.appendChild(el("span","pk",
+    o==="correct" ? "correct →" : o==="silent" ? "silent failure →" : "loud failure →"));
+  var c = el("code"); c.textContent = r.sql || "(no parseable SQL)";
+  host.appendChild(c);
 }
 
 function toggleDetail(tr, r){
@@ -916,11 +1078,69 @@ fetch("data/runs.json")
     renderQuiz();
     buildFilters(); wireSort(); drawTable();
     buildExamples(); execute();
+    countUp();
   })
   .catch(function(e){
     document.getElementById("quiz").innerHTML =
       '<div class="loading">Could not load the run data (' + esc(e.message) + ').</div>';
   });
+
+/* Count the headline numbers up when they scroll into view. The real value is stashed
+   in data-final and restored by a guaranteed timer, so a throttled frame callback can
+   never strand a wrong number on screen where a right one belongs. */
+function countUp(){
+  var nodes = [].slice.call(document.querySelectorAll(".facts .n"));
+  var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  nodes.forEach(function(n){ n.setAttribute("data-final", n.textContent.trim()); });
+  if(still || !("IntersectionObserver" in window)) return;
+
+  function run(n){
+    if(n.getAttribute("data-done")) return;
+    n.setAttribute("data-done","1");
+    var raw = n.getAttribute("data-final");
+    var m = raw.match(/^([+]?)(\d+)(%?)$/);
+    if(!m) return;
+    var sign=m[1], target=parseInt(m[2],10), suffix=m[3], t0=null;
+    var settle = setTimeout(function(){ n.textContent = raw; }, 1400);
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts-t0)/900, 1);
+      n.textContent = sign + Math.round(target*(1-Math.pow(1-p,3))) + suffix;
+      if(p < 1) requestAnimationFrame(step);
+      else { clearTimeout(settle); n.textContent = raw; }
+    }
+    n.textContent = sign + "0" + suffix;
+    requestAnimationFrame(step);
+  }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ run(e.target); io.unobserve(e.target); } });
+  }, {threshold:0.4});
+  nodes.forEach(function(n){ io.observe(n); });
+  setTimeout(function(){ nodes.forEach(run); }, 3000);   // failsafe
+}
+
+/* Keyboard: Y and N answer, Enter or the right arrow advances. Ignored while the reader
+   is typing in the SQL box. */
+document.addEventListener("keydown", function(e){
+  var t = e.target;
+  if(t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT")) return;
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  var host = document.getElementById("quiz");
+  if(!host) return;
+  var k = e.key.toLowerCase();
+
+  if(!answered){
+    var btns = host.querySelectorAll(".choices button");
+    if(btns.length === 2){
+      if(k === "y"){ e.preventDefault(); btns[0].click(); return; }
+      if(k === "n"){ e.preventDefault(); btns[1].click(); return; }
+    }
+  }
+  if(k === "enter" || k === "arrowright"){
+    var nxt = host.querySelector(".reveal .choices button");
+    if(nxt){ e.preventDefault(); nxt.click(); }
+  }
+});
 
 /* Jargon: hover covers a mouse, but a touch screen has no hover and a keyboard needs
    focus, so the same control also toggles on click. Clicking anywhere else closes it. */

@@ -10,6 +10,18 @@ gold answer. Statistics chosen in advance and committed to Git before the full r
 > **Status: complete.** All **600/600** cells generated, executed, and scored. 0
 > extraction failures, 0 timeouts. Every number below is final.
 
+### 🔎 [Try it: can you tell which SQL is wrong?](https://a28-2001.github.io/yardstick/)
+
+The live site puts six real generated queries in front of you and asks you to judge them,
+without showing the correct answer, because in production there is no correct answer to
+show. Most people score near chance. After that you can filter all 600 runs and query the
+results in SQL in the browser.
+
+- **[Interactive site](https://a28-2001.github.io/yardstick/)** — the quiz, the run
+  explorer, and a SQL console over the results
+- **[Full write-up](https://a28-2001.github.io/yardstick/report.html)** — the study as a
+  report, with every figure and the statistics
+
 ---
 
 ## The question

@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Can you spot the broken SQL?</title>
+<meta name="description" content="600 LLM-generated SQL queries, executed against real databases. Judge them yourself, then query the results.">
+<style>
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --ink:#111417; --mid:#6b7176; --soft:#8d9398;
+  --line:#d3d8dc; --hair:#e6eaed;
+  --acc:#0b5fa5;        /* instrument blue, interactive things only */
+  --bad:#b0342c; --good:#1d6b45; --warn:#9a6800;
+  --mono:ui-monospace,Menlo,"SF Mono","DejaVu Sans Mono",Consolas,monospace;
+  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.w{max-width:1120px;margin:0 auto;padding:0 clamp(14px,3vw,28px)}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+
+/* ---------- masthead ---------- */
+header{padding:2.6rem 0 1.6rem}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .9rem}
+h1{font-size:clamp(1.5rem,3.4vw,2.15rem);line-height:1.15;font-weight:650;
+  letter-spacing:-.02em;margin:0 0 .7rem;max-width:20ch}
+.sub{color:var(--mid);max-width:56ch;margin:0 0 1.2rem}
+.who{font-family:var(--mono);font-size:11.5px;color:var(--soft);display:flex;
+  flex-wrap:wrap;gap:.3rem 1.2rem}
+.who b{color:var(--ink)} .who a{color:var(--acc);text-decoration:none}
+.who a:hover{text-decoration:underline}
+
+/* ---------- panels ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  margin:0 0 1.5rem;overflow:hidden}
+.pbar{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;
+  border-bottom:1px solid var(--line);background:#f7f9fa}
+.pbar h2{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;
+  margin:0;color:var(--ink)}
+.pbar .note{font-family:var(--mono);font-size:11px;color:var(--soft);margin-left:auto}
+.pbody{padding:1.1rem}
+
+/* ---------- quiz ---------- */
+.qmeta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:.2rem .5rem;
+  border:1px solid var(--line);border-radius:3px;color:var(--mid);background:#fbfcfd}
+.ask{font-size:1.06rem;margin:0 0 1rem;max-width:62ch}
+.ask span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--soft);margin-bottom:.35rem}
+pre.sql{margin:0 0 1.1rem;background:#f6f8f9;border:1px solid var(--hair);border-left:3px solid var(--acc);
+  padding:.8rem .9rem;font-family:var(--mono);font-size:13px;line-height:1.7;
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.choices{display:flex;gap:.6rem;flex-wrap:wrap}
+.choices button{padding:.55rem 1.1rem;border:1px solid var(--ink);background:var(--panel);
+  border-radius:3px;font-weight:600;transition:background .12s,color .12s}
+.choices button:hover{background:var(--ink);color:var(--panel)}
+.choices button:disabled{opacity:.4;cursor:default}
+.choices button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+.reveal{margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--hair)}
+.verdict{font-weight:650;margin:0 0 .7rem}
+.verdict.rt{color:var(--good)} .verdict.wr{color:var(--bad)}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.7rem 0}
+.side>div{border:1px solid var(--hair);border-radius:3px;padding:.7rem .8rem}
+.side .lb{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:.45rem;color:var(--soft)}
+.side code{font-family:var(--mono);font-size:12.5px;line-height:1.65;display:block;
+  white-space:pre-wrap;word-break:break-word}
+.side .n{font-family:var(--mono);font-size:11px;color:var(--mid);margin-top:.5rem;
+  padding-top:.45rem;border-top:1px solid var(--hair)}
+@media(max-width:640px){.side{grid-template-columns:1fr}}
+
+.score{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12px;color:var(--mid)}
+.dots{display:flex;gap:.3rem}
+.dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line);background:var(--panel)}
+.dot.rt{background:var(--good);border-color:var(--good)}
+.dot.wr{background:var(--bad);border-color:var(--bad)}
+.final{background:#f6f8f9;border:1px solid var(--line);border-left:3px solid var(--bad);
+  padding:1rem 1.1rem;margin-top:1.1rem;border-radius:3px}
+.final b{font-weight:650}
+
+/* ---------- findings strip ---------- */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;
+  margin:0 0 1.5rem}
+.facts div{background:var(--panel);padding:.9rem 1rem}
+.facts .n{font-size:1.6rem;font-weight:650;line-height:1;display:block;margin-bottom:.4rem;
+  font-variant-numeric:tabular-nums}
+.facts .l{font-size:11.5px;line-height:1.45;color:var(--mid);display:block}
+.facts .a .n{color:var(--bad)} .facts .b .n{color:var(--mid)}
+.facts .c .n{color:var(--good)} .facts .d .n{color:var(--acc)}
+
+/* ---------- controls ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:.4rem;padding:.75rem .9rem;
+  border-bottom:1px solid var(--line);background:#f7f9fa}
+.fg{display:flex;gap:.25rem;align-items:center;margin-right:.8rem}
+.fg .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--soft);margin-right:.3rem}
+.tog{font-family:var(--mono);font-size:11.5px;padding:.25rem .55rem;border:1px solid var(--line);
+  background:var(--panel);border-radius:3px;color:var(--mid)}
+.tog[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.tog:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+
+/* ---------- tables ---------- */
+.scroll{overflow:auto;max-height:460px}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12px;
+  font-variant-numeric:tabular-nums}
+thead th{position:sticky;top:0;background:#f7f9fa;text-align:left;font-weight:600;
+  font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--mid);
+  padding:.5rem .7rem;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+thead th.s{cursor:pointer;user-select:none}
+thead th.s:hover{color:var(--ink)}
+tbody td{padding:.4rem .7rem;border-bottom:1px solid var(--hair);white-space:nowrap;
+  max-width:340px;overflow:hidden;text-overflow:ellipsis}
+tbody tr:hover td{background:#f4f7f9}
+tbody tr.open td{background:#eef4f8}
+td.num{text-align:right}
+.tag{display:inline-block;padding:.05rem .4rem;border-radius:2px;font-size:10.5px}
+.tag.ok{background:#dcefe4;color:var(--good)}
+.tag.si{background:#f7e2e0;color:var(--bad)}
+.tag.lo{background:#f6ebd4;color:var(--warn)}
+.detail td{white-space:normal;background:#f9fbfc}
+.detail .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;padding:.5rem 0}
+.detail .dgrid>div{min-width:0}
+.detail .lb{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--soft);
+  margin-bottom:.3rem}
+.detail code{display:block;white-space:pre-wrap;word-break:break-word;font-size:12px;
+  line-height:1.6}
+@media(max-width:700px){.detail .dgrid{grid-template-columns:1fr}}
+.empty{padding:2rem 1rem;text-align:center;color:var(--soft);font-family:var(--mono);
+  font-size:12px}
+
+/* ---------- console ---------- */
+.console textarea{width:100%;min-height:82px;resize:vertical;font-family:var(--mono);
+  font-size:13px;line-height:1.6;padding:.8rem .9rem;border:1px solid var(--line);
+  border-radius:3px;background:#f6f8f9;color:var(--ink)}
+.console textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;background:var(--panel)}
+.crow{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.7rem}
+.run{padding:.5rem 1.2rem;background:var(--acc);color:#fff;border:1px solid var(--acc);
+  border-radius:3px;font-weight:600}
+.run:hover{background:#094c85}
+.hint{font-family:var(--mono);font-size:11px;color:var(--soft)}
+.examples{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem}
+.examples button{font-family:var(--mono);font-size:11px;padding:.25rem .55rem;
+  border:1px dashed var(--line);background:transparent;border-radius:3px;color:var(--acc)}
+.examples button:hover{border-style:solid;background:#f2f7fb}
+.err{margin-top:.8rem;padding:.7rem .9rem;background:#fbeeed;border:1px solid #e8c9c6;
+  border-left:3px solid var(--bad);border-radius:3px;font-family:var(--mono);
+  font-size:12px;color:var(--bad);white-space:pre-wrap}
+.okline{margin-top:.8rem;font-family:var(--mono);font-size:11.5px;color:var(--mid)}
+
+.prose{max-width:64ch;margin:0 0 1.5rem;color:var(--mid)}
+.prose b{color:var(--ink);font-weight:600}
+footer{border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 4rem;
+  font-family:var(--mono);font-size:11.5px;color:var(--soft);line-height:1.8}
+footer a{color:var(--acc);text-decoration:none}
+.loading{padding:2rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="w">
+
+<header>
+  <p class="eyebrow">Yardstick &nbsp;·&nbsp; 600 generated SQL queries, all executed for real</p>
+  <h1>Can you tell which SQL is wrong?</h1>
+  <p class="sub">
+    Below are real queries a language model wrote, and the questions they were meant to
+    answer. Each one runs without error. Some return the right rows. Some do not.
+    You will not be shown the correct answer until after you decide, because in production
+    you would not have it either.
+  </p>
+  <p class="who">
+    <b>Aakash Mehta</b>
+    <a href="mailto:aakashmehta893@gmail.com">Email</a>
+    <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
+    <a href="https://github.com/A28-2001/yardstick">Code and data</a>
+    <a href="index.html">Full write-up</a>
+  </p>
+</header>
+
+<!-- ============ 1. QUIZ ============ -->
+<div class="panel">
+  <div class="pbar"><h2>Judge it yourself</h2>
+    <span class="note" id="qprog">round 1 of 6</span></div>
+  <div class="pbody" id="quiz"><div class="loading">loading 600 runs…</div></div>
+</div>
+
+<!-- ============ headline numbers ============ -->
+<div class="facts">
+  <div class="a"><span class="n" id="f1">—</span><span class="l">of the most accurate
+    model's errors ran clean and returned wrong rows</span></div>
+  <div class="b"><span class="n">0</span><span class="l">difficulty tiers where few-shot
+    prompting gained anything significant</span></div>
+  <div class="c"><span class="n">+28</span><span class="l">points from the larger model on
+    complex queries, p = 0.0013</span></div>
+  <div class="d"><span class="n">84%</span><span class="l">of errors caught by reviewing
+    the 28% where two models disagree</span></div>
+</div>
+
+<p class="prose">
+  That is the whole finding. <b>A query that crashes gets investigated. A query that returns
+  believable wrong numbers goes into a dashboard.</b> Across this study 82 to 97 percent of
+  all errors were the second kind, and the share went <i>up</i> as the models got better.
+  Everything below is the raw evidence: all 600 runs, filterable, and queryable in SQL.
+</p>
+
+<!-- ============ 2. EXPLORER ============ -->
+<div class="panel">
+  <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">—</span></div>
+  <div class="filters" id="filters"></div>
+  <div class="scroll"><table id="xtable">
+    <thead><tr>
+      <th class="s" data-k="v">Variant</th>
+      <th class="s" data-k="t">Tier</th>
+      <th class="s" data-k="db">Database</th>
+      <th>Question</th>
+      <th class="s" data-k="outcome">Outcome</th>
+      <th class="s num" data-k="conf">Conf</th>
+      <th class="s num" data-k="prows">Rows</th>
+    </tr></thead>
+    <tbody id="xbody"></tbody>
+  </table></div>
+</div>
+
+<!-- ============ 3. CONSOLE ============ -->
+<div class="panel console">
+  <div class="pbar"><h2>Query the results</h2>
+    <span class="note">table: runs &nbsp;·&nbsp; 600 rows</span></div>
+  <div class="pbody">
+    <p class="prose" style="margin-bottom:.8rem">
+      A study about writing SQL ought to let you write some. This runs a real query engine
+      in your browser, hand-written for this page, over all 600 runs.
+    </p>
+    <textarea id="sqlbox" spellcheck="false">SELECT v, t, conf, q FROM runs WHERE silent = true AND conf = 1 ORDER BY t LIMIT 20</textarea>
+    <div class="crow">
+      <button class="run" id="runbtn">Run query</button>
+      <span class="hint">Ctrl or Cmd + Enter</span>
+    </div>
+    <div class="examples" id="examples"></div>
+    <div id="cerr"></div>
+    <div id="cout"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://github.com/A28-2001/yardstick">github.com/A28-2001/yardstick</a> ·
+  <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a> ·
+  <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a> ·
+  <a href="index.html">Full write-up</a><br>
+  Pre-registered before the run. 150 questions, 93 databases, Spider corpus, CC BY-SA 4.0.
+  McNemar exact, bootstrap intervals, Benjamini Hochberg. Scorer agrees with the official
+  Spider evaluator on 18 of 19. Total cost $0.
+</footer>
+
+</div>
+
+<script>
+/* ============================================================================
+   Yardstick lab. Three pieces over one dataset: a judgement quiz, a run
+   explorer, and a small SQL engine. No libraries, no build step.
+   ============================================================================ */
+(function(){
+"use strict";
+
+var RUNS = [], ready = false;
+
+/* ---------------------------------------------------------------- utilities */
+function el(t, cls, txt){ var e=document.createElement(t); if(cls)e.className=cls;
+  if(txt!=null)e.textContent=txt; return e; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function outcome(r){ return r.ok ? "correct" : (r.silent ? "silent" : "loud"); }
+
+/* ================================================================= 1. QUIZ */
+var QN = 6, qi = 0, qscore = [], qpool = [], answered = false;
+
+function buildPool(){
+  // Readable examples only, and a deliberate mix: if every round were a failure
+  // the honest answer would just be "no" every time.
+  var short = RUNS.filter(function(r){
+    return r.sql && r.gold && r.sql.length < 190 && r.gold.length < 190 &&
+           r.q.length < 120 && r.ran;
+  });
+  var bad = shuffle(short.filter(function(r){ return r.silent; }));
+  var good = shuffle(short.filter(function(r){ return r.ok; }));
+  var mix = [];
+  for(var i=0;i<QN;i++) mix.push(i%2===0 ? bad[i>>1] : good[i>>1]);
+  return mix.filter(Boolean);
+}
+function shuffle(a){ a=a.slice();
+  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+function renderQuiz(){
+  var host = document.getElementById("quiz");
+  host.innerHTML = "";
+  document.getElementById("qprog").textContent = "round " + Math.min(qi+1,QN) + " of " + QN;
+
+  if(qi >= qpool.length){ return renderFinal(host); }
+  var r = qpool[qi];
+  answered = false;
+
+  var meta = el("div","qmeta");
+  [r.t + " query", "database: " + r.db, r.m + " model", r.p].forEach(function(t){
+    meta.appendChild(el("span","chip",t)); });
+  host.appendChild(meta);
+
+  var ask = el("div","ask");
+  ask.appendChild(el("span",null,"The question the user asked"));
+  ask.appendChild(document.createTextNode(r.q));
+  host.appendChild(ask);
+
+  var pre = el("pre","sql"); pre.textContent = r.sql; host.appendChild(pre);
+
+  var ch = el("div","choices");
+  var yes = el("button",null,"Returns the right rows");
+  var no  = el("button",null,"Returns the wrong rows");
+  yes.onclick = function(){ answer(true); };
+  no.onclick  = function(){ answer(false); };
+  ch.appendChild(yes); ch.appendChild(no);
+  host.appendChild(ch);
+
+  host.appendChild(scoreStrip());
+}
+
+function scoreStrip(){
+  var s = el("div","score");
+  s.style.marginTop = "1rem";
+  var dots = el("div","dots");
+  for(var i=0;i<QN;i++){
+    var d = el("span","dot" + (qscore[i]===true?" rt":qscore[i]===false?" wr":""));
+    dots.appendChild(d);
+  }
+  s.appendChild(dots);
+  var n = qscore.filter(function(x){return x===true;}).length;
+  s.appendChild(el("span",null, n + " of " + qscore.length + " right so far"));
+  return s;
+}
+
+function answer(saidCorrect){
+  if(answered) return; answered = true;
+  var r = qpool[qi];
+  var right = (saidCorrect === r.ok);
+  qscore[qi] = right;
+
+  var host = document.getElementById("quiz");
+  [].forEach.call(host.querySelectorAll(".choices button"), function(b){ b.disabled = true; });
+
+  var rev = el("div","reveal");
+  var v = el("p","verdict " + (right?"rt":"wr"));
+  v.textContent = right
+    ? (r.ok ? "Correct. That query does return the right rows."
+            : "Correct. That query is wrong.")
+    : (r.ok ? "Wrong. That query was actually right."
+            : "Wrong. That query returned the wrong rows, with no error.");
+  rev.appendChild(v);
+
+  var side = el("div","side");
+  var a = el("div"); a.appendChild(el("div","lb","What the human wrote"));
+  var ac = el("code"); ac.textContent = r.gold; a.appendChild(ac);
+  a.appendChild(el("div","n", r.grows + " rows"));
+  var b = el("div"); b.appendChild(el("div","lb","What the model wrote"));
+  var bc = el("code"); bc.textContent = r.sql; b.appendChild(bc);
+  b.appendChild(el("div","n", (r.prows==null?"—":r.prows) + " rows"
+      + (r.conf!=null ? "  ·  stated confidence " + r.conf.toFixed(2) : "")));
+  side.appendChild(a); side.appendChild(b);
+  rev.appendChild(side);
+
+  var nx = el("div","choices");
+  var btn = el("button",null, (qi+1 >= qpool.length) ? "See the result" : "Next query");
+  btn.onclick = function(){ qi++; renderQuiz(); };
+  nx.appendChild(btn);
+  rev.appendChild(nx);
+
+  host.appendChild(rev);
+  host.appendChild(scoreStrip());
+}
+
+function renderFinal(host){
+  document.getElementById("qprog").textContent = "done";
+  var n = qscore.filter(function(x){return x===true;}).length;
+  var box = el("div","final");
+  var h = el("p"); h.style.margin="0 0 .6rem";
+  h.innerHTML = "<b>You scored " + n + " out of " + qscore.length + ".</b>";
+  box.appendChild(h);
+  var p = el("p"); p.style.margin="0";
+  p.innerHTML = "Chance is " + (qscore.length/2) + ". Reading SQL against a schema you have " +
+    "never seen, with no correct answer to compare against, is close to the position a " +
+    "reviewer is actually in. That is why these matter: <b>93 of the 104 errors in this " +
+    "study executed without any error at all</b> and returned believable wrong numbers. " +
+    "The most accurate model in the study had a silent-failure rate of 100 percent.";
+  box.appendChild(p);
+  host.appendChild(box);
+  host.appendChild(scoreStrip());
+  var again = el("div","choices"); again.style.marginTop=".9rem";
+  var b = el("button",null,"Try six more");
+  b.onclick = function(){ qi=0; qscore=[]; qpool=buildPool(); renderQuiz(); };
+  again.appendChild(b); host.appendChild(again);
+}
+
+/* ============================================================= 2. EXPLORER */
+var F = { v:new Set(), t:new Set(), o:new Set() };
+var sortK = null, sortDir = 1, openRow = null;
+
+function buildFilters(){
+  var host = document.getElementById("filters");
+  host.innerHTML = "";
+  function group(label, key, vals, labels){
+    var g = el("div","fg");
+    g.appendChild(el("span","lab",label));
+    vals.forEach(function(val, i){
+      var b = el("button","tog", labels ? labels[i] : val);
+      b.setAttribute("aria-pressed","false");
+      b.onclick = function(){
+        var on = b.getAttribute("aria-pressed")==="true";
+        b.setAttribute("aria-pressed", on?"false":"true");
+        if(on) F[key].delete(val); else F[key].add(val);
+        drawTable();
+      };
+      g.appendChild(b);
+    });
+    host.appendChild(g);
+  }
+  group("Variant","v",["V1","V2","V3","V4"],
+        ["V1 8B zero","V2 8B few","V3 70B zero","V4 70B few"]);
+  group("Tier","t",["simple","moderate","complex"]);
+  group("Outcome","o",["correct","silent","loud"],
+        ["correct","silent failure","loud failure"]);
+  var clear = el("button","tog","reset");
+  clear.style.marginLeft="auto";
+  clear.onclick = function(){
+    F.v.clear(); F.t.clear(); F.o.clear();
+    [].forEach.call(host.querySelectorAll(".tog"),function(b){b.setAttribute("aria-pressed","false");});
+    drawTable();
+  };
+  host.appendChild(clear);
+}
+
+function filtered(){
+  return RUNS.filter(function(r){
+    if(F.v.size && !F.v.has(r.v)) return false;
+    if(F.t.size && !F.t.has(r.t)) return false;
+    if(F.o.size && !F.o.has(outcome(r))) return false;
+    return true;
+  });
+}
+
+function drawTable(){
+  var rows = filtered();
+  if(sortK){
+    rows = rows.slice().sort(function(a,b){
+      var x = sortK==="outcome" ? outcome(a) : a[sortK];
+      var y = sortK==="outcome" ? outcome(b) : b[sortK];
+      if(x==null) x = -Infinity; if(y==null) y = -Infinity;
+      return (x<y?-1:x>y?1:0) * sortDir;
+    });
+  }
+  document.getElementById("xcount").textContent =
+    rows.length + " of " + RUNS.length + " runs";
+  var body = document.getElementById("xbody");
+  body.innerHTML = "";
+  if(!rows.length){
+    var tr = el("tr"); var td = el("td"); td.colSpan = 7;
+    td.appendChild(el("div","empty","No runs match those filters."));
+    tr.appendChild(td); body.appendChild(tr); return;
+  }
+  rows.slice(0,400).forEach(function(r){
+    var tr = el("tr");
+    tr.appendChild(el("td",null,r.v));
+    tr.appendChild(el("td",null,r.t));
+    tr.appendChild(el("td",null,r.db));
+    tr.appendChild(el("td",null,r.q));
+    var o = outcome(r);
+    var td = el("td");
+    var tag = el("span","tag " + (o==="correct"?"ok":o==="silent"?"si":"lo"),
+      o==="correct"?"correct":o==="silent"?"silent":"loud");
+    td.appendChild(tag); tr.appendChild(td);
+    tr.appendChild(el("td","num", r.conf==null?"—":r.conf.toFixed(2)));
+    tr.appendChild(el("td","num", r.prows==null?"—":String(r.prows)));
+    tr.onclick = function(){ toggleDetail(tr, r); };
+    body.appendChild(tr);
+  });
+  if(rows.length > 400){
+    var tr2 = el("tr"); var td2 = el("td"); td2.colSpan = 7;
+    td2.appendChild(el("div","empty","Showing the first 400. Filter to narrow."));
+    tr2.appendChild(td2); body.appendChild(tr2);
+  }
+}
+
+function toggleDetail(tr, r){
+  var nxt = tr.nextSibling;
+  if(nxt && nxt.classList && nxt.classList.contains("detail")){
+    nxt.remove(); tr.classList.remove("open"); return;
+  }
+  var d = el("tr","detail"); var td = el("td"); td.colSpan = 7;
+  var g = el("div","dgrid");
+  var a = el("div"); a.appendChild(el("div","lb","Human answer  ·  " + r.grows + " rows"));
+  var ac = el("code"); ac.textContent = r.gold; a.appendChild(ac);
+  var b = el("div");
+  b.appendChild(el("div","lb","Model answer  ·  " +
+    (r.prows==null?"did not run":r.prows + " rows") +
+    (r.err? "  ·  " + r.err : "")));
+  var bc = el("code"); bc.textContent = r.sql || "(no parseable SQL)"; b.appendChild(bc);
+  g.appendChild(a); g.appendChild(b);
+  td.appendChild(g);
+  d.appendChild(td);
+  tr.parentNode.insertBefore(d, tr.nextSibling);
+  tr.classList.add("open");
+}
+
+function wireSort(){
+  [].forEach.call(document.querySelectorAll("#xtable th.s"), function(th){
+    th.onclick = function(){
+      var k = th.getAttribute("data-k");
+      if(sortK === k) sortDir = -sortDir; else { sortK = k; sortDir = 1; }
+      drawTable();
+    };
+  });
+}
+
+/* ============================================================== 3. SQL ENGINE
+   A deliberately small SELECT engine: enough to interrogate the data honestly,
+   small enough to read. Tokeniser, recursive-descent parser, evaluator.        */
+var COLS = ["v","m","p","t","db","q","gold","sql","ok","ran","silent","err",
+            "conf","grows","prows","tok","cost","ms"];
+
+function tokenize(s){
+  var out = [], i = 0;
+  var re = {
+    ws:/\s+/y, num:/-?\d+(\.\d+)?/y, str:/'([^']*)'/y,
+    op:/(>=|<=|!=|<>|=|>|<)/y, word:/[A-Za-z_][A-Za-z_0-9]*/y, punc:/[(),*]/y
+  };
+  while(i < s.length){
+    var m;
+    re.ws.lastIndex=i; if((m=re.ws.exec(s))){ i=re.ws.lastIndex; continue; }
+    re.str.lastIndex=i; if((m=re.str.exec(s))){ out.push({t:"str",v:m[1]}); i=re.str.lastIndex; continue; }
+    re.num.lastIndex=i; if((m=re.num.exec(s))){ out.push({t:"num",v:parseFloat(m[0])}); i=re.num.lastIndex; continue; }
+    re.op.lastIndex=i;  if((m=re.op.exec(s))){ out.push({t:"op",v:m[0]}); i=re.op.lastIndex; continue; }
+    re.word.lastIndex=i;if((m=re.word.exec(s))){ out.push({t:"word",v:m[0]}); i=re.word.lastIndex; continue; }
+    re.punc.lastIndex=i;if((m=re.punc.exec(s))){ out.push({t:"punc",v:m[0]}); i=re.punc.lastIndex; continue; }
+    throw new Error("Cannot read character " + JSON.stringify(s[i]) + " at position " + i);
+  }
+  return out;
+}
+
+function Parser(toks){ this.k = toks; this.i = 0; }
+Parser.prototype.peek = function(){ return this.k[this.i]; };
+Parser.prototype.next = function(){ return this.k[this.i++]; };
+Parser.prototype.isWord = function(w){ var t=this.peek();
+  return t && t.t==="word" && t.v.toUpperCase()===w; };
+Parser.prototype.eatWord = function(w){ if(this.isWord(w)){ this.i++; return true; } return false; };
+Parser.prototype.expectWord = function(w){
+  if(!this.eatWord(w)) throw new Error("Expected " + w +
+    (this.peek()? " but found '"+this.peek().v+"'" : " but the query ended")); };
+
+Parser.prototype.parse = function(){
+  this.expectWord("SELECT");
+  var sel = this.selectList();
+  this.expectWord("FROM");
+  var t = this.next();
+  if(!t || t.t!=="word") throw new Error("Expected a table name after FROM");
+  if(t.v.toLowerCase() !== "runs")
+    throw new Error("The only table here is 'runs'. You asked for '" + t.v + "'.");
+  var where = null, group = null, order = null, limit = null;
+  if(this.eatWord("WHERE")) where = this.orExpr();
+  if(this.eatWord("GROUP")){ this.expectWord("BY"); group = this.colName(); }
+  if(this.eatWord("ORDER")){ this.expectWord("BY");
+    var c = this.colName(); var dir = 1;
+    if(this.eatWord("DESC")) dir = -1; else this.eatWord("ASC");
+    order = {c:c, dir:dir}; }
+  if(this.eatWord("LIMIT")){ var n = this.next();
+    if(!n || n.t!=="num") throw new Error("LIMIT needs a number");
+    limit = n.v; }
+  if(this.i < this.k.length)
+    throw new Error("Unexpected '" + this.k[this.i].v + "' after the end of the query");
+  return {sel:sel, where:where, group:group, order:order, limit:limit};
+};
+Parser.prototype.colName = function(){
+  var t = this.next();
+  if(!t || t.t!=="word") throw new Error("Expected a column name");
+  var c = t.v.toLowerCase();
+  if(COLS.indexOf(c) < 0)
+    throw new Error("No column '" + t.v + "'. Available: " + COLS.join(", "));
+  return c;
+};
+Parser.prototype.selectList = function(){
+  var out = [];
+  do {
+    var t = this.peek();
+    if(t && t.t==="punc" && t.v==="*"){ this.i++; out.push({kind:"all"}); }
+    else if(t && t.t==="word" && this.k[this.i+1] &&
+            this.k[this.i+1].t==="punc" && this.k[this.i+1].v==="("){
+      var fn = this.next().v.toUpperCase(); this.i++;      // consume '('
+      var arg;
+      var p = this.peek();
+      if(p && p.t==="punc" && p.v==="*"){ this.i++; arg = "*"; }
+      else arg = this.colName();
+      var close = this.next();
+      if(!close || close.v !== ")") throw new Error("Expected ) after " + fn + "(");
+      if(["COUNT","AVG","SUM","MIN","MAX"].indexOf(fn) < 0)
+        throw new Error("Unknown function " + fn + "(). Try COUNT, AVG, SUM, MIN or MAX.");
+      out.push({kind:"agg", fn:fn, arg:arg});
+    } else out.push({kind:"col", c:this.colName()});
+  } while(this.eatPunc(","));
+  return out;
+};
+Parser.prototype.eatPunc = function(p){ var t=this.peek();
+  if(t && t.t==="punc" && t.v===p){ this.i++; return true; } return false; };
+
+Parser.prototype.orExpr = function(){
+  var l = this.andExpr();
+  while(this.eatWord("OR")) l = {op:"OR", l:l, r:this.andExpr()};
+  return l;
+};
+Parser.prototype.andExpr = function(){
+  var l = this.cmp();
+  while(this.eatWord("AND")) l = {op:"AND", l:l, r:this.cmp()};
+  return l;
+};
+// A leading NOT negates whatever comparison follows, including `IS NULL`. Handling it
+// as a prefix wrapper rather than a flag on each branch means it can never be parsed
+// and then quietly dropped, which is what an earlier version did.
+Parser.prototype.cmp = function(){
+  if(this.eatPunc("(")){ var e = this.orExpr();
+    if(!this.eatPunc(")")) throw new Error("Missing closing )"); return e; }
+  if(this.eatWord("NOT")) return {op:"NOT", e:this.cmp()};
+  return this.comparison();
+};
+Parser.prototype.comparison = function(){
+  var c = this.colName();
+  if(this.eatWord("IS")){
+    var isNot = this.eatWord("NOT");
+    this.expectWord("NULL");
+    var n = {op:"null", c:c};
+    return isNot ? {op:"NOT", e:n} : n;
+  }
+  var infixNot = this.eatWord("NOT");        // col NOT LIKE / col NOT IN
+  if(this.eatWord("LIKE")){
+    var lk = {op:"like", c:c, v:this.literal()};
+    return infixNot ? {op:"NOT", e:lk} : lk;
+  }
+  if(this.eatWord("IN")){
+    if(!this.eatPunc("(")) throw new Error("IN needs a ( list )");
+    var vals = [];
+    do { vals.push(this.literal()); } while(this.eatPunc(","));
+    if(!this.eatPunc(")")) throw new Error("Missing ) after IN list");
+    var inn = {op:"in", c:c, vals:vals};
+    return infixNot ? {op:"NOT", e:inn} : inn;
+  }
+  if(infixNot) throw new Error("NOT after '" + c + "' must be followed by LIKE or IN");
+  var t = this.next();
+  if(!t || t.t!=="op") throw new Error("Expected a comparison after '" + c + "'");
+  return {op:t.v, c:c, v:this.literal()};
+};
+Parser.prototype.literal = function(){
+  var t = this.next();
+  if(!t) throw new Error("Expected a value");
+  if(t.t==="num") return t.v;
+  if(t.t==="str") return t.v;
+  if(t.t==="word"){
+    var w = t.v.toLowerCase();
+    if(w==="true") return true;
+    if(w==="false") return false;
+    if(w==="null") return null;
+    return t.v;                       // bare word treated as a string
+  }
+  throw new Error("Expected a value but found '" + t.v + "'");
+};
+
+function truthy(node, row){
+  switch(node.op){
+    case "AND": return truthy(node.l,row) && truthy(node.r,row);
+    case "OR":  return truthy(node.l,row) || truthy(node.r,row);
+    case "NOT": return !truthy(node.e,row);
+    case "null": return row[node.c] == null;
+    case "like":{
+      var pat = new RegExp("^" + String(node.v).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")
+                  .replace(/%/g,".*").replace(/_/g,".") + "$","i");
+      return pat.test(String(row[node.c]==null?"":row[node.c]));
+    }
+    case "in": return node.vals.some(function(v){ return eq(row[node.c],v); });
+    case "=":  return eq(row[node.c], node.v);
+    case "!=": case "<>": return !eq(row[node.c], node.v);
+    case ">":  return row[node.c] >  node.v;
+    case "<":  return row[node.c] <  node.v;
+    case ">=": return row[node.c] >= node.v;
+    case "<=": return row[node.c] <= node.v;
+  }
+  return false;
+}
+function eq(a,b){
+  if(typeof b === "boolean") return Boolean(a) === b;
+  if(typeof a === "string" && typeof b === "string") return a.toLowerCase()===b.toLowerCase();
+  return a === b;
+}
+
+function aggregate(items, spec){
+  var vals = items.map(function(r){ return spec.arg==="*" ? 1 : r[spec.arg]; })
+                  .filter(function(x){ return x!=null; });
+  switch(spec.fn){
+    case "COUNT": return spec.arg==="*" ? items.length : vals.length;
+    case "SUM":   return round(vals.reduce(function(a,b){return a+b;},0));
+    case "AVG":   return vals.length? round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : null;
+    case "MIN":   return vals.length? vals.reduce(function(a,b){return a<b?a:b;}) : null;
+    case "MAX":   return vals.length? vals.reduce(function(a,b){return a>b?a:b;}) : null;
+  }
+}
+function round(x){ return typeof x === "number" ? Math.round(x*10000)/10000 : x; }
+function label(s){ return s.kind==="all" ? "*"
+  : s.kind==="col" ? s.c : s.fn.toLowerCase()+"("+s.arg+")"; }
+
+function runQuery(text){
+  var ast = new Parser(tokenize(text)).parse();
+  var rows = RUNS;
+  if(ast.where) rows = rows.filter(function(r){ return truthy(ast.where, r); });
+
+  var hasAgg = ast.sel.some(function(s){ return s.kind==="agg"; });
+  var cols, out;
+
+  if(ast.group || hasAgg){
+    var groups = new Map();
+    if(ast.group){
+      rows.forEach(function(r){
+        var k = String(r[ast.group]);
+        if(!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(r);
+      });
+    } else groups.set("__all__", rows);
+
+    cols = ast.sel.map(label);
+    out = [];
+    groups.forEach(function(items, key){
+      out.push(ast.sel.map(function(s){
+        if(s.kind==="agg") return aggregate(items, s);
+        if(s.kind==="col") return ast.group===s.c ? items[0][s.c] : items[0][s.c];
+        return "*";
+      }));
+    });
+  } else {
+    var expand = ast.sel.some(function(s){ return s.kind==="all"; });
+    cols = expand ? COLS : ast.sel.map(label);
+    out = rows.map(function(r){ return cols.map(function(c){ return r[c]; }); });
+  }
+
+  if(ast.order){
+    var idx = cols.indexOf(ast.order.c);
+    if(idx < 0) throw new Error("ORDER BY '" + ast.order.c + "' is not in the SELECT list");
+    out.sort(function(a,b){
+      var x=a[idx], y=b[idx];
+      if(x==null) x=-Infinity; if(y==null) y=-Infinity;
+      return (x<y?-1:x>y?1:0) * ast.order.dir;
+    });
+  }
+  var total = out.length;
+  if(ast.limit != null) out = out.slice(0, ast.limit);
+  return {cols:cols, rows:out, total:total};
+}
+
+function showResult(res){
+  var host = document.getElementById("cout");
+  host.innerHTML = "";
+  var line = el("div","okline",
+    res.total + (res.total===1?" row":" rows") +
+    (res.rows.length < res.total ? "  ·  showing " + res.rows.length : ""));
+  host.appendChild(line);
+  if(!res.rows.length) return;
+  var wrap = el("div","scroll"); wrap.style.marginTop=".6rem";
+  wrap.style.border="1px solid var(--line)"; wrap.style.borderRadius="3px";
+  var tb = el("table");
+  var th = el("thead"); var htr = el("tr");
+  res.cols.forEach(function(c){ htr.appendChild(el("th",null,c)); });
+  th.appendChild(htr); tb.appendChild(th);
+  var bd = el("tbody");
+  res.rows.forEach(function(r){
+    var tr = el("tr");
+    r.forEach(function(v){
+      var td = el("td", typeof v === "number" ? "num" : null,
+        v==null ? "—" : typeof v==="boolean" ? (v?"true":"false") : String(v));
+      tr.appendChild(td);
+    });
+    bd.appendChild(tr);
+  });
+  tb.appendChild(bd); wrap.appendChild(tb); host.appendChild(wrap);
+}
+
+function execute(){
+  var errHost = document.getElementById("cerr");
+  errHost.innerHTML = ""; document.getElementById("cout").innerHTML = "";
+  var text = document.getElementById("sqlbox").value.trim().replace(/;+\s*$/,"");
+  if(!text) return;
+  try { showResult(runQuery(text)); }
+  catch(e){
+    var d = el("div","err", e.message);
+    errHost.appendChild(d);
+  }
+}
+
+var EXAMPLES = [
+  ["Silent failures the model was certain about",
+   "SELECT v, t, db, conf, q FROM runs WHERE silent = true AND conf = 1 LIMIT 25"],
+  ["Accuracy by variant",
+   "SELECT v, COUNT(*), AVG(ok) FROM runs GROUP BY v"],
+  ["Silent-failure rate by tier",
+   "SELECT t, COUNT(*), AVG(silent) FROM runs GROUP BY t"],
+  ["Which errors were loud",
+   "SELECT v, t, err, db FROM runs WHERE ran = false LIMIT 25"],
+  ["Wrong joins only",
+   "SELECT v, t, db, q FROM runs WHERE err LIKE 'wrong_join' LIMIT 25"],
+  ["Where the 70B model still failed",
+   "SELECT t, db, q, err FROM runs WHERE m = '70B' AND ok = false LIMIT 25"],
+  ["Most expensive calls",
+   "SELECT v, t, tok, cost FROM runs ORDER BY tok DESC LIMIT 15"]
+];
+function buildExamples(){
+  var host = document.getElementById("examples");
+  EXAMPLES.forEach(function(pair){
+    var b = el("button",null,pair[0]);
+    b.onclick = function(){
+      document.getElementById("sqlbox").value = pair[1];
+      execute();
+      document.getElementById("cout").scrollIntoView({block:"nearest",behavior:"smooth"});
+    };
+    host.appendChild(b);
+  });
+}
+
+/* ==================================================================== boot */
+fetch("data/runs.json")
+  .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(function(d){
+    RUNS = d.runs; ready = true;
+
+    // headline number, computed rather than typed, so it cannot drift from the data
+    var v3 = RUNS.filter(function(r){ return r.v==="V3"; });
+    var v3err = v3.filter(function(r){ return !r.ok; });
+    var v3sil = v3err.filter(function(r){ return r.silent; });
+    document.getElementById("f1").textContent =
+      v3err.length ? Math.round(100*v3sil.length/v3err.length) + "%" : "—";
+
+    qpool = buildPool();
+    renderQuiz();
+    buildFilters(); wireSort(); drawTable();
+    buildExamples(); execute();
+  })
+  .catch(function(e){
+    document.getElementById("quiz").innerHTML =
+      '<div class="loading">Could not load the run data (' + esc(e.message) + ').</div>';
+  });
+
+document.getElementById("runbtn").onclick = execute;
+document.getElementById("sqlbox").addEventListener("keydown", function(e){
+  if((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); execute(); }
+});
+
+})();
+</script>
+</body>
+</html>

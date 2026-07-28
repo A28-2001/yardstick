@@ -3,8 +3,8 @@
 
 # Data & target databases, never commit (spec §6.2)
 # Spider ships large SQLite bundles; commit the download script instead.
-data/
-databases/
+/data/
+/databases/
 *.sqlite
 *.sqlite3
 *.db

@@ -154,6 +154,40 @@ td.num{text-align:right}
 
 .prose{max-width:64ch;margin:0 0 1.5rem;color:var(--mid)}
 .prose b{color:var(--ink);font-weight:600}
+
+/* ---------- expandable jargon ----------
+   One explanation serving two audiences. A reader who knows the term skims past it;
+   a reader who does not hovers, taps or tabs to it and it explains itself in place.
+   Implemented as a real <button> so keyboard and touch both work. */
+.def{all:unset;cursor:help;color:var(--ink);font-weight:600;
+  border-bottom:1.5px dotted var(--acc);line-height:inherit}
+.def:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:2px}
+.def .x{display:inline-block;max-width:0;overflow:hidden;opacity:0;
+  vertical-align:bottom;white-space:nowrap;font-weight:400;color:var(--acc);
+  transition:max-width .42s cubic-bezier(.22,.7,.28,1),opacity .22s ease .06s}
+.def:hover .x,.def:focus .x,.def.open .x{max-width:46ch;opacity:1}
+@media(prefers-reduced-motion:reduce){.def .x{transition:none}}
+/* on a narrow screen a nowrap definition would run off the edge */
+@media(max-width:620px){
+  .def .x{white-space:normal;max-height:0;transition:max-height .35s ease,opacity .2s}
+  .def:hover .x,.def:focus .x,.def.open .x{max-width:100%;max-height:8em}
+}
+
+/* ---------- intro ---------- */
+.intro{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:1.2rem 1.3rem;margin:0 0 1.5rem}
+.intro p{margin:0 0 .8rem;max-width:68ch}
+.intro p:last-child{margin-bottom:0}
+.intro .big{font-size:1.08rem;color:var(--ink)}
+.intro .who2{font-size:13.5px;color:var(--mid)}
+.spec{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;padding-top:.9rem;
+  border-top:1px solid var(--hair)}
+.spec span{font-family:var(--mono);font-size:11px;color:var(--mid);
+  border:1px solid var(--line);border-radius:3px;padding:.2rem .5rem;background:#fbfcfd}
+.howto{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem .9rem;
+  background:#f2f7fb;border:1px solid #cfe0ee;border-radius:3px;margin:0 0 1.1rem;
+  font-size:13.5px;color:#1c3d57}
+.howto b{font-weight:650}
 footer{border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 4rem;
   font-family:var(--mono);font-size:11.5px;color:var(--soft);line-height:1.8}
 footer a{color:var(--acc);text-decoration:none}
@@ -166,12 +200,6 @@ footer a{color:var(--acc);text-decoration:none}
 <header>
   <p class="eyebrow">Yardstick &nbsp;·&nbsp; 600 generated SQL queries, all executed for real</p>
   <h1>Can you tell which SQL is wrong?</h1>
-  <p class="sub">
-    Below are real queries a language model wrote, and the questions they were meant to
-    answer. Each one runs without error. Some return the right rows. Some do not.
-    You will not be shown the correct answer until after you decide, because in production
-    you would not have it either.
-  </p>
   <p class="who">
     <b>Aakash Mehta</b>
     <a href="mailto:aakashmehta893@gmail.com">Email</a>
@@ -180,6 +208,42 @@ footer a{color:var(--acc);text-decoration:none}
     <a href="index.html">Full write-up</a>
   </p>
 </header>
+
+<div class="intro">
+  <p class="big">
+    Companies are starting to let AI write
+    <button class="def" type="button">SQL<span class="x">&nbsp;— the code that pulls numbers
+    out of a company's database</span></button>. When it gets one wrong, you would hope it
+    breaks loudly. Usually it does not. The query runs perfectly and quietly returns the
+    wrong numbers, and those numbers go into somebody's report.
+  </p>
+  <p>
+    So I had AI write 600 database queries, ran every single one against a real database,
+    and compared the answers against ones written by humans. Then I checked something more
+    useful than accuracy: when it was wrong, <b>could anyone tell?</b>
+  </p>
+  <p class="who2">
+    <b>Start with the quiz below.</b> After that you can filter all 600 runs, or query the
+    results in SQL yourself. Everything on this page is real data from the study, not an
+    illustration.
+  </p>
+  <div class="spec">
+    <span>150 questions · 4 configurations · 600 runs</span>
+    <span>Llama 3.1 8B vs 3.3 70B</span>
+    <span>zero-shot vs few-shot</span>
+    <span>Spider corpus, 93 databases</span>
+    <span>pre-registered</span>
+    <span>McNemar exact + bootstrap CI</span>
+  </div>
+</div>
+
+<div class="howto">
+  <span>▸</span>
+  <div><b>How this works:</b> you will see six real queries, one at a time, with the
+    question each was meant to answer. Decide whether each returned the right rows.
+    You are not shown the correct answer until after you commit, because whoever reviews
+    this in a real job does not have it either.</div>
+</div>
 
 <!-- ============ 1. QUIZ ============ -->
 <div class="panel">
@@ -202,9 +266,17 @@ footer a{color:var(--acc);text-decoration:none}
 
 <p class="prose">
   That is the whole finding. <b>A query that crashes gets investigated. A query that returns
-  believable wrong numbers goes into a dashboard.</b> Across this study 82 to 97 percent of
-  all errors were the second kind, and the share went <i>up</i> as the models got better.
-  Everything below is the raw evidence: all 600 runs, filterable, and queryable in SQL.
+  believable wrong numbers goes into a dashboard.</b> The second kind is a
+  <button class="def" type="button">silent failure<span class="x">&nbsp;— it ran without any
+  error at all and still gave the wrong answer</span></button>, and it accounted for 82 to
+  97 percent of every mistake in this study. The share went <i>up</i> as the models got
+  better, which is the part worth worrying about.
+</p>
+<p class="prose">
+  Everything below is the raw evidence. Filter all 600 runs by
+  <button class="def" type="button">variant<span class="x">&nbsp;— which of the four
+  AI setups produced it</span></button>, difficulty or outcome, click any row to see the
+  human answer next to the machine one, or write your own SQL against the results.
 </p>
 
 <!-- ============ 2. EXPLORER ============ -->
@@ -849,6 +921,22 @@ fetch("data/runs.json")
     document.getElementById("quiz").innerHTML =
       '<div class="loading">Could not load the run data (' + esc(e.message) + ').</div>';
   });
+
+/* Jargon: hover covers a mouse, but a touch screen has no hover and a keyboard needs
+   focus, so the same control also toggles on click. Clicking anywhere else closes it. */
+[].forEach.call(document.querySelectorAll(".def"), function(b){
+  b.setAttribute("aria-expanded","false");
+  b.addEventListener("click", function(e){
+    e.stopPropagation();
+    var open = b.classList.toggle("open");
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+});
+document.addEventListener("click", function(){
+  [].forEach.call(document.querySelectorAll(".def.open"), function(b){
+    b.classList.remove("open"); b.setAttribute("aria-expanded","false");
+  });
+});
 
 document.getElementById("runbtn").onclick = execute;
 document.getElementById("sqlbox").addEventListener("keydown", function(e){

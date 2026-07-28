@@ -206,6 +206,61 @@ td.num{text-align:right}
 kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bottom-width:2px;
   border-radius:3px;padding:.05rem .3rem;background:#fff}
 
+/* ---------- step numbering ----------
+   The page is a sequence, not four equal panels. Numbering says so. */
+.step{display:flex;align-items:baseline;gap:.7rem;margin:2.2rem 0 .8rem}
+.step:first-of-type{margin-top:0}
+.step .no{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--panel);
+  background:var(--ink);border-radius:2px;padding:.14rem .42rem;flex:none}
+.step h2{font-size:13px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;
+  margin:0}
+.step .of{font-family:var(--mono);font-size:11px;color:var(--soft);margin-left:auto}
+.step.hot .no{background:var(--acc)}
+.step.hot h2{color:var(--acc)}
+
+/* ---------- handoff cue ---------- */
+.handoff{display:flex;align-items:center;gap:.7rem;margin:1rem 0 0;
+  font-size:14px;color:var(--acc);font-weight:600}
+.handoff .arw{display:inline-block;animation:nudge 2.2s ease-in-out infinite}
+.handoff .t{font-weight:400;color:var(--mid);font-size:13px}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media(prefers-reduced-motion:reduce){.handoff .arw{animation:none}}
+
+/* ---------- the quiz panel carries the page ---------- */
+.panel.hero{border:2px solid var(--acc);box-shadow:0 2px 4px rgba(11,95,165,.05),
+  0 10px 26px rgba(11,95,165,.09)}
+.panel.hero .pbar{background:var(--acc);border-bottom-color:var(--acc)}
+.panel.hero .pbar h2{color:#fff}
+.panel.hero .pbar .note{color:#bcd8ef}
+
+/* ---------- start state ---------- */
+.start{text-align:left;padding:.4rem 0 .2rem}
+.start p{max-width:56ch;margin:0 0 1.1rem;color:var(--mid)}
+.start p.lead{font-size:1.08rem;color:var(--ink)}
+.start .go{padding:.7rem 1.5rem;background:var(--acc);color:#fff;border:1px solid var(--acc);
+  border-radius:3px;font-weight:650;font-size:15px}
+.start .go:hover{background:#094c85}
+.start .go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.start .meta{font-family:var(--mono);font-size:11.5px;color:var(--soft);margin-top:.8rem}
+
+/* ---------- skip link ---------- */
+.skip{font-family:var(--mono);font-size:11.5px;color:var(--acc);text-decoration:none;
+  border:1px solid var(--line);border-radius:3px;padding:.2rem .55rem;background:var(--panel)}
+.skip:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* ---------- sticky nudge ---------- */
+.nudge{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);
+  background:var(--ink);color:var(--panel);border-radius:4px;padding:.6rem .9rem;
+  display:flex;align-items:center;gap:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.22);
+  font-size:13.5px;z-index:40;transition:transform .3s cubic-bezier(.2,.8,.3,1);
+  max-width:calc(100vw - 28px)}
+.nudge.on{transform:translate(-50%,0)}
+.nudge a{color:#8ec2ee;text-decoration:none;font-weight:600;white-space:nowrap}
+.nudge button{all:unset;cursor:pointer;color:#8d9398;font-size:16px;line-height:1;
+  padding:0 .1rem}
+.nudge button:hover{color:#fff}
+@media(prefers-reduced-motion:reduce){.nudge{transition:none}}
+
 /* ---------- the point ---------- */
 .point{border-left:3px solid var(--acc);background:#f7fafc;border:1px solid var(--line);
   border-left:3px solid var(--acc);border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;
@@ -275,35 +330,47 @@ footer a{color:var(--acc);text-decoration:none}
     <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
     <a href="https://github.com/A28-2001/yardstick">Code and data</a>
     <a href="report.html">Full write-up</a>
+    <a class="skip" href="#quiz-panel">Skip to the quiz &darr;</a>
   </p>
 </header>
+
+<div class="step hot"><span class="no">1</span><h2>What this is</h2>
+  <span class="of">step 1 of 3</span></div>
 
 <div class="intro">
   <p class="big">
     Companies are starting to let AI write
-    <button class="def" type="button">SQL<span class="x">&nbsp;— the code that pulls numbers
-    out of a company's database</span></button>. When it gets one wrong, you would hope it
-    breaks loudly. Usually it does not. The query runs perfectly and quietly returns the
-    wrong numbers, and those numbers go into somebody's report.
+    <button class="def" type="button">SQL<span class="x">&nbsp;&mdash; the code that pulls
+    numbers out of a company's database</span></button>. When it gets one wrong, you would
+    hope it breaks loudly. Usually it does not: the query runs perfectly and quietly
+    returns the wrong numbers, and those numbers go into somebody's report.
   </p>
   <p>
-    So I had AI write 600 database queries, ran every single one against a real database,
-    and compared the answers against ones written by humans. Then I checked something more
-    useful than accuracy: when it was wrong, <b>could anyone tell?</b>
-  </p>
-  <p class="who2">
-    <b>Start with the quiz below.</b> After that you can filter all 600 runs, or query the
-    results in SQL yourself. Everything on this page is real data from the study, not an
-    illustration.
+    So I had AI write 600 database queries, ran every one against a real database, and
+    compared them against answers written by humans. Then I checked the thing an accuracy
+    score never tells you: when it was wrong, <b>could anyone tell?</b>
   </p>
   <div class="spec">
-    <span>150 questions · 4 configurations · 600 runs</span>
+    <span>150 questions &middot; 4 configurations &middot; 600 runs</span>
     <span>Llama 3.1 8B vs 3.3 70B</span>
     <span>zero-shot vs few-shot</span>
     <span>Spider corpus, 93 databases</span>
     <span>pre-registered</span>
     <span>McNemar exact + bootstrap CI</span>
   </div>
+  <p class="handoff"><span class="arw">&darr;</span> Now try it yourself
+    <span class="t">&nbsp;six queries, about a minute</span></p>
+</div>
+
+
+<!-- ============ 2. QUIZ ============ -->
+<div class="step hot"><span class="no">2</span><h2>Judge it yourself</h2>
+  <span class="of">step 2 of 3</span></div>
+
+<div class="panel hero" id="quiz-panel">
+  <div class="pbar"><h2>Six real queries</h2>
+    <span class="note" id="qprog">not started</span></div>
+  <div class="pbody" id="quiz"><div class="loading">loading 600 runs…</div></div>
 </div>
 
 <div class="point">
@@ -326,23 +393,6 @@ footer a{color:var(--acc);text-decoration:none}
     what is the cheapest check that catches it? <b>The answer turned out to be one you can
     act on, and it is not the one most teams are using.</b>
   </p>
-</div>
-
-<div class="howto">
-  <span>▸</span>
-  <div><b>How this works:</b> you will see six real queries, one at a time, with the
-    question each was meant to answer. Decide whether each returned the right rows.
-    You are not shown the correct answer until after you commit, because whoever reviews
-    this in a real job does not have it either.
-    <span class="keys">Keyboard: <kbd>Y</kbd> right, <kbd>N</kbd> wrong,
-    <kbd>Enter</kbd> next.</span></div>
-</div>
-
-<!-- ============ 1. QUIZ ============ -->
-<div class="panel">
-  <div class="pbar"><h2>Judge it yourself</h2>
-    <span class="note" id="qprog">round 1 of 6</span></div>
-  <div class="pbody" id="quiz"><div class="loading">loading 600 runs…</div></div>
 </div>
 
 <!-- ============ headline numbers ============ -->
@@ -372,7 +422,10 @@ footer a{color:var(--acc);text-decoration:none}
   human answer next to the machine one, or write your own SQL against the results.
 </p>
 
-<!-- ============ 2. EXPLORER ============ -->
+<div class="step"><span class="no">3</span><h2>Dig through the data yourself</h2>
+  <span class="of">step 3 of 3</span></div>
+
+<!-- ============ 3. EXPLORER ============ -->
 <div class="panel">
   <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">—</span></div>
   <div class="filters" id="filters"></div>
@@ -392,7 +445,7 @@ footer a{color:var(--acc);text-decoration:none}
     Click to open it against the human answer.</span></div>
 </div>
 
-<!-- ============ 3. CONSOLE ============ -->
+<!-- ============ 4. CONSOLE ============ -->
 <div class="panel console">
   <div class="pbar"><h2>Query the results</h2>
     <span class="note">table: runs &nbsp;·&nbsp; 600 rows</span></div>
@@ -460,6 +513,33 @@ function buildPool(){
 function shuffle(a){ a=a.slice();
   for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));
     var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+/* An explicit start screen rather than dropping the reader straight into round 1. It
+   makes the quiz feel chosen rather than stumbled into, and gives the rules somewhere
+   to live now that the separate instructions block is gone. */
+var started = false;
+function renderStart(){
+  var host = document.getElementById("quiz");
+  host.innerHTML = "";
+  document.getElementById("qprog").textContent = "not started";
+  var w = el("div","start");
+  var p1 = el("p","lead");
+  p1.innerHTML = "You will see six real queries an AI wrote, one at a time, each with the " +
+    "question it was meant to answer. Decide whether it returned the right rows.";
+  var p2 = el("p");
+  p2.innerHTML = "<b>You are not shown the correct answer until after you commit</b>, " +
+    "because whoever reviews this on a real team does not have it either. That constraint " +
+    "is the entire point.";
+  w.appendChild(p1); w.appendChild(p2);
+  var go = el("button","go","Start the quiz");
+  go.onclick = function(){ started = true; qi = 0; qscore = []; renderQuiz(); };
+  w.appendChild(go);
+  var m = el("div","meta");
+  m.innerHTML = "6 questions &middot; about a minute &middot; keyboard: " +
+    "<kbd>Y</kbd> right, <kbd>N</kbd> wrong, <kbd>Enter</kbd> next";
+  w.appendChild(m);
+  host.appendChild(w);
+}
 
 function renderQuiz(){
   var host = document.getElementById("quiz");
@@ -619,7 +699,7 @@ function renderFinal(host){
     } else fallbackCopy(txt, done);
   };
   var again = el("button",null,"Try six more");
-  again.onclick = function(){ qi=0; qscore=[]; qpool=buildPool(); renderQuiz(); };
+  again.onclick = function(){ qpool=buildPool(); renderStart(); };
   share.appendChild(sb); share.appendChild(again);
   box.appendChild(share);
 
@@ -1089,15 +1169,49 @@ fetch("data/runs.json")
       v3err.length ? Math.round(100*v3sil.length/v3err.length) + "%" : "—";
 
     qpool = buildPool();
-    renderQuiz();
+    renderStart();
     buildFilters(); wireSort(); drawTable();
     buildExamples(); execute();
-    countUp();
+    countUp(); armNudge();
   })
   .catch(function(e){
     document.getElementById("quiz").innerHTML =
       '<div class="loading">Could not load the run data (' + esc(e.message) + ').</div>';
   });
+
+/* A single, dismissable nudge for someone who scrolled past the quiz without starting it.
+   Fires once, never returns after being dismissed or once the quiz begins, and stays out
+   of the way otherwise: a nag that reappears is worse than no nag. */
+function armNudge(){
+  var bar = null, shown = false, dead = false;
+  function kill(){
+    dead = true;
+    if(bar) bar.classList.remove("on");
+  }
+  function show(){
+    if(shown || dead || started) return;
+    shown = true;
+    bar = el("div","nudge");
+    var t = el("span",null,"Scrolled past the quiz?");
+    var a = el("a",null,"Take it, one minute");
+    a.href = "#quiz-panel";
+    a.onclick = function(){ kill(); };
+    var x = el("button",null,"×");
+    x.setAttribute("aria-label","Dismiss");
+    x.onclick = kill;
+    bar.appendChild(t); bar.appendChild(a); bar.appendChild(x);
+    document.body.appendChild(bar);
+    requestAnimationFrame(function(){ bar.classList.add("on"); });
+    setTimeout(function(){ if(bar && !dead) bar.classList.remove("on"); }, 12000);
+  }
+  addEventListener("scroll", function(){
+    if(shown || dead || started) return;
+    var panel = document.getElementById("quiz-panel");
+    if(!panel) return;
+    // only once its bottom edge is well above the viewport
+    if(panel.getBoundingClientRect().bottom < -120) show();
+  }, {passive:true});
+}
 
 /* Count the headline numbers up when they scroll into view. The real value is stashed
    in data-final and restored by a guaranteed timer, so a throttled frame callback can
@@ -1143,6 +1257,7 @@ document.addEventListener("keydown", function(e){
   if(!host) return;
   var k = e.key.toLowerCase();
 
+  if(!started) return;
   if(!answered){
     var btns = host.querySelectorAll(".choices button");
     if(btns.length === 2){

@@ -343,6 +343,10 @@ def fig_sharecard():
     thumbnail size, so a chart pasted in is unreadable. This is built for that size:
     one question, one number, nothing else.
 
+    The filename is versioned on purpose: link scrapers cache og:image by URL and
+    will keep serving a stale card long after the file behind it changed. Renaming
+    is the only reliable way to force a refetch. Bump it if the card changes again.
+
     Deliberately matched to the landing page rather than the report: same greys, the same
     instrument blue, sans for display and mono for labels. A card promising one look and
     delivering another is a small broken promise at the worst possible moment."""
@@ -394,10 +398,10 @@ def fig_sharecard():
             fontsize=12, color=C_SOFT, fontfamily=MONO, ha="right", va="baseline", zorder=3)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGDIR / "share_card.png", dpi=100, facecolor=BG,
+    fig.savefig(FIGDIR / "card-quiz-v2.png", dpi=100, facecolor=BG,
                 bbox_inches=None, pad_inches=0)
     plt.close(fig)
-    print("  share_card.png")
+    print("  card-quiz-v2.png")
 
 
 if __name__ == "__main__":

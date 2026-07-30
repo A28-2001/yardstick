@@ -359,49 +359,43 @@ def fig_sharecard():
     C_ACC, C_BAD, C_LINE = "#0b5fa5", "#b0342c", "#d3d8dc"
     UI = ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans", "sans-serif"]
 
-    # 12in at 100dpi rather than 6in at 200: identical output size, but point sizes
-    # then map to pixels at a sane 1.39x instead of 2.78x, which is what made the first
-    # attempt collide with itself.
-    fig = plt.figure(figsize=(12.0, 6.3), dpi=100)
+    # Rendered at 2x (2400x1260) because scrapers downscale hard and thin text turns
+    # to mush. Everything is also fewer words and larger: at preview size only big type
+    # survives, so anything that needs reading small should not be on the card at all.
+    fig = plt.figure(figsize=(12.0, 6.3), dpi=200)
     fig.patch.set_facecolor(BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.axis("off")
     ax.set_xlim(0, 1200); ax.set_ylim(0, 630)
 
-    # the page's panel, sitting on the page's ground
-    ax.add_patch(plt.Rectangle((44, 44), 1112, 542, facecolor=PANEL,
-                               edgecolor=C_LINE, lw=1.5, zorder=1))
-    ax.add_patch(plt.Rectangle((44, 542), 1112, 44, facecolor=C_ACC,
-                               edgecolor=C_ACC, lw=1.5, zorder=2))
-    ax.text(74, 557, "YARDSTICK    ·    600 AI-GENERATED SQL QUERIES, ALL EXECUTED FOR REAL",
-            fontsize=11.5, color="#ffffff", fontfamily=MONO, va="baseline", zorder=3)
+    ax.add_patch(plt.Rectangle((40, 40), 1120, 550, facecolor=PANEL,
+                               edgecolor=C_LINE, lw=2, zorder=1))
+    ax.add_patch(plt.Rectangle((40, 528), 1120, 62, facecolor=C_ACC,
+                               edgecolor=C_ACC, lw=2, zorder=2))
+    ax.text(74, 549, "YARDSTICK   ·   600 SQL QUERIES WRITTEN BY AI, ALL RUN FOR REAL",
+            fontsize=15, color="#ffffff", fontfamily=MONO, va="baseline", zorder=3)
 
-    ax.text(74, 462, "Can you tell which SQL", fontsize=40, color=C_INK,
+    ax.text(74, 440, "Can you tell which", fontsize=54, color=C_INK,
             fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
-    ax.text(74, 404, "is wrong?", fontsize=40, color=C_INK,
+    ax.text(74, 366, "SQL is wrong?", fontsize=54, color=C_INK,
             fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
 
-    ax.text(74, 232, f"{share:.0f}%", fontsize=86, color=C_BAD, fontweight="bold",
+    ax.text(74, 186, f"{share:.0f}%", fontsize=104, color=C_BAD, fontweight="bold",
             fontfamily=UI, va="baseline", zorder=3)
-    for i, line in enumerate(["of the best model's mistakes ran without",
-                              "any error at all and returned believable",
-                              "wrong numbers. Most readers score no",
-                              "better than chance at spotting them."]):
-        ax.text(432, 300 - i * 30, line, fontsize=16.5, color=C_INK,
-                fontfamily=UI, va="baseline", zorder=3)
+    ax.text(516, 246, "of the best model's", fontsize=27, color=C_INK,
+            fontfamily=UI, va="baseline", zorder=3)
+    ax.text(516, 202, "mistakes ran clean and", fontsize=27, color=C_INK,
+            fontfamily=UI, va="baseline", zorder=3)
+    ax.text(516, 158, "returned wrong numbers", fontsize=27, color=C_INK,
+            fontfamily=UI, va="baseline", zorder=3)
 
-    ax.plot([74, 1126], [160, 160], color=C_LINE, lw=1.2, zorder=3)
-    ax.text(74, 118, "Aakash Mehta", fontsize=14.5, color=C_INK, fontweight="bold",
-            fontfamily=MONO, va="baseline", zorder=3)
-    ax.text(74, 86, "a28-2001.github.io/yardstick", fontsize=13, color=C_ACC,
-            fontfamily=MONO, va="baseline", zorder=3)
-    ax.text(1126, 86, "pre-registered  ·  McNemar exact  ·  bootstrap CI",
-            fontsize=12, color=C_SOFT, fontfamily=MONO, ha="right", va="baseline", zorder=3)
+    ax.text(74, 88, "Aakash Mehta   ·   a28-2001.github.io/yardstick", fontsize=19,
+            color=C_ACC, fontfamily=MONO, va="baseline", zorder=3)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGDIR / "card-quiz-v2.png", dpi=100, facecolor=BG,
+    fig.savefig(FIGDIR / "card-quiz-v3.png", dpi=200, facecolor=BG,
                 bbox_inches=None, pad_inches=0)
     plt.close(fig)
-    print("  card-quiz-v2.png")
+    print("  card-quiz-v3.png")
 
 
 if __name__ == "__main__":

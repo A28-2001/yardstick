@@ -341,46 +341,60 @@ def fig_taxonomy():
 def fig_sharecard():
     """1200x630 open-graph card. Link scrapers crop to roughly 1.91:1 and render at
     thumbnail size, so a chart pasted in is unreadable. This is built for that size:
-    one number, one sentence, nothing else."""
+    one question, one number, nothing else.
+
+    Deliberately matched to the landing page rather than the report: same greys, the same
+    instrument blue, sans for display and mono for labels. A card promising one look and
+    delivering another is a small broken promise at the worst possible moment."""
     rows = {r["variant"]: r for r in read("variant_summary.csv")}
     share = float(rows["V3"]["silent_share_of_errors"]) * 100
+
+    # landing-page palette
+    BG, PANEL = "#eef0f2", "#ffffff"
+    C_INK, C_MID, C_SOFT = "#111417", "#6b7176", "#8d9398"
+    C_ACC, C_BAD, C_LINE = "#0b5fa5", "#b0342c", "#d3d8dc"
+    UI = ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans", "sans-serif"]
 
     # 12in at 100dpi rather than 6in at 200: identical output size, but point sizes
     # then map to pixels at a sane 1.39x instead of 2.78x, which is what made the first
     # attempt collide with itself.
     fig = plt.figure(figsize=(12.0, 6.3), dpi=100)
-    fig.patch.set_facecolor("#fbfaf6")
+    fig.patch.set_facecolor(BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.axis("off")
     ax.set_xlim(0, 1200); ax.set_ylim(0, 630)
 
-    ax.add_patch(plt.Rectangle((0, 600), 1200, 30, color=SIGNAL, zorder=2))
+    # the page's panel, sitting on the page's ground
+    ax.add_patch(plt.Rectangle((44, 44), 1112, 542, facecolor=PANEL,
+                               edgecolor=C_LINE, lw=1.5, zorder=1))
+    ax.add_patch(plt.Rectangle((44, 542), 1112, 44, facecolor=C_ACC,
+                               edgecolor=C_ACC, lw=1.5, zorder=2))
+    ax.text(74, 557, "YARDSTICK    ·    600 AI-GENERATED SQL QUERIES, ALL EXECUTED FOR REAL",
+            fontsize=11.5, color="#ffffff", fontfamily=MONO, va="baseline", zorder=3)
 
-    ax.text(60, 548, "PRE-REGISTERED STUDY    ·    150 QUESTIONS    ·    600 OBSERVATIONS",
-            fontsize=11, color=MID, fontfamily=MONO, va="baseline")
+    ax.text(74, 462, "Can you tell which SQL", fontsize=40, color=C_INK,
+            fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
+    ax.text(74, 404, "is wrong?", fontsize=40, color=C_INK,
+            fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
 
-    ax.text(60, 478, "When is LLM-generated SQL", fontsize=34, color=INK,
-            fontweight="bold", fontfamily=SERIF, va="baseline")
-    ax.text(60, 420, "safe to trust?", fontsize=34, color=INK,
-            fontweight="bold", fontfamily=SERIF, va="baseline")
+    ax.text(74, 232, f"{share:.0f}%", fontsize=86, color=C_BAD, fontweight="bold",
+            fontfamily=UI, va="baseline", zorder=3)
+    for i, line in enumerate(["of the best model's mistakes ran without",
+                              "any error at all and returned believable",
+                              "wrong numbers. Most readers score no",
+                              "better than chance at spotting them."]):
+        ax.text(432, 300 - i * 30, line, fontsize=16.5, color=C_INK,
+                fontfamily=UI, va="baseline", zorder=3)
 
-    ax.text(60, 248, f"{share:.0f}%", fontsize=88, color=SIGNAL, fontweight="bold",
-            fontfamily=SERIF, va="baseline")
-    for i, line in enumerate(["of the most accurate model's errors",
-                              "executed cleanly and returned",
-                              "plausible wrong numbers."]):
-        ax.text(392, 318 - i * 34, line, fontsize=17, color=INK,
-                fontfamily=SERIF, va="baseline")
-
-    ax.plot([60, 1140], [172, 172], color=RULE, lw=1.2)
-    ax.text(60, 128, "Aakash Mehta", fontsize=15, color=INK, fontweight="bold",
-            fontfamily=MONO, va="baseline")
-    ax.text(60, 96, "a28-2001.github.io/yardstick", fontsize=13, color=SIGNAL,
-            fontfamily=MONO, va="baseline")
-    ax.text(1140, 96, "McNemar exact · bootstrap CI · BH corrected", fontsize=12,
-            color=MID, fontfamily=MONO, ha="right", va="baseline")
+    ax.plot([74, 1126], [160, 160], color=C_LINE, lw=1.2, zorder=3)
+    ax.text(74, 118, "Aakash Mehta", fontsize=14.5, color=C_INK, fontweight="bold",
+            fontfamily=MONO, va="baseline", zorder=3)
+    ax.text(74, 86, "a28-2001.github.io/yardstick", fontsize=13, color=C_ACC,
+            fontfamily=MONO, va="baseline", zorder=3)
+    ax.text(1126, 86, "pre-registered  ·  McNemar exact  ·  bootstrap CI",
+            fontsize=12, color=C_SOFT, fontfamily=MONO, ha="right", va="baseline", zorder=3)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGDIR / "share_card.png", dpi=100, facecolor="#fbfaf6",
+    fig.savefig(FIGDIR / "share_card.png", dpi=100, facecolor=BG,
                 bbox_inches=None, pad_inches=0)
     plt.close(fig)
     print("  share_card.png")

@@ -195,7 +195,7 @@ td.num{text-align:right}
 /* ---------- intro ---------- */
 .intro{background:var(--panel);border:1px solid var(--line);border-radius:4px;
   padding:1.2rem 1.3rem;margin:0 0 1.5rem}
-.intro p{margin:0 0 .8rem;max-width:68ch}
+.intro p{margin:0 0 .8rem;max-width:84ch}
 .intro p:last-child{margin-bottom:0}
 .intro .big{font-size:1.08rem;color:var(--ink)}
 .intro .who2{font-size:13.5px;color:var(--mid)}
@@ -325,13 +325,33 @@ a.handoff:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
     font-size:11px;color:var(--soft)}
 }
 
-/* ---------- variant legend ---------- */
+/* ---------- variant picker ---------- */
 /* Sits directly above the filters. The codes were defined in a tooltip two
-   sections earlier, which is nowhere near where the reader has to use them. */
-.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
-  gap:.5rem;padding:.8rem .9rem;border-bottom:1px solid var(--line);background:#fbfcfd}
-.legend div{font-family:var(--mono);font-size:11.5px;color:var(--mid);line-height:1.5}
-.legend b{color:var(--acc);font-weight:700;margin-right:.4rem}
+   sections earlier, which is nowhere near where the reader has to use them.
+   The dropdown drives the same filter state as the chips below, so the two
+   controls can never disagree about what the table is showing. */
+.legend{padding:.8rem .9rem;border-bottom:1px solid var(--line);background:#fbfcfd}
+.legend .pick{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
+.legend .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--soft)}
+.legend select{font-family:var(--mono);font-size:12.5px;color:var(--ink);
+  background:var(--panel);border:1px solid #b9cfe0;border-radius:3px;
+  padding:.35rem 1.9rem .35rem .55rem;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230b5fa5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .6rem center}
+.legend select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.vcard{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  gap:1px;margin-top:.75rem;background:var(--line);border:1px solid var(--line);
+  border-radius:3px;overflow:hidden}
+.vcard div{background:var(--panel);padding:.55rem .7rem}
+.vcard .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--soft);display:block;margin-bottom:.25rem}
+.vcard .v{font-size:1.05rem;font-weight:650;font-variant-numeric:tabular-nums;
+  display:block;line-height:1.2}
+.vcard .v small{font-size:11px;font-weight:400;color:var(--soft);margin-left:.3rem}
+.vcard .hot .v{color:var(--bad)}
+.vsay{margin:.6rem 0 0;font-size:12.5px;line-height:1.5;color:var(--mid)}
+.vsay b{color:var(--ink)}
 
 /* ---------- what to do ---------- */
 .todo{background:var(--ink);color:#e8ebed;border-radius:4px;padding:1.3rem 1.4rem;
@@ -409,6 +429,20 @@ footer a{color:var(--acc);text-decoration:none}
 .flinks .ic{font-size:13px;line-height:1}
 .fnote{max-width:78ch}
 .loading{padding:2rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--soft)}
+
+/* ---------- callout layout ----------
+   These boxes span the full column but their prose is capped at a readable
+   measure, which left roughly 400px of empty background on the right at desktop
+   width. Widening the text to fill it would push lines past 100 characters, so
+   instead the uppercase label moves into its own left column and the prose sits
+   beside it. The space gets used and the measure stays readable. */
+@media(min-width:880px){
+  .point,.define,.todo{display:grid;grid-template-columns:150px minmax(0,1fr);
+    column-gap:1.8rem;align-items:start}
+  .point h3,.define h3,.todo h3{grid-column:1;grid-row:1;margin:0;line-height:1.5}
+  .point p,.define p,.todo p{grid-column:2}
+  .point p,.define p,.todo p{max-width:86ch}
+}
 </style>
 </head>
 <body>
@@ -544,10 +578,18 @@ footer a{color:var(--acc);text-decoration:none}
 <div class="panel">
   <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">—</span></div>
   <div class="legend">
-    <div><b>V1</b>8B model, no examples</div>
-    <div><b>V2</b>8B model, shown examples</div>
-    <div><b>V3</b>70B model, no examples</div>
-    <div><b>V4</b>70B model, shown examples</div>
+    <div class="pick">
+      <span class="lab">Setup</span>
+      <select id="vpick" aria-label="Choose which AI setup to look at">
+        <option value="">All four setups</option>
+        <option value="V1">V1 &nbsp;8B model, no examples</option>
+        <option value="V2">V2 &nbsp;8B model, shown examples</option>
+        <option value="V3">V3 &nbsp;70B model, no examples</option>
+        <option value="V4">V4 &nbsp;70B model, shown examples</option>
+      </select>
+    </div>
+    <div class="vcard" id="vcard"></div>
+    <p class="vsay" id="vsay"></p>
   </div>
   <div class="filters" id="filters"></div>
   <div class="scroll"><table id="xtable">
@@ -879,6 +921,72 @@ function fallbackCopy(text, done){
 var F = { v:new Set(), t:new Set(), o:new Set() };
 var sortK = null, sortDir = 1, openRow = null;
 
+/* ---------------------------------------------------------- variant picker */
+var VMETA = {
+  V1:{m:"8B",  p:"no examples"},     V2:{m:"8B",  p:"shown examples"},
+  V3:{m:"70B", p:"no examples"},     V4:{m:"70B", p:"shown examples"}
+};
+
+/* Every number here is counted from the loaded runs rather than hard coded, so it
+   cannot drift away from the data the table is showing. */
+function variantStats(v){
+  var rows = RUNS.filter(function(r){ return r.v === v; });
+  var ok   = rows.filter(function(r){ return r.ok; }).length;
+  var wrong = rows.length - ok;
+  var silent = rows.filter(function(r){ return r.silent; }).length;
+  return { n:rows.length, ok:ok, wrong:wrong, silent:silent,
+           acc: rows.length ? ok/rows.length : 0,
+           hidden: wrong ? silent/wrong : 0 };
+}
+
+function renderVCard(v){
+  var card = document.getElementById("vcard"), say = document.getElementById("vsay");
+  card.innerHTML = ""; say.innerHTML = "";
+
+  if(!v){
+    /* the all-setups view: the comparison is the point, so show the spread */
+    var best = variantStats("V3"), worst = variantStats("V1");
+    say.innerHTML = "Showing all 600 runs. Pick a setup above to see how it did on its " +
+      "own. <b>The pattern worth noticing:</b> the most accurate setup (V3, " +
+      Math.round(best.acc*100) + " percent) is also the one where " +
+      Math.round(best.hidden*100) + " percent of its mistakes ran without any error, " +
+      "against " + Math.round(worst.hidden*100) + " percent for the weakest setup.";
+    return;
+  }
+
+  var s = variantStats(v), meta = VMETA[v];
+  [["Model", meta.m, ""],
+   ["Prompt", meta.p, ""],
+   ["Accuracy", Math.round(s.acc*100) + "%", s.ok + " of " + s.n],
+   ["Got it wrong", String(s.wrong), "queries"],
+   ["Ran clean but wrong", Math.round(s.hidden*100) + "%", s.silent + " of " + s.wrong]
+  ].forEach(function(row, i){
+    var d = el("div", i === 4 ? "hot" : null);
+    d.appendChild(el("span","k",row[0]));
+    var val = el("span","v", row[1]);
+    if(row[2]) val.appendChild(el("small", null, row[2]));
+    d.appendChild(val);
+    card.appendChild(d);
+  });
+
+  say.innerHTML = "<b>" + v + "</b> is the " + meta.m + " model with " + meta.p +
+    ". It answered " + Math.round(s.acc*100) + " percent correctly. Of the " + s.wrong +
+    " it got wrong, <b>" + s.silent + " gave no error at all</b> and simply returned the " +
+    "wrong numbers. The table below is filtered to this setup.";
+}
+
+/* One source of truth. The dropdown and the chips both write F.v, then both get
+   redrawn from it, so they cannot end up describing different things. */
+function syncVariantUI(){
+  var sel = document.getElementById("vpick");
+  var only = F.v.size === 1 ? F.v.values().next().value : "";
+  if(sel.value !== only) sel.value = only;
+  [].forEach.call(document.querySelectorAll('#filters .tog[data-v]'), function(b){
+    b.setAttribute("aria-pressed", F.v.has(b.getAttribute("data-v")) ? "true" : "false");
+  });
+  renderVCard(only);
+}
+
 function buildFilters(){
   var host = document.getElementById("filters");
   host.innerHTML = "";
@@ -888,10 +996,12 @@ function buildFilters(){
     vals.forEach(function(val, i){
       var b = el("button","tog", labels ? labels[i] : val);
       b.setAttribute("aria-pressed","false");
+      if(key === "v") b.setAttribute("data-v", val);
       b.onclick = function(){
         var on = b.getAttribute("aria-pressed")==="true";
         b.setAttribute("aria-pressed", on?"false":"true");
         if(on) F[key].delete(val); else F[key].add(val);
+        if(key === "v") syncVariantUI();
         drawTable();
       };
       g.appendChild(b);
@@ -908,9 +1018,19 @@ function buildFilters(){
   clear.onclick = function(){
     F.v.clear(); F.t.clear(); F.o.clear();
     [].forEach.call(host.querySelectorAll(".tog"),function(b){b.setAttribute("aria-pressed","false");});
+    syncVariantUI();
     drawTable();
   };
   host.appendChild(clear);
+
+  var sel = document.getElementById("vpick");
+  sel.onchange = function(){
+    F.v.clear();
+    if(sel.value) F.v.add(sel.value);
+    syncVariantUI();
+    drawTable();
+  };
+  syncVariantUI();
 }
 
 function filtered(){

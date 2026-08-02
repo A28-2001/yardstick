@@ -36,8 +36,13 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 
 /* ---------- masthead ---------- */
 header{padding:2.6rem 0 1.6rem}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--acc);margin:0 0 .9rem}
+/* Wordmark sits above the headline and outweighs it in colour, not in size,
+   so the reader learns the project's name without it competing with the hook. */
+.mark{display:flex;align-items:baseline;flex-wrap:wrap;gap:.2rem .8rem;margin:0 0 1rem}
+.mark .nm{font-family:var(--mono);font-size:clamp(1.35rem,3vw,1.85rem);font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--acc);line-height:1}
+.mark .tag{font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--soft)}
 h1{font-size:clamp(1.5rem,3.4vw,2.15rem);line-height:1.15;font-weight:650;
   letter-spacing:-.02em;margin:0 0 .7rem;max-width:20ch}
 .sub{color:var(--mid);max-width:56ch;margin:0 0 1.2rem}
@@ -219,10 +224,18 @@ kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bot
 .step.hot h2{color:var(--acc)}
 
 /* ---------- handoff cue ---------- */
-.handoff{display:flex;align-items:center;gap:.7rem;margin:1rem 0 0;
-  font-size:14px;color:var(--acc);font-weight:600}
+/* An anchor, not a paragraph. The arrow was already animating like a control, so
+   readers tried to click it; now the whole strip is the target. */
+a.handoff{display:flex;align-items:center;gap:.7rem;margin:1.1rem 0 0;
+  font-size:14px;color:var(--acc);font-weight:600;text-decoration:none;
+  border:1px dashed #a9c8e0;border-radius:3px;padding:.6rem .8rem;
+  background:#f4f9fd;transition:background .15s,border-color .15s}
+a.handoff:hover{background:#e8f2fb;border-color:var(--acc);border-style:solid}
+a.handoff:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .handoff .arw{display:inline-block;animation:nudge 2.2s ease-in-out infinite}
 .handoff .t{font-weight:400;color:var(--mid);font-size:13px}
+.handoff .go{margin-left:auto;font-family:var(--mono);font-size:11px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--acc)}
 @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 @media(prefers-reduced-motion:reduce){.handoff .arw{animation:none}}
 
@@ -243,10 +256,30 @@ kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bot
 .start .go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .start .meta{font-family:var(--mono);font-size:11.5px;color:var(--soft);margin-top:.8rem}
 
-/* ---------- skip link ---------- */
-.skip{font-family:var(--mono);font-size:11.5px;color:var(--acc);text-decoration:none;
-  border:1px solid var(--line);border-radius:3px;padding:.2rem .55rem;background:var(--panel)}
-.skip:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* Shortcut strip, repeated under every question. Stated once on the start screen
+   it was read once and forgotten, so nobody used the keys. */
+.keys{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .7rem;margin-top:.9rem;
+  padding-top:.7rem;border-top:1px dashed var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--soft)}
+.keys b{color:var(--mid);font-weight:400}
+.keys kbd{margin-right:.4rem}
+.keys span{white-space:nowrap}
+
+/* ---------- skip to quiz ---------- */
+/* A quiet bordered pill got missed in review, so this is a filled button with a
+   halo that breathes. The halo animates, the text does not: blinking text is hard
+   to read and reads as a banner ad, which is the thing people have trained
+   themselves to ignore. */
+.skip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);
+  font-size:12.5px;font-weight:700;letter-spacing:.04em;color:#fff;text-decoration:none;
+  background:var(--acc);border:1px solid var(--acc);border-radius:3px;
+  padding:.55rem 1rem;margin-top:1.1rem;animation:halo 2.4s ease-in-out infinite}
+.skip .ar{display:inline-block;animation:nudge 2.2s ease-in-out infinite}
+.skip:hover{background:#094c85;border-color:#094c85;animation:none}
+.skip:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(11,95,165,.42)}
+  70%{box-shadow:0 0 0 11px rgba(11,95,165,0)}}
+@media(prefers-reduced-motion:reduce){.skip,.skip .ar{animation:none}}
 
 /* ---------- sticky nudge ---------- */
 .nudge{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);
@@ -315,6 +348,17 @@ kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bot
 footer{border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 4rem;
   font-family:var(--mono);font-size:11.5px;color:var(--soft);line-height:1.8}
 footer a{color:var(--acc);text-decoration:none}
+/* Footer links were plain text separated by dots and read as a colophon rather
+   than as places to go. Pills with an underline read as clickable at a glance. */
+.flinks{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.1rem;padding:0;list-style:none}
+.flinks a{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--mono);
+  font-size:12.5px;font-weight:600;color:var(--acc);text-decoration:none;
+  border:1px solid #b9cfe0;border-radius:3px;padding:.5rem .85rem;background:var(--panel);
+  transition:background .15s,color .15s,border-color .15s}
+.flinks a:hover,.flinks a:focus-visible{background:var(--acc);color:#fff;border-color:var(--acc)}
+.flinks a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.flinks .ic{font-size:13px;line-height:1}
+.fnote{max-width:78ch}
 .loading{padding:2rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--soft)}
 </style>
 </head>
@@ -322,7 +366,8 @@ footer a{color:var(--acc);text-decoration:none}
 <div class="w">
 
 <header>
-  <p class="eyebrow">Yardstick &nbsp;·&nbsp; 600 generated SQL queries, all executed for real</p>
+  <p class="mark"><span class="nm">Yardstick</span>
+    <span class="tag">600 generated SQL queries, all executed for real</span></p>
   <h1>Can you tell which SQL is wrong?</h1>
   <p class="who">
     <b>Aakash Mehta</b>
@@ -330,25 +375,39 @@ footer a{color:var(--acc);text-decoration:none}
     <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
     <a href="https://github.com/A28-2001/yardstick">Code and data</a>
     <a href="report.html">Full write-up</a>
-    <a class="skip" href="#quiz-panel">Skip to the quiz &darr;</a>
   </p>
+  <a class="skip" href="#quiz-panel">Skip to the quiz <span class="ar">&darr;</span></a>
 </header>
+
+<div class="point">
+  <h3>Why this exists</h3>
+  <p>
+    Teams decide an AI is safe to put near their data using one number: how often it
+    gets the answer right. <b>That number cannot tell you whether anyone would notice
+    when it is wrong.</b> A model that fails loudly at 80 percent accuracy is safer than
+    one that fails silently at 90.
+  </p>
+  <p>
+    So this study measures the second thing, with the hypothesis and the statistics
+    committed to version control before any data was collected.
+  </p>
+</div>
 
 <div class="step hot"><span class="no">1</span><h2>What this is</h2>
   <span class="of">step 1 of 3</span></div>
 
 <div class="intro">
   <p class="big">
-    Companies are starting to let AI write
+    Companies now let AI write
     <button class="def" type="button">SQL<span class="x">&nbsp;&mdash; the code that pulls
-    numbers out of a company's database</span></button>. When it gets one wrong, you would
-    hope it breaks loudly. Usually it does not: the query runs perfectly and quietly
-    returns the wrong numbers, and those numbers go into somebody's report.
+    numbers out of a company's database</span></button>. When it gets one wrong, it rarely
+    breaks. The query runs fine and quietly returns wrong numbers, and those numbers go
+    into somebody's report.
   </p>
   <p>
-    So I had AI write 600 database queries, ran every one against a real database, and
-    compared them against answers written by humans. Then I checked the thing an accuracy
-    score never tells you: when it was wrong, <b>could anyone tell?</b>
+    So I had AI write 600 queries, ran every one against a real database, and checked
+    them against human answers. <b>Then I counted how many of the wrong ones anybody
+    could have spotted.</b>
   </p>
   <div class="spec">
     <span>150 questions &middot; 4 configurations &middot; 600 runs</span>
@@ -358,8 +417,9 @@ footer a{color:var(--acc);text-decoration:none}
     <span>pre-registered</span>
     <span>McNemar exact + bootstrap CI</span>
   </div>
-  <p class="handoff"><span class="arw">&darr;</span> Now try it yourself
-    <span class="t">&nbsp;six queries, about a minute</span></p>
+  <a class="handoff" href="#quiz-panel"><span class="arw">&darr;</span> Now try it yourself
+    <span class="t">&nbsp;six queries, about a minute</span>
+    <span class="go">Start &rarr;</span></a>
 </div>
 
 
@@ -371,28 +431,6 @@ footer a{color:var(--acc);text-decoration:none}
   <div class="pbar"><h2>Six real queries</h2>
     <span class="note" id="qprog">not started</span></div>
   <div class="pbody" id="quiz"><div class="loading">loading 600 runs…</div></div>
-</div>
-
-<div class="point">
-  <h3>Why this exists</h3>
-  <p>
-    Teams are wiring language models into their data stack right now, and the evidence
-    they use to decide it is safe is almost always a single number: how often the model
-    got the right answer on some benchmark.
-  </p>
-  <p>
-    <b>That number does not tell you the thing you actually need to know.</b> It counts how
-    often the model is wrong. It says nothing about whether anyone would notice. A model
-    that fails loudly at 80 percent accuracy is far safer to deploy than one that fails
-    silently at 90, and an accuracy score cannot tell those two apart.
-  </p>
-  <p>
-    So this study measures the second thing. It runs a proper controlled experiment,
-    with the hypothesis and the statistics committed to version control before the data
-    was collected, and it asks: when the model is wrong, is the failure catchable, and
-    what is the cheapest check that catches it? <b>The answer turned out to be one you can
-    act on, and it is not the one most teams are using.</b>
-  </p>
 </div>
 
 <!-- ============ headline numbers ============ -->
@@ -466,13 +504,17 @@ footer a{color:var(--acc);text-decoration:none}
 </div>
 
 <footer>
-  <a href="https://github.com/A28-2001/yardstick">github.com/A28-2001/yardstick</a> ·
-  <a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a> ·
-  <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a> ·
-  <a href="report.html">Full write-up</a><br>
+  <ul class="flinks">
+    <li><a href="report.html"><span class="ic">&#9635;</span>Read the full write-up</a></li>
+    <li><a href="https://github.com/A28-2001/yardstick"><span class="ic">&#9670;</span>Code and data on GitHub</a></li>
+    <li><a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/"><span class="ic">&#9679;</span>LinkedIn</a></li>
+    <li><a href="mailto:aakashmehta893@gmail.com"><span class="ic">&#9993;</span>aakashmehta893@gmail.com</a></li>
+  </ul>
+  <p class="fnote">
   Pre-registered before the run. 150 questions, 93 databases, Spider corpus, CC BY-SA 4.0.
   McNemar exact, bootstrap intervals, Benjamini Hochberg. Scorer agrees with the official
   Spider evaluator on 18 of 19. Total cost $0.
+  </p>
 </footer>
 
 </div>
@@ -524,12 +566,11 @@ function renderStart(){
   document.getElementById("qprog").textContent = "not started";
   var w = el("div","start");
   var p1 = el("p","lead");
-  p1.innerHTML = "You will see six real queries an AI wrote, one at a time, each with the " +
-    "question it was meant to answer. Decide whether it returned the right rows.";
+  p1.innerHTML = "Six queries an AI wrote, one at a time, each with the question it was " +
+    "meant to answer. Say whether it gave the right rows.";
   var p2 = el("p");
-  p2.innerHTML = "<b>You are not shown the correct answer until after you commit</b>, " +
-    "because whoever reviews this on a real team does not have it either. That constraint " +
-    "is the entire point.";
+  p2.innerHTML = "<b>You do not see the answer until you commit</b>, because a real " +
+    "reviewer does not have it either.";
   w.appendChild(p1); w.appendChild(p2);
   var go = el("button","go","Start the quiz");
   go.onclick = function(){ started = true; qi = 0; qscore = []; renderQuiz(); };
@@ -569,8 +610,20 @@ function renderQuiz(){
   no.onclick  = function(){ answer(false); };
   ch.appendChild(yes); ch.appendChild(no);
   host.appendChild(ch);
+  host.appendChild(keyHint("answer"));
 
   host.appendChild(scoreStrip());
+}
+
+/* Repeated under every question rather than stated once up front. The keys only get
+   used if the reminder is present at the moment the reader is deciding. */
+function keyHint(stage){
+  var k = el("div","keys");
+  k.innerHTML = stage === "next"
+    ? "<b>Keyboard</b> <span><kbd>Enter</kbd>next query</span>"
+    : "<b>Keyboard</b> <span><kbd>Y</kbd>right rows</span> " +
+      "<span><kbd>N</kbd>wrong rows</span> <span><kbd>Enter</kbd>next</span>";
+  return k;
 }
 
 function scoreStrip(fresh){
@@ -622,6 +675,7 @@ function answer(saidCorrect){
   btn.onclick = function(){ qi++; renderQuiz(); };
   nx.appendChild(btn);
   rev.appendChild(nx);
+  rev.appendChild(keyHint("next"));
 
   host.appendChild(rev);
   host.appendChild(scoreStrip(qi));

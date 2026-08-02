@@ -108,7 +108,7 @@ pre.sql{margin:0 0 1.1rem;background:#f6f8f9;border:1px solid var(--hair);border
 .facts div{background:var(--panel);padding:.9rem 1rem}
 .facts .n{font-size:1.6rem;font-weight:650;line-height:1;display:block;margin-bottom:.4rem;
   font-variant-numeric:tabular-nums}
-.facts .l{font-size:11.5px;line-height:1.45;color:var(--mid);display:block}
+.facts .l{font-size:12px;line-height:1.5;color:var(--mid);display:block}
 .facts .a .n{color:var(--bad)} .facts .b .n{color:var(--mid)}
 .facts .c .n{color:var(--good)} .facts .d .n{color:var(--acc)}
 
@@ -294,6 +294,55 @@ a.handoff:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .nudge button:hover{color:#fff}
 @media(prefers-reduced-motion:reduce){.nudge{transition:none}}
 
+/* ---------- standalone definition ---------- */
+/* Silent failure is the whole study. It was previously reachable only by hovering
+   an inline term, which no phone can do, so it now gets stated once in the open. */
+.define{background:#fdf6ec;border:1px solid #e8d5b7;border-left:3px solid #c08a2e;
+  border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;margin:0 0 1.5rem}
+.define h3{margin:0 0 .5rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:#8a6117}
+.define p{margin:0 0 .6rem;max-width:66ch}
+.define p:last-child{margin:0}
+.define .term{font-weight:700;color:var(--ink)}
+.define .tally{font-family:var(--mono);font-size:12px;color:#8a6117;
+  display:inline-block;margin-top:.2rem}
+
+/* ---------- embedded figure ---------- */
+.exhibit{margin:0 0 1.5rem;padding:0;background:var(--panel);
+  border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.exhibit .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.exhibit img{display:block;width:100%;height:auto}
+.exhibit figcaption{border-top:1px solid var(--line);background:#f7f9fa;
+  padding:.7rem .9rem;font-size:12.5px;line-height:1.5;color:var(--mid)}
+.exhibit figcaption b{color:var(--ink)}
+.exhibit .swipe{display:none}
+/* Below this width the chart would shrink until its labels are about 4px tall,
+   which is worse than not showing it. Hold it at a legible size and let the
+   reader pan instead. */
+@media(max-width:760px){
+  .exhibit img{width:740px;max-width:none}
+  .exhibit .swipe{display:block;padding:.5rem .9rem 0;font-family:var(--mono);
+    font-size:11px;color:var(--soft)}
+}
+
+/* ---------- variant legend ---------- */
+/* Sits directly above the filters. The codes were defined in a tooltip two
+   sections earlier, which is nowhere near where the reader has to use them. */
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:.5rem;padding:.8rem .9rem;border-bottom:1px solid var(--line);background:#fbfcfd}
+.legend div{font-family:var(--mono);font-size:11.5px;color:var(--mid);line-height:1.5}
+.legend b{color:var(--acc);font-weight:700;margin-right:.4rem}
+
+/* ---------- what to do ---------- */
+.todo{background:var(--ink);color:#e8ebed;border-radius:4px;padding:1.3rem 1.4rem;
+  margin:0 0 1.5rem}
+.todo h3{margin:0 0 .7rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:#8ec2ee}
+.todo p{margin:0 0 .7rem;max-width:70ch;color:#ccd2d7}
+.todo p:last-child{margin:0}
+.todo b{color:#fff;font-weight:650}
+.todo .num{font-size:1.5rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+
 /* ---------- the point ---------- */
 .point{border-left:3px solid var(--acc);background:#f7fafc;border:1px solid var(--line);
   border-left:3px solid var(--acc);border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;
@@ -399,7 +448,7 @@ footer a{color:var(--acc);text-decoration:none}
 <div class="intro">
   <p class="big">
     Companies now let AI write
-    <button class="def" type="button">SQL<span class="x">&nbsp;&mdash; the code that pulls
+    <button class="def" type="button">SQL<span class="x">: the code that pulls
     numbers out of a company's database</span></button>. When it gets one wrong, it rarely
     breaks. The query runs fine and quietly returns wrong numbers, and those numbers go
     into somebody's report.
@@ -423,6 +472,20 @@ footer a{color:var(--acc);text-decoration:none}
 </div>
 
 
+<div class="define">
+  <h3>One term you need before the quiz</h3>
+  <p>
+    A <span class="term">silent failure</span> is a query that runs perfectly, reports no
+    error, and gives you the wrong numbers anyway. Nothing looks broken. There is no red
+    text, no warning, no crash. The numbers just go into somebody's report.
+  </p>
+  <p>
+    That is the kind of mistake this study is about, and it is the kind you are about to
+    try to catch by eye.
+    <span class="tally">93 of the 104 mistakes here were this kind.</span>
+  </p>
+</div>
+
 <!-- ============ 2. QUIZ ============ -->
 <div class="step hot"><span class="no">2</span><h2>Judge it yourself</h2>
   <span class="of">step 2 of 3</span></div>
@@ -435,27 +498,41 @@ footer a{color:var(--acc);text-decoration:none}
 
 <!-- ============ headline numbers ============ -->
 <div class="facts">
-  <div class="a"><span class="n" id="f1">—</span><span class="l">of the most accurate
-    model's errors ran clean and returned wrong rows</span></div>
-  <div class="b"><span class="n">0</span><span class="l">difficulty tiers where few-shot
-    prompting gained anything significant</span></div>
-  <div class="c"><span class="n">+28</span><span class="l">points from the larger model on
-    complex queries, p = 0.0013</span></div>
-  <div class="d"><span class="n">84%</span><span class="l">of errors caught by reviewing
-    the 28% where two models disagree</span></div>
+  <div class="a"><span class="n" id="f1">—</span><span class="l">of the best model's
+    mistakes ran with no error at all and handed back wrong numbers</span></div>
+  <div class="b"><span class="n">0</span><span class="l">difficulty levels where showing
+    the AI worked examples first helped at all</span></div>
+  <div class="c"><span class="n">+28</span><span class="l">points more accurate from the
+    bigger model on the hardest questions. Odds this is a fluke: about 1 in 750</span></div>
+  <div class="d"><span class="n">84%</span><span class="l">of all mistakes caught by asking
+    a second cheap AI and checking only where the two disagree</span></div>
 </div>
+
+<figure class="exhibit">
+  <p class="swipe">swipe the chart sideways &rarr;</p>
+  <div class="scrollx"><img src="figures/fig1_silent_failures.svg" width="771" height="427"
+       alt="Bar chart. Share of each setup's errors that were silent: the 8B model
+            with no examples 89 percent, 8B with examples 81 percent, 70B with
+            examples 95 percent, 70B with no examples 100 percent. Accuracy rises
+            from 77 to 89 percent across the same four rows."></div>
+  <figcaption><b>Read the bars, then read the numbers on the right.</b>
+    Accuracy climbs as you go down, from 77 percent to 89 percent. The bars climb
+    too, and those measure the share of each setup's mistakes that nobody could
+    see. The best model made the fewest mistakes, and every single one of them
+    ran perfectly and returned wrong numbers.</figcaption>
+</figure>
 
 <p class="prose">
   That is the whole finding. <b>A query that crashes gets investigated. A query that returns
   believable wrong numbers goes into a dashboard.</b> The second kind is a
-  <button class="def" type="button">silent failure<span class="x">&nbsp;— it ran without any
+  <button class="def" type="button">silent failure<span class="x">: it ran without any
   error at all and still gave the wrong answer</span></button>, and it accounted for 82 to
   97 percent of every mistake in this study. The share went <i>up</i> as the models got
   better, which is the part worth worrying about.
 </p>
 <p class="prose">
   Everything below is the raw evidence. Filter all 600 runs by
-  <button class="def" type="button">variant<span class="x">&nbsp;— which of the four
+  <button class="def" type="button">variant<span class="x">: which of the four
   AI setups produced it</span></button>, difficulty or outcome, click any row to see the
   human answer next to the machine one, or write your own SQL against the results.
 </p>
@@ -466,6 +543,12 @@ footer a{color:var(--acc);text-decoration:none}
 <!-- ============ 3. EXPLORER ============ -->
 <div class="panel">
   <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">—</span></div>
+  <div class="legend">
+    <div><b>V1</b>8B model, no examples</div>
+    <div><b>V2</b>8B model, shown examples</div>
+    <div><b>V3</b>70B model, no examples</div>
+    <div><b>V4</b>70B model, shown examples</div>
+  </div>
   <div class="filters" id="filters"></div>
   <div class="scroll"><table id="xtable">
     <thead><tr>
@@ -501,6 +584,28 @@ footer a{color:var(--acc);text-decoration:none}
     <div id="cerr"></div>
     <div id="cout"></div>
   </div>
+</div>
+
+<div class="todo">
+  <h3>So what do you do about it</h3>
+  <p>
+    Accuracy scores cannot help you here, because the failures they miss are exactly the
+    ones that look fine. You need a check that runs on every query and does not get tired.
+  </p>
+  <p>
+    <b>Send the same question to a second, cheaper model and compare the rows the two come
+    back with.</b> When they agree, move on. When they disagree, have a person look.
+  </p>
+  <p>
+    On this dataset the two models disagreed on <b>28 percent</b> of questions, and that
+    28 percent contained <span class="num">84%</span> <b>of every mistake made.</b> One
+    extra call per query, a fraction of a cent, and roughly three quarters of the work
+    never needs a human at all.
+  </p>
+  <p>
+    The honest caveat: this was measured on one benchmark, at one point in time, and it
+    was never deployed anywhere. Test it on your own queries before you trust it.
+  </p>
 </div>
 
 <footer>

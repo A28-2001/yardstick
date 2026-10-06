@@ -131,7 +131,7 @@ Result-set comparison rules (`set_match`, the primary flag):
 | Empty gold results | Excluded at sampling time |
 
 **Extraction failures score 0 and are not retried**, a model that can't emit parseable SQL
-is a real production problem. (In practice: 0 extraction failures across 540 valid cells.)
+is a real production problem. (In practice: 0 extraction failures across all 600 cells.)
 
 ### Execution safety
 
@@ -235,7 +235,7 @@ exist at inference time. That constraint is enforced by code comment and code re
 | **Question length only** (1 feature) | **0.724** |
 | Difficulty model (6 features) | 0.665 |
 | Schema size only | 0.507 |
-| Random | ~0.32 |
+| Random scores, one seed, n=60 | 0.32 (0.50 expected) |
 
 **The simplest possible baseline beat the real model.** Adding features hurt.
 Generalization was weak: leave-one-tier-out fell to chance on complex (0.525), while
@@ -360,7 +360,7 @@ and it is the rarest category for the strong model.
    dominant failure mode. Guardrails belong on *results* (row-count sanity, join-fanout
    checks, reconciliation against known aggregates), not on error handling.
 5. **Don't build a difficulty router on surface features without checking a length-only
-   baseline first.** Mine lost to it, and both lost to random on accuracy.
+   baseline first.** Mine lost to it on AUC, and neither beat random routing on accuracy.
 
 ---
 

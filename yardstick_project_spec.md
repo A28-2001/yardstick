@@ -1,5 +1,7 @@
 # Yardstick
 
+> **Original planning spec.** Superseded where it differs from the README: V3 and V4 ran on Llama 3.3 70B, see [docs/free_tier_verification.md](docs/free_tier_verification.md).
+
 **A statistically rigorous evaluation and routing study for LLM-generated SQL.**
 
 ---
@@ -1084,7 +1086,6 @@ Confirm every item before publishing.
 | Risk | Mitigation |
 |---|---|
 | Scope creep into a general framework | The deliverable is a study. Refuse UI work |
-| Learning becomes procrastination | Build while applying and interviewing, not instead |
 | No significant difference found | A null result is a finding. Report it |
 | Simple tier ceilings out | Legitimate finding. Report saturation, move the primary comparison, amend pre-registration before the run with a timestamp |
 | Broken gold queries poison ground truth | Validate every gold query executes in Phase 1 |

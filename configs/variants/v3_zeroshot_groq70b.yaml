@@ -2,7 +2,7 @@
 variant_id: V3
 prompt_strategy: zero-shot
 model: groq
-model_name: llama-3.3-70b-versatile   # STRONG/large model (Groq free tier); verify id in console
+model_name: llama-3.3-70b-versatile   # STRONG/large model (Groq free tier)
 role: model effect, strong (larger model)
 prompt_version: "0.1.0"
 

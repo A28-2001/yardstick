@@ -21,4 +21,4 @@ system_prompt: |
   Do not add explanation.
 
 # Same held-out few-shot examples as V2 (spec §4.5 / §11.3 leakage constraint).
-few_shot_examples: []   # TODO(phase-2): populate from held-out Spider train examples
+few_shot_examples: []   # loaded at runtime from configs/fewshot_examples.yaml (3 held-out examples, written by scripts/select_fewshot.py)

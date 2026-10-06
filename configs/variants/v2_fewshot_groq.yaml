@@ -28,4 +28,4 @@ system_prompt: |
 # NOT in the 150-question experiment sample, to avoid leakage/contamination.
 # Held constant across all questions in a tier so few-shot examples can be
 # prompt-cached (spec §13). FINALIZED IN PHASE 2 once data is downloaded.
-few_shot_examples: []   # TODO(phase-2): populate from held-out Spider train examples
+few_shot_examples: []   # loaded at runtime from configs/fewshot_examples.yaml (3 held-out examples, written by scripts/select_fewshot.py)

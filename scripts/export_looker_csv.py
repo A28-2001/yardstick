@@ -30,6 +30,8 @@ SRC = REPO / "docs" / "data" / "runs.json"
 OUT = REPO / "docs" / "data" / "yardstick_runs.csv"
 
 TIER_ORDER = {"simple": 1, "moderate": 2, "complex": 3}
+# The two sizes are different model generations, not one family at two sizes.
+MODEL_NAME = {"8B": "Llama 3.1 8B", "70B": "Llama 3.3 70B"}
 
 COLUMNS = [
     "run_id", "variant", "model", "prompt_strategy",
@@ -78,7 +80,7 @@ def main() -> int:
             w.writerow({
                 "run_id": i,
                 "variant": r["v"],
-                "model": f"Llama 3.1 {r['m']}",
+                "model": MODEL_NAME[r["m"]],
                 "prompt_strategy": r["p"],
                 "tier": r["t"],
                 "tier_order": TIER_ORDER[r["t"]],

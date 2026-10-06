@@ -2,7 +2,7 @@
 variant_id: V1
 prompt_strategy: zero-shot
 model: groq
-model_name: llama-3.1-8b-instant      # CHEAP/small model (Groq free tier); verify id in console
+model_name: llama-3.1-8b-instant      # CHEAP/small model (Groq free tier)
 role: baseline, cheapest
 prompt_version: "0.1.0"
 

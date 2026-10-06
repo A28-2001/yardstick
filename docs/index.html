@@ -538,7 +538,7 @@ footer a{color:var(--acc);text-decoration:none}
     the AI worked examples first helped at all</span></div>
   <div class="c"><span class="n">+28</span><span class="l">points more accurate from the
     bigger model on the hardest questions. Odds this is a fluke: about 1 in 750</span></div>
-  <div class="d"><span class="n">84%</span><span class="l">of all mistakes caught by running
+  <div class="d"><span class="n">84%</span><span class="l">of all mistakes (87 of 104) caught by running
     four model setups (two models, two prompts each) and checking only where they disagree</span></div>
 </div>
 
@@ -640,8 +640,8 @@ footer a{color:var(--acc);text-decoration:none}
   </p>
   <p>
     This study used four model setups (two models, two prompts each). They disagreed on
-    <b>28 percent</b> of questions, and that 28 percent contained
-    <span class="num">84%</span> <b>of every mistake made.</b> Four calls per question
+    <b>28 percent</b> of questions (42 of 150), and that 28 percent contained
+    <span class="num">84%</span> <b>of every mistake made</b> (87 of 104). Four calls per question
     instead of one, still about a tenth of a cent at list prices, and roughly three
     quarters of questions never need a human at all.
   </p>
@@ -873,7 +873,8 @@ function renderFinal(host){
   note.innerHTML = "All three are the same task: judging whether a query is right, on a " +
     "balanced set. The last one needs no human at all. It runs the question through four " +
     "model setups (two models, two prompts each) and flags it when they do not all return " +
-    "the same rows.";
+    "the same rows. That catches 87 of the 104 mistakes and wrongly flags 81 of the 496 " +
+    "correct answers.";
   board.appendChild(note);
   box.appendChild(board);
 
@@ -890,7 +891,7 @@ function renderFinal(host){
   sb.onclick = function(){
     var txt = "I scored " + n + "/" + qscore.length + " (" + pct + "%) spotting broken " +
       "AI-generated SQL by eye. An automatic check comparing four model setups (two models, two prompts each) gets " +
-      "84%. From Yardstick, a pre-registered study of 600 generated queries: " +
+      "84% (87 of 104 errors caught). From Yardstick, a pre-registered study of 600 generated queries: " +
       location.href;
     var done = function(){
       var s = share.querySelector(".said");

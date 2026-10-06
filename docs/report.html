@@ -403,8 +403,8 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
       gave a significant gain</span></div>
     <div class="k3"><span class="n">+28</span><span class="l">points from the larger model
       on complex queries, p=0.0013</span></div>
-    <div class="k4"><span class="n">84%</span><span class="l">of errors caught by reviewing
-      the 28% where models disagree</span></div>
+    <div class="k4"><span class="n">84%</span><span class="l">of errors caught (87 of 104) by reviewing
+      the 28% (168 of 600) where the four setups disagree</span></div>
   </div>
 </header>
 
@@ -639,7 +639,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
         <th class="r">Errors caught</th><th class="r">False alarms</th></tr></thead>
       <tbody>
         <tr><td>Cross-model result agreement</td><td class="r"><em>0.861</em></td>
-          <td class="r">28%</td><td class="r"><em>84%</em></td><td class="r">16%</td></tr>
+          <td class="r">28%&nbsp;<small>(168/600)</small></td><td class="r"><em>84%</em>&nbsp;<small>(87/104)</small></td><td class="r">16%&nbsp;<small>(81/496)</small></td></tr>
         <tr><td>Query structure agreement</td><td class="r">0.710</td><td class="r">74%</td>
           <td class="r">100%</td><td class="r">69%</td></tr>
         <tr><td>Self-reported confidence</td><td class="r">0.647</td>
@@ -651,9 +651,9 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
   <div class="note">
     <p>
       None of these signals requires the correct answer, so all three are available in
-      production. Reviewing only the 28% of queries where four model setups (two models,
-      two prompts each) disagree on the executed result catches 84% of all errors, at a 16%
-      false-alarm rate. The price is running every question through all four setups.
+      production. Reviewing only the 28% of queries (168 of 600) where four model setups (two models,
+      two prompts each) disagree on the executed result catches 84% of all errors (87 of 104), at a 16%
+      false-alarm rate (81 of 496 correct queries flagged). The price is running every question through all four setups.
     </p>
   </div>
 </section>
@@ -698,7 +698,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
       wrong 23% of the time and stayed roughly 95% confident on its own mistakes.</li>
     <li><b>Gate on cross-model disagreement instead.</b> Run four model setups (two models,
       two prompts each), compare the executed results, route disagreements to review. 28%
-      reviewed, 84% of errors caught.</li>
+      reviewed (168 of 600), 84% of errors caught (87 of 104).</li>
     <li><b>Assume wrong answers will look right.</b> Between 82% and 97% of errors executed
       cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
       reconciliation against known totals.</li>

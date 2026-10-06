@@ -299,11 +299,11 @@ in production, since noticing that model setups disagree requires no ground trut
 
 | Flag rule | Outputs flagged | Errors caught | False alarms |
 |---|---|---|---|
-| **Result-set disagreement** | **28%** | **84%** | **16%** |
+| **Result-set disagreement** | **28%** (168/600) | **84%** (87/104) | **16%** (81/496) |
 | AST disagreement | 74% | 100% | 69% |
 
-Review the 28% of queries where the models disagree on the *executed result* and you catch
-**84% of all errors**. AST-based flagging catches everything but flags three quarters of all
+Review the 28% of queries (168 of 600) where the four setups disagree on the *executed
+result* and you catch **84% of all errors** (87 of 104). AST-based flagging catches everything but flags three quarters of all
 output, too noisy to be useful.
 
 ### Silent failures: where models fail invisibly
@@ -354,7 +354,7 @@ and it is the rarest category for the strong model.
    of the time, and stayed ~95% confident on its own errors.
 3. **Do gate on cross-model disagreement.** Run a query through more than one model setup,
    compare executed result sets, and route disagreements to human review. With the four
-   setups in this study: **28% reviewed, 84% of errors caught.**
+   setups in this study: **28% reviewed (168 of 600), 84% of errors caught (87 of 104).**
 4. **Assume wrong answers will look right.** 82 to 97% of errors executed cleanly. Any
    pipeline that treats "the query ran" as "the query is correct" is unprotected against the
    dominant failure mode. Guardrails belong on *results* (row-count sanity, join-fanout

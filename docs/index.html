@@ -538,8 +538,8 @@ footer a{color:var(--acc);text-decoration:none}
     the AI worked examples first helped at all</span></div>
   <div class="c"><span class="n">+28</span><span class="l">points more accurate from the
     bigger model on the hardest questions. Odds this is a fluke: about 1 in 750</span></div>
-  <div class="d"><span class="n">84%</span><span class="l">of all mistakes caught by asking
-    a second cheap AI and checking only where the two disagree</span></div>
+  <div class="d"><span class="n">84%</span><span class="l">of all mistakes caught by running
+    four model setups (two models, two prompts each) and checking only where they disagree</span></div>
 </div>
 
 <figure class="exhibit">
@@ -635,18 +635,20 @@ footer a{color:var(--acc);text-decoration:none}
     ones that look fine. You need a check that runs on every query and does not get tired.
   </p>
   <p>
-    <b>Send the same question to a second, cheaper model and compare the rows the two come
-    back with.</b> When they agree, move on. When they disagree, have a person look.
+    <b>Send the same question to more than one model setup and compare the rows they come
+    back with.</b> When they all agree, move on. When they disagree, have a person look.
   </p>
   <p>
-    On this dataset the two models disagreed on <b>28 percent</b> of questions, and that
-    28 percent contained <span class="num">84%</span> <b>of every mistake made.</b> One
-    extra call per query, a fraction of a cent, and roughly three quarters of the work
-    never needs a human at all.
+    This study used four model setups (two models, two prompts each). They disagreed on
+    <b>28 percent</b> of questions, and that 28 percent contained
+    <span class="num">84%</span> <b>of every mistake made.</b> Four calls per question
+    instead of one, still about a tenth of a cent at list prices, and roughly three
+    quarters of questions never need a human at all.
   </p>
   <p>
     The honest caveat: this was measured on one benchmark, at one point in time, and it
-    was never deployed anywhere. Test it on your own queries before you trust it.
+    was never deployed anywhere. A cheaper version with only two setups was not measured
+    separately. Test it on your own queries before you trust it.
   </p>
 </div>
 
@@ -854,7 +856,7 @@ function renderFinal(host){
   [
     ["you",    "<b>You</b>, by eye",                       pct,  "you"],
     ["chance", "Guessing at random",                        50,   "chance"],
-    ["mech",   "<b>Two models compared</b> automatically",  84,   "mech"]
+    ["mech",   "<b>Four model setups</b> compared",         84,   "mech"]
   ].forEach(function(row){
     var r = el("div","brow");
     var lab = el("div","bl"); lab.innerHTML = row[1];
@@ -869,8 +871,9 @@ function renderFinal(host){
   var note = el("p","hint");
   note.style.marginTop = ".5rem";
   note.innerHTML = "All three are the same task: judging whether a query is right, on a " +
-    "balanced set. The last one needs no human at all. It runs the question through a " +
-    "second cheap model and flags it when the two return different rows.";
+    "balanced set. The last one needs no human at all. It runs the question through four " +
+    "model setups (two models, two prompts each) and flags it when they do not all return " +
+    "the same rows.";
   board.appendChild(note);
   box.appendChild(board);
 
@@ -886,7 +889,7 @@ function renderFinal(host){
   var sb = el("button",null,"Copy my result");
   sb.onclick = function(){
     var txt = "I scored " + n + "/" + qscore.length + " (" + pct + "%) spotting broken " +
-      "AI-generated SQL by eye. An automatic check of two models against each other gets " +
+      "AI-generated SQL by eye. An automatic check comparing four model setups (two models, two prompts each) gets " +
       "84%. From Yardstick, a pre-registered study of 600 generated queries: " +
       location.href;
     var done = function(){

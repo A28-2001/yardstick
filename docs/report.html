@@ -651,9 +651,9 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
   <div class="note">
     <p>
       None of these signals requires the correct answer, so all three are available in
-      production. Reviewing only the 28% of queries where two models disagree on the
-      executed result catches 84% of all errors, at a 16% false-alarm rate. That costs one
-      extra call to a cheap model.
+      production. Reviewing only the 28% of queries where four model setups (two models,
+      two prompts each) disagree on the executed result catches 84% of all errors, at a 16%
+      false-alarm rate. The price is running every question through all four setups.
     </p>
   </div>
 </section>
@@ -696,8 +696,9 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
       bought 28 points on complex queries and nothing on moderate ones.</li>
     <li><b>Never gate on self-reported confidence.</b> A model claiming 99% certainty was
       wrong 23% of the time and stayed roughly 95% confident on its own mistakes.</li>
-    <li><b>Gate on cross-model disagreement instead.</b> Two cheap models, compare the
-      executed results, route disagreements to review. 28% reviewed, 84% of errors caught.</li>
+    <li><b>Gate on cross-model disagreement instead.</b> Run four model setups (two models,
+      two prompts each), compare the executed results, route disagreements to review. 28%
+      reviewed, 84% of errors caught.</li>
     <li><b>Assume wrong answers will look right.</b> Between 82% and 97% of errors executed
       cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
       reconciliation against known totals.</li>

@@ -69,7 +69,7 @@ zero** (both 82%). Effort spent on prompts was effort spent on the wrong lever.
 **4. Self-reported confidence is nearly useless; cross-model agreement works.** All
 variants were overconfident, the weakest claimed **99% confidence while being 77% correct**
 (ECE 0.219). For predicting correctness, cross-variant result-set agreement scored
-**AUC 0.861** versus **0.647** for self-reported confidence. Asking "do two models agree?"
+**AUC 0.861** versus **0.647** for self-reported confidence. Asking "do the model setups agree?"
 beats asking a model "are you sure?"
 
 **5. Difficulty routing failed to beat random.** My 6-feature difficulty model (AUC 0.665)
@@ -293,7 +293,7 @@ while being wrong 23% of the time.** Reliability-curve data:
 | Self-reported confidence | 0.647 | No |
 
 **Cross-variant agreement decisively beats self-reported confidence**, and it is available
-in production, since noticing that two models disagree requires no ground truth.
+in production, since noticing that model setups disagree requires no ground truth.
 
 **The practical policy this yields:**
 
@@ -352,9 +352,9 @@ and it is the rarest category for the strong model.
    already at parity; if it includes multi-join analytical queries, upgrade the model.
 2. **Never gate on self-reported confidence.** A model claiming 99% certainty was wrong 23%
    of the time, and stayed ~95% confident on its own errors.
-3. **Do gate on cross-model disagreement.** Run two cheap models, compare executed result
-   sets, and route disagreements to human review: **28% reviewed, 84% of errors caught.**
-   This is the single most actionable result in the study, and it costs one extra cheap call.
+3. **Do gate on cross-model disagreement.** Run a query through more than one model setup,
+   compare executed result sets, and route disagreements to human review. With the four
+   setups in this study: **28% reviewed, 84% of errors caught.**
 4. **Assume wrong answers will look right.** 82 to 97% of errors executed cleanly. Any
    pipeline that treats "the query ran" as "the query is correct" is unprotected against the
    dominant failure mode. Guardrails belong on *results* (row-count sanity, join-fanout

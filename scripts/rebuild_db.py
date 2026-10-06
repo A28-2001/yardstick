@@ -1,8 +1,11 @@
 """Rebuild the results database from what survives on disk.
 
-The original Supabase project was removed after a long idle pause on the free tier,
-and it held the only copy of the run table: generation never wrote a local log. This
-reconstructs the database from two surviving sources,
+The original Supabase project became unreachable after an idle pause on the free tier
+(the pooler answers "tenant/user not found", which a paused and a deleted project both
+return), and it held the only copy of the run table: generation never wrote a local
+log. If that project can still be restored, prefer it, since it keeps the raw model
+output this cannot recover. Otherwise this reconstructs the database from two
+surviving sources,
 
   data/questions.json     the 150 validated questions, every column, exact
   docs/data/runs.json     the 600 graded runs as exported for the site

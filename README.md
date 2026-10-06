@@ -467,9 +467,19 @@ yardstick_project_spec.md   the full build specification
 ## Data & attribution
 
 - **Spider**. Yale LILY lab, **CC BY-SA 4.0**, https://yale-lily.github.io/spider.
-  Downloaded by `scripts/download_data.py`; no dataset files are committed.
+  Downloaded by `scripts/download_data.py`. The raw dataset is not committed, but the
+  150 sampled questions and their gold SQL appear in `docs/data/`.
 - **Official Spider evaluation scripts**, vendored under `third_party/spider_eval/` from
   https://github.com/taoyds/spider, used for tier labeling and scorer cross-validation.
 
 No LangChain, Ragas, DeepEval, or prebuilt eval framework. The statistical layer is
 hand-built on SciPy/statsmodels, that was the point.
+
+### License
+
+Code in this repository is MIT licensed, see [LICENSE](LICENSE), with two exceptions:
+
+- `third_party/spider_eval/` is the official Spider evaluation code, Apache License 2.0
+  (copy in that folder).
+- Question text and gold SQL from Spider, including what appears in `docs/data/`, stay
+  under CC BY-SA 4.0.

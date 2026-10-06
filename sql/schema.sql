@@ -41,6 +41,10 @@ CREATE TABLE IF NOT EXISTS runs (
     temperature         NUMERIC NOT NULL,
     error_message       TEXT,
     created_at          TIMESTAMPTZ DEFAULT now(),
+    -- Only set on rows rebuilt by scripts/rebuild_db.py, which can recover the token
+    -- total but not its split. NULL provenance means an original live run.
+    total_tokens        INTEGER,
+    provenance          TEXT,
     UNIQUE (question_id, variant_id, replicate)
 );
 

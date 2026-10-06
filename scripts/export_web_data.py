@@ -31,7 +31,10 @@ def main() -> int:
             SELECT r.variant_id, q.tier, q.db_id, q.question_text, q.gold_sql,
                    r.extracted_sql, e.set_match, e.executed, e.error_type,
                    r.self_confidence, q.gold_row_count, e.result_row_count,
-                   r.input_tokens, r.output_tokens, r.cost_usd, r.latency_ms
+                   -- rows rebuilt by rebuild_db.py keep only the token total, with the
+                   -- split NULL; without this fallback a re-export would zero them
+                   COALESCE(r.input_tokens, r.total_tokens), r.output_tokens,
+                   r.cost_usd, r.latency_ms
             FROM runs r
             JOIN questions q  ON q.question_id = r.question_id
             JOIN executions e ON e.run_id = r.run_id

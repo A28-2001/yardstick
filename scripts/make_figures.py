@@ -116,15 +116,14 @@ def fig_silent():
     ax.spines["left"].set_color(RULE)
     ax.tick_params(length=0)
     ax.invert_yaxis()
-    ax.set_title("Better models fail more quietly", loc="left", fontsize=15.5,
+    ax.set_title("Most mistakes ran without any error", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     ax.legend(handles=[
         Line2D([], [], marker="s", ls="none", ms=9, color="#c9c2b6", label="8B (cheap model)"),
         Line2D([], [], marker="s", ls="none", ms=9, color=SLATE, label="70B (strong model)")],
         loc="upper left", bbox_to_anchor=(0.0, -0.22), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=2.2)
-    plainbox(ax, "In plain terms: the smarter the model, the more its mistakes look like correct answers.\n"
-                 "A wrong number that runs without error is one nobody catches.", y=-0.42)
+    plainbox(ax, "In plain terms: when the AI was wrong, the query almost always still ran. 93 of 104 mistakes\n" "gave no error. Both large-model setups sit above both small ones, a gap that could be chance (p = 0.09).", y=-0.42)
     caption(ax, "Silent = the query ran without error but returned the WRONG rows. Ordered by accuracy.\n"
                 "n = 150 per variant.", y=-0.76)
     save(fig, "fig1_silent_failures")
@@ -186,7 +185,7 @@ def fig_forest():
                        (ypos[3] + .72, "EXPLORATORY   70B − 8B (zero-shot) · uncorrected")):
         ax.text(-34, slot, text, fontsize=9, color=INK, fontfamily=MONO, va="center")
 
-    ax.set_title("Only model size moved the needle", loc="left", fontsize=15.5,
+    ax.set_title("Only the larger model moved the needle, on hard questions", loc="left", fontsize=15.5,
                  color=INK, pad=18)
     ax.legend(handles=[
         Line2D([], [], marker="s", ls="none", ms=8, mfc=SIGNAL, mec=SIGNAL, label="CI excludes 0"),
@@ -194,7 +193,7 @@ def fig_forest():
         loc="upper left", bbox_to_anchor=(0.0, -0.16), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=1.8)
     plainbox(ax, "In plain terms: if a bar crosses the middle line, that change did nothing we can prove.\n"
-                 "Only one thing clearly worked: using the bigger model on the hardest questions.", y=-0.30)
+                 "Only one thing clearly worked: the larger, newer model on the hardest questions.", y=-0.30)
     caption(ax, "Filled marker = interval excludes zero. Red text = the pre-specified test is significant.\n"
                 "These disagree on exploratory 'simple', where McNemar is conservative with few discordant\n"
                 "pairs; the pre-specified test governs. Minimum detectable effect at n = 50 is 14 to 27 pts.",
@@ -230,15 +229,14 @@ def fig_calibration():
     ax.tick_params(length=0)
     ax.spines["left"].set_color(RULE)
     ax.set_xlabel("percent", fontsize=10, color=MID, labelpad=9)
-    ax.set_title("Every variant is confidently wrong", loc="left", fontsize=15.5,
+    ax.set_title("Every variant is overconfident", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     ax.legend(handles=[
         Line2D([], [], marker="o", ls="none", ms=9, color=SLATE, label="measured accuracy"),
         Line2D([], [], marker="o", ls="none", ms=9, color=SIGNAL, label="stated confidence")],
         loc="upper left", bbox_to_anchor=(0.0, -0.20), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=2.2)
-    plainbox(ax, "In plain terms: every model claims to be surer than it actually is. The gap shrinks as models\n"
-                 "improve, but never closes, so a model's own confidence score is not a safety check.", y=-0.34)
+    plainbox(ax, "In plain terms: every model claims to be surer than it actually is. The gap is smaller for the\n" "larger model but never closes, so a model's own confidence score is a weak safety check.", y=-0.34)
     caption(ax, "Sorted by the size of the overconfidence gap. All four stay 87 to 96% confident even on\n"
                 "the answers they get wrong.", y=-0.70)
     save(fig, "fig3_calibration")
@@ -279,11 +277,10 @@ def fig_routing():
     ax.set_yticks([70, 75, 80, 85, 90])
     ax.set_yticklabels(["70", "75", "80", "85", "90"], fontfamily=MONO)
     ax.set_ylim(68, 92)
-    ax.set_title("Difficulty routing did not beat random", loc="left", fontsize=15.5,
+    ax.set_title("Difficulty routing did not reliably beat random", loc="left", fontsize=15.5,
                  color=INK, pad=14)
-    plainbox(ax, "In plain terms: our 'smart' way of guessing which questions need the expensive model performed\n"
-                 "no better than picking at random. Cheaper, yes. Smarter, no.", y=-0.22)
-    caption(ax, "Both scored 78.3% at the same escalation budget. The oracle (perfect foresight) beats\n"
+    plainbox(ax, "In plain terms: our way of guessing which questions need the expensive model tied one random\n" "draw at the same budget, and beat random by only about 3 points on average.", y=-0.22)
+    caption(ax, "One random draw also scored 78.3%; over 100,000 draws random averages 75.5%. The oracle (perfect foresight) beats\n"
                 "always expensive at 63% less cost, so real headroom exists. These features could not reach it.",
             y=-0.46)
     save(fig, "fig4_routing")
@@ -329,10 +326,9 @@ def fig_taxonomy():
               ncol=2, frameon=False, fontsize=9, handletextpad=.6, columnspacing=2.2)
     ax.set_title("Where the model upgrade actually pays: joins", loc="left",
                  fontsize=15.5, color=INK, pad=14)
-    plainbox(ax, "In plain terms: most wrong answers come from linking the wrong tables together.\n"
-                 "That is exactly the mistake the bigger model stops making.", y=-0.34)
+    plainbox(ax, "In plain terms: the most common mistake is joining the wrong tables (46 of 104).\n" "The larger model made it less often: 13 times against 33.", y=-0.34)
     caption(ax, "Wrong joins fall from 33 to 13 with the larger model. Invented tables or columns, 10 to 1.\n"
-                "Only schema error fails loudly. Every other category returns wrong numbers silently.",
+                "Only schema error fails loudly. Every other category returns wrong results silently.",
             y=-0.68)
     save(fig, "fig5_taxonomy")
 
@@ -381,21 +377,21 @@ def fig_sharecard():
 
     ax.text(74, 186, f"{share:.0f}%", fontsize=104, color=C_BAD, fontweight="bold",
             fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 246, "of the best model's", fontsize=27, color=C_INK,
+    ax.text(516, 246, "of the best setup's", fontsize=27, color=C_INK,
             fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 202, "mistakes ran clean and", fontsize=27, color=C_INK,
+    ax.text(516, 202, "mistakes ran with no error", fontsize=27, color=C_INK,
             fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 158, "returned wrong numbers", fontsize=27, color=C_INK,
+    ax.text(516, 158, "and returned wrong results", fontsize=27, color=C_INK,
             fontfamily=UI, va="baseline", zorder=3)
 
     ax.text(74, 88, "Aakash Mehta   ·   a28-2001.github.io/yardstick", fontsize=19,
             color=C_ACC, fontfamily=MONO, va="baseline", zorder=3)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGDIR / "card-quiz-v3.png", dpi=200, facecolor=BG,
+    fig.savefig(FIGDIR / "card-quiz-v4.png", dpi=200, facecolor=BG,
                 bbox_inches=None, pad_inches=0)
     plt.close(fig)
-    print("  card-quiz-v3.png")
+    print("  card-quiz-v4.png")
 
 
 if __name__ == "__main__":

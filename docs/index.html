@@ -8,17 +8,17 @@
 <link rel="canonical" href="https://a28-2001.github.io/yardstick/">
 <meta property="og:site_name" content="Yardstick">
 <meta property="og:title" content="Can you tell which SQL is wrong?">
-<meta property="og:description" content="Six real AI-generated queries. Guess which returned the wrong rows. Most people score near chance, which is the finding: 93 of 104 errors ran with no error at all.">
+<meta property="og:description" content="Six real AI-generated queries. Guess which returned the wrong rows. 93 of the 104 wrong answers ran with no error at all.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://a28-2001.github.io/yardstick/">
-<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v3.png">
+<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Yardstick: 100% of the most accurate model's errors executed cleanly and returned plausible wrong numbers.">
+<meta property="og:image:alt" content="Yardstick: 100% of the most accurate setup's errors executed cleanly and returned wrong results.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Can you tell which SQL is wrong?">
-<meta name="twitter:description" content="Six real AI-generated queries. Guess which returned the wrong rows. Most people score near chance.">
-<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v3.png">
+<meta name="twitter:description" content="Six real AI-generated queries. Guess which returned the wrong rows. 93 of the 104 wrong answers ran with no error at all.">
+<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
 <style>
 :root{
   --bg:#eef0f2; --panel:#ffffff; --ink:#111417; --mid:#6b7176; --soft:#8d9398;
@@ -467,8 +467,7 @@ footer a{color:var(--acc);text-decoration:none}
   <p>
     Teams decide an AI is safe to put near their data using one number: how often it
     gets the answer right. <b>That number cannot tell you whether anyone would notice
-    when it is wrong.</b> A model that fails loudly at 80 percent accuracy is safer than
-    one that fails silently at 90.
+    when it is wrong.</b> A model that fails loudly at 80 percent accuracy can be safer to use than one that fails silently at 90.
   </p>
   <p>
     So this study measures the second thing, with the hypothesis and the statistics
@@ -481,16 +480,13 @@ footer a{color:var(--acc);text-decoration:none}
 
 <div class="intro">
   <p class="big">
-    Companies now let AI write
+    Some companies now let AI write
     <button class="def" type="button">SQL<span class="x">: the code that pulls
-    numbers out of a company's database</span></button>. When it gets one wrong, it rarely
-    breaks. The query runs fine and quietly returns wrong numbers, and those numbers go
-    into somebody's report.
+    numbers out of a company's database</span></button>. When it gets one wrong, it rarely breaks. The query usually runs fine and returns wrong results, and those results can end up in somebody's report.
   </p>
   <p>
     So I had AI write 600 queries, ran every one against a real database, and checked
-    them against human answers. <b>Then I counted how many of the wrong ones anybody
-    could have spotted.</b>
+    them against human answers. <b>Then I counted how many of the wrong ones ran without any error.</b>
   </p>
   <div class="spec">
     <span>150 questions &middot; 4 configurations &middot; 600 runs</span>
@@ -509,9 +505,7 @@ footer a{color:var(--acc);text-decoration:none}
 <div class="define">
   <h3>One term you need before the quiz</h3>
   <p>
-    A <span class="term">silent failure</span> is a query that runs perfectly, reports no
-    error, and gives you the wrong numbers anyway. Nothing looks broken. There is no red
-    text, no warning, no crash. The numbers just go into somebody's report.
+    A <span class="term">silent failure</span> is a query that runs, reports no error, and gives you the wrong results anyway. Nothing looks broken. There is no red text, no warning, no crash. The results can end up in somebody's report.
   </p>
   <p>
     That is the kind of mistake this study is about, and it is the kind you are about to
@@ -532,12 +526,9 @@ footer a{color:var(--acc);text-decoration:none}
 
 <!-- ============ headline numbers ============ -->
 <div class="facts">
-  <div class="a"><span class="n" id="f1">—</span><span class="l">of the best model's
-    mistakes ran with no error at all and handed back wrong numbers</span></div>
-  <div class="b"><span class="n">0</span><span class="l">difficulty levels where showing
-    the AI worked examples first helped at all</span></div>
-  <div class="c"><span class="n">+28</span><span class="l">points more accurate from the
-    bigger model on the hardest questions. Odds this is a fluke: about 1 in 750</span></div>
+  <div class="a"><span class="n" id="f1">100%</span><span class="l">of the best setup's mistakes (17 of 17) ran with no error and returned wrong results</span></div>
+  <div class="b"><span class="n">0</span><span class="l">difficulty levels where showing the AI worked examples gave a significant gain</span></div>
+  <div class="c"><span class="n">+28</span><span class="l">points from the larger, newer model on the hardest questions (60% to 88%, p = 0.0013, an exploratory comparison)</span></div>
   <div class="d"><span class="n">84%</span><span class="l">of all mistakes (87 of 104) caught by running
     four model setups (two models, two prompts each) and checking only where they disagree</span></div>
 </div>
@@ -550,19 +541,13 @@ footer a{color:var(--acc);text-decoration:none}
             examples 95 percent, 70B with no examples 100 percent. Accuracy rises
             from 77 to 89 percent across the same four rows."></div>
   <figcaption><b>Read the bars, then read the numbers on the right.</b>
-    Accuracy climbs as you go down, from 77 percent to 89 percent. The bars climb
-    too, and those measure the share of each setup's mistakes that nobody could
-    see. The best model made the fewest mistakes, and every single one of them
-    ran perfectly and returned wrong numbers.</figcaption>
+    Accuracy climbs as you go down, from 77 percent to 89 percent. The bars measure the share of each setup's mistakes that ran without any error: 89, 81, 95 and 100 percent, so they do not rise steadily, but both large-model setups sit above both small ones. The most accurate setup made the fewest mistakes, and all 17 ran without an error and returned wrong results.</figcaption>
 </figure>
 
 <p class="prose">
-  That is the whole finding. <b>A query that crashes gets investigated. A query that returns
-  believable wrong numbers goes into a dashboard.</b> The second kind is a
+  That is the whole finding. <b>A query that crashes gets investigated. A query that runs and returns wrong results can go into a dashboard.</b> The second kind is a
   <button class="def" type="button">silent failure<span class="x">: it ran without any
-  error at all and still gave the wrong answer</span></button>, and it accounted for 82 to
-  97 percent of every mistake in this study. The share went <i>up</i> as the models got
-  better, which is the part worth worrying about.
+  error at all and still gave the wrong answer</span></button>, and it accounted for 93 of the 104 mistakes in this study: 82 to 97 percent depending on difficulty, 81 to 100 percent depending on setup. The larger model's mistakes were silent even more often (36 of 37, against 57 of 67 for the smaller one), though with this few mistakes that gap could be chance (p = 0.09).
 </p>
 <p class="prose">
   Everything below is the raw evidence. Filter all 600 runs by
@@ -576,7 +561,7 @@ footer a{color:var(--acc);text-decoration:none}
 
 <!-- ============ 3. EXPLORER ============ -->
 <div class="panel">
-  <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">—</span></div>
+  <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">n/a</span></div>
   <div class="legend">
     <div class="pick">
       <span class="lab">Setup</span>
@@ -614,8 +599,7 @@ footer a{color:var(--acc);text-decoration:none}
     <span class="note">table: runs &nbsp;·&nbsp; 600 rows</span></div>
   <div class="pbody">
     <p class="prose" style="margin-bottom:.8rem">
-      A study about writing SQL ought to let you write some. This runs a real query engine
-      in your browser, hand-written for this page, over all 600 runs.
+      A study about writing SQL ought to let you write some. This runs a small SQL engine in your browser, hand-written for this page, over all 600 runs.
     </p>
     <textarea id="sqlbox" spellcheck="false">SELECT v, t, conf, q FROM runs WHERE silent = true AND conf = 1 ORDER BY t LIMIT 20</textarea>
     <div class="crow">
@@ -631,8 +615,7 @@ footer a{color:var(--acc);text-decoration:none}
 <div class="todo">
   <h3>So what do you do about it</h3>
   <p>
-    Accuracy scores cannot help you here, because the failures they miss are exactly the
-    ones that look fine. You need a check that runs on every query and does not get tired.
+    An accuracy score tells you how often the AI is wrong. It does not tell you which answers are wrong. For that you need a check that runs on every query.
   </p>
   <p>
     <b>Send the same question to more than one model setup and compare the rows they come
@@ -641,9 +624,7 @@ footer a{color:var(--acc);text-decoration:none}
   <p>
     This study used four model setups (two models, two prompts each). They disagreed on
     <b>28 percent</b> of questions (42 of 150), and that 28 percent contained
-    <span class="num">84%</span> <b>of every mistake made</b> (87 of 104). Four calls per question
-    instead of one, still about a tenth of a cent at list prices, and roughly three
-    quarters of questions never need a human at all.
+    <span class="num">84%</span> <b>of every mistake made</b> (87 of 104). Four calls per question instead of one, still about a tenth of a cent at list prices. The other 108 questions were not flagged, and they still held 17 of the 104 mistakes, so this narrows review rather than replacing it.
   </p>
   <p>
     The honest caveat: this was measured on one benchmark, at one point in time, and it
@@ -661,8 +642,7 @@ footer a{color:var(--acc);text-decoration:none}
   </ul>
   <p class="fnote">
   Pre-registered before the run. 150 questions, 93 databases, Spider corpus, CC BY-SA 4.0.
-  McNemar exact, bootstrap intervals, Benjamini Hochberg. Scorer agrees with the official
-  Spider evaluator on 18 of 19. Total cost $0.
+  McNemar exact, bootstrap intervals, Benjamini Hochberg. Scorer agrees with the official Spider evaluator on 18 of the 19 queries the official tool could score. Total cost $0 on a free tier (about $0.17 at list prices).
   </p>
 </footer>
 
@@ -697,9 +677,10 @@ function buildPool(){
   });
   var bad = shuffle(short.filter(function(r){ return r.silent; }));
   var good = shuffle(short.filter(function(r){ return r.ok; }));
-  var mix = [];
-  for(var i=0;i<QN;i++) mix.push(i%2===0 ? bad[i>>1] : good[i>>1]);
-  return mix.filter(Boolean);
+    // Three of each, then shuffled. A fixed alternating order could be learned and
+  // scored perfectly without reading any SQL.
+  var half = QN >> 1;
+  return shuffle(bad.slice(0, half).concat(good.slice(0, QN - half)));
 }
 function shuffle(a){ a=a.slice();
   for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));
@@ -814,7 +795,7 @@ function answer(saidCorrect){
   a.appendChild(el("div","n", r.grows + " rows"));
   var b = el("div"); b.appendChild(el("div","lb","What the model wrote"));
   var bc = el("code"); bc.textContent = r.sql; b.appendChild(bc);
-  b.appendChild(el("div","n", (r.prows==null?"—":r.prows) + " rows"
+  b.appendChild(el("div","n", (r.prows==null?"n/a":r.prows) + " rows"
       + (r.conf!=null ? "  ·  stated confidence " + r.conf.toFixed(2) : "")));
   side.appendChild(a); side.appendChild(b);
   rev.appendChild(side);
@@ -845,8 +826,7 @@ function renderFinal(host){
   p.innerHTML = "The set was balanced, half right and half wrong, so guessing scores 50. " +
     "Judging SQL against a schema you have never seen, with no correct answer to compare " +
     "against, is roughly the position a reviewer is in on a real team. <b>93 of the 104 " +
-    "errors in this study ran without any error at all</b> and returned believable wrong " +
-    "numbers.";
+    "errors in this study ran without any error at all</b> and returned results that did not match the human " + "answer.";
   box.appendChild(p);
 
   /* Comparing your score to a model's accuracy would be dishonest: you are detecting
@@ -870,8 +850,7 @@ function renderFinal(host){
   });
   var note = el("p","hint");
   note.style.marginTop = ".5rem";
-  note.innerHTML = "All three are the same task: judging whether a query is right, on a " +
-    "balanced set. The last one needs no human at all. It runs the question through four " +
+  note.innerHTML = "All three judge whether a query is right on a balanced mix of right and wrong. " + "The last one needs no human, and judges 84% of all 600 queries correctly on that basis. It runs the question through four " +
     "model setups (two models, two prompts each) and flags it when they do not all return " +
     "the same rows. That catches 87 of the 104 mistakes and wrongly flags 81 of the 496 " +
     "correct answers.";
@@ -880,10 +859,10 @@ function renderFinal(host){
 
   var beat = el("div","beat" + (pct > 50 ? "" : " no"));
   beat.innerHTML = pct >= 84
-    ? "You matched the automated check. Most people do not, and it does this on every query, forever, for a fraction of a cent."
+    ? "You matched the automated check, which runs on every query for about a tenth of a cent per question."
     : pct > 50
-      ? "Better than chance, and still below a check that costs one extra API call and never gets tired."
-      : "At or below chance. That is the finding, not an insult: these failures are built to be invisible.";
+      ? "Better than chance, and below a check that runs four setups on every question."
+      : "At or below chance. You saw what a reviewer sees: SQL that runs, with no correct answer to compare it to.";
   box.appendChild(beat);
 
   var share = el("div","shareRow");
@@ -951,10 +930,7 @@ function renderVCard(v){
     /* the all-setups view: the comparison is the point, so show the spread */
     var best = variantStats("V3"), worst = variantStats("V1");
     say.innerHTML = "Showing all 600 runs. Pick a setup above to see how it did on its " +
-      "own. <b>The pattern worth noticing:</b> the most accurate setup (V3, " +
-      Math.round(best.acc*100) + " percent) is also the one where " +
-      Math.round(best.hidden*100) + " percent of its mistakes ran without any error, " +
-      "against " + Math.round(worst.hidden*100) + " percent for the weakest setup.";
+      "own. The most accurate setup (V3, " + Math.round(best.acc*100) + " percent correct) had " + best.silent + " of its " + best.wrong + " mistakes run without any error. The least accurate " + "(V1, " + Math.round(worst.acc*100) + " percent correct) had " + worst.silent + " of " + worst.wrong + ".";
     return;
   }
 
@@ -975,8 +951,7 @@ function renderVCard(v){
 
   say.innerHTML = "<b>" + v + "</b> is the " + meta.m + " model with " + meta.p +
     ". It answered " + Math.round(s.acc*100) + " percent correctly. Of the " + s.wrong +
-    " it got wrong, <b>" + s.silent + " gave no error at all</b> and simply returned the " +
-    "wrong numbers. The table below is filtered to this setup.";
+    " it got wrong, <b>" + s.silent + " gave no error at all</b> and returned " + "wrong results. The table below is filtered to this setup.";
 }
 
 /* One source of truth. The dropdown and the chips both write F.v, then both get
@@ -1076,8 +1051,8 @@ function drawTable(){
     var tag = el("span","tag " + (o==="correct"?"ok":o==="silent"?"si":"lo"),
       o==="correct"?"correct":o==="silent"?"silent":"loud");
     td.appendChild(tag); tr.appendChild(td);
-    tr.appendChild(el("td","num", r.conf==null?"—":r.conf.toFixed(2)));
-    tr.appendChild(el("td","num", r.prows==null?"—":String(r.prows)));
+    tr.appendChild(el("td","num", r.conf==null?"n/a":r.conf.toFixed(2)));
+    tr.appendChild(el("td","num", r.prows==null?"n/a":String(r.prows)));
     tr.onclick = function(){ toggleDetail(tr, r); };
     tr.onmouseenter = function(){ peek(r); };
     body.appendChild(tr);
@@ -1389,7 +1364,7 @@ function showResult(res){
     var tr = el("tr");
     r.forEach(function(v){
       var td = el("td", typeof v === "number" ? "num" : null,
-        v==null ? "—" : typeof v==="boolean" ? (v?"true":"false") : String(v));
+        v==null ? "n/a" : typeof v==="boolean" ? (v?"true":"false") : String(v));
       tr.appendChild(td);
     });
     bd.appendChild(tr);
@@ -1449,7 +1424,7 @@ fetch("data/runs.json")
     var v3err = v3.filter(function(r){ return !r.ok; });
     var v3sil = v3err.filter(function(r){ return r.silent; });
     document.getElementById("f1").textContent =
-      v3err.length ? Math.round(100*v3sil.length/v3err.length) + "%" : "—";
+      v3err.length ? Math.round(100*v3sil.length/v3err.length) + "%" : "n/a";
 
     qpool = buildPool();
     renderStart();

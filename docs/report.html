@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yardstick: when is LLM-generated SQL safe to trust?</title>
-<meta name="description" content="A pre-registered study of 150 text-to-SQL questions across two prompt strategies and two model sizes. Few-shot prompting produced no significant lift. The most accurate model made errors that were 100% silent.">
+<meta name="description" content="A pre-registered study of 150 text-to-SQL questions across two prompt strategies and two models. Few-shot prompting produced no significant lift. 93 of the 104 wrong answers ran without any error.">
 <link rel="canonical" href="https://a28-2001.github.io/yardstick/report.html">
 <!-- Link scrapers do not resolve relative image paths reliably, so every og: URL here
      is absolute. The image is a purpose-built 1200x630 card rather than a chart: at
      preview size a chart's axis labels are unreadable. -->
 <meta property="og:site_name" content="Yardstick">
 <meta property="og:title" content="When is LLM-generated SQL safe to trust?">
-<meta property="og:description" content="A pre-registered study. Few-shot prompting gave no significant lift at any difficulty. The most accurate model's errors were 100% silent: they ran cleanly and returned plausible wrong numbers.">
+<meta property="og:description" content="A pre-registered study. Few-shot prompting gave no significant lift at any difficulty. 93 of the 104 wrong answers ran without any error, including all 17 from the most accurate setup.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://a28-2001.github.io/yardstick/report.html">
-<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v3.png">
+<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Yardstick study card: 100% of the most accurate model's errors executed cleanly and returned plausible wrong numbers.">
+<meta property="og:image:alt" content="Yardstick study card: 100% of the most accurate setup's errors executed cleanly and returned wrong results.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="When is LLM-generated SQL safe to trust?">
-<meta name="twitter:description" content="Pre-registered study. The most accurate model's errors were 100% silent.">
-<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v3.png">
+<meta name="twitter:description" content="Pre-registered study. 93 of the 104 wrong answers ran without any error.">
+<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
 
 <style>
 /* ============================================================
@@ -351,9 +351,7 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
 
   <p class="deck">
     A query that throws a syntax error is a visible failure. A query that runs cleanly and
-    returns plausible but wrong numbers is an invisible one. This study measures how often
-    each happens across two prompting strategies and two model sizes, and finds the
-    invisible kind gets worse as models get better.
+    returns wrong results is an invisible one. This study measures how often each happens across two prompting strategies and two models, and finds the invisible kind made up 93 of the 104 mistakes.
   </p>
 
   <p class="byline">
@@ -368,17 +366,13 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
     <div class="t">Abstract</div>
     <p>
       150 natural-language questions were put to four configurations, two prompting
-      strategies crossed with two model sizes. All 600 generated queries were executed
+      strategies crossed with two models (Llama 3.1 8B and Llama 3.3 70B). All 600 generated queries were executed
       against real SQLite databases and compared to human-written gold answers. The
       hypothesis, the primary metric and the statistical test were committed to version
       control <b>before</b> the full run.
     </p>
     <p>
-      Few-shot prompting produced no significant improvement at any difficulty tier. Model
-      size did, but only on complex queries, and not at all in the middle tier. The most
-      accurate configuration proved the most hazardous: <b>every error it made executed
-      without complaint and returned believable wrong numbers</b>, at a mean self-reported
-      confidence of 0.95.
+      Few-shot prompting produced no significant improvement at any difficulty tier. The larger, newer model did, significantly only on complex queries, and not at all in the middle tier. <b>Every error the most accurate configuration made (17 of 17) executed without complaint and returned wrong results</b>, at a mean self-reported confidence of 0.95.
     </p>
     <p>
       Cross-model result disagreement predicted incorrectness far better than any model's
@@ -388,7 +382,7 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
   </div>
 
   <table class="spec">
-    <tr><td>Design</td><td>2 &times; 2 factorial (prompt strategy &times; model size), three complexity tiers</td></tr>
+    <tr><td>Design</td><td>2 &times; 2 factorial (prompt strategy &times; model), three complexity tiers</td></tr>
     <tr><td>Corpus</td><td>Spider, 150 questions across 93 databases, CC BY-SA 4.0</td></tr>
     <tr><td>Endpoint</td><td>Execution accuracy, binary per question, set comparison against gold</td></tr>
     <tr><td>Test</td><td>McNemar exact on paired outcomes, 10,000 resample bootstrap CI, Benjamini Hochberg</td></tr>
@@ -397,12 +391,10 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
   </table>
 
   <div class="keys">
-    <div class="k1"><span class="n">100%</span><span class="l">of the best model's errors
-      ran clean and returned wrong rows</span></div>
+    <div class="k1"><span class="n">100%</span><span class="l">of the best setup's errors (17 of 17) ran clean and returned wrong rows</span></div>
     <div class="k2"><span class="n">0</span><span class="l">tiers where few-shot prompting
       gave a significant gain</span></div>
-    <div class="k3"><span class="n">+28</span><span class="l">points from the larger model
-      on complex queries, p=0.0013</span></div>
+    <div class="k3"><span class="n">+28</span><span class="l">points from the larger, newer model on complex queries, p = 0.0013 (exploratory)</span></div>
     <div class="k4"><span class="n">84%</span><span class="l">of errors caught (87 of 104) by reviewing
       the 28% (168 of 600) where the four setups disagree</span></div>
   </div>
@@ -413,10 +405,10 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
     <ol>
       <li><a href="#setup"><span class="k">01</span><span>Setup and verification</span></a></li>
       <li><a href="#sample"><span class="k">02</span><span>Building the sample</span></a></li>
-      <li><a href="#silent"><span class="k">03</span><span>Better models fail more quietly</span></a></li>
-      <li><a href="#modelsize"><span class="k">04</span><span>Prompting did nothing, model size did</span></a></li>
-      <li><a href="#confidence"><span class="k">05</span><span>Confidence is useless, agreement is not</span></a></li>
-      <li><a href="#routing"><span class="k">06</span><span>Routing did not beat random</span></a></li>
+      <li><a href="#silent"><span class="k">03</span><span>Most mistakes give no warning</span></a></li>
+      <li><a href="#modelsize"><span class="k">04</span><span>Prompting made no significant difference</span></a></li>
+      <li><a href="#confidence"><span class="k">05</span><span>Confidence is weak, agreement is strong</span></a></li>
+      <li><a href="#routing"><span class="k">06</span><span>Routing did not reliably beat random</span></a></li>
       <li><a href="#recommend"><span class="k">07</span><span>Deployment recommendation</span></a></li>
       <li><a href="#validation"><span class="k">08</span><span>Validation and constraints</span></a></li>
     </ol>
@@ -477,11 +469,10 @@ Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, bo
 
 <!-- ================= 03 ================= -->
 <section id="silent">
-  <h2><span class="n">03</span><span class="t">Result: better models fail more quietly</span></h2>
+  <h2><span class="n">03</span><span class="t">Result: most mistakes give no warning</span></h2>
   <p>
     A silent failure is a generated query that executed without error and returned the
-    wrong rows. Ordered by accuracy, both large-model variants sit above both small-model
-    variants on this measure.
+    wrong rows. Ordered by accuracy, both large-model variants sit above both small-model variants on this measure, though with 37 and 67 mistakes that gap could be chance (Fisher exact p = 0.09).
   </p>
 
   <figure class="plate" id="p1">
@@ -496,14 +487,13 @@ Phase 0 exit criteria MET <span class="ok">✓</span>  <span class="dim">(DB, bo
       <span class="mknote" style="left:39.9%;top:62.9%">never fails loudly</span>
     </div>
     <figcaption><b>PLATE 1</b> &nbsp; Share of each variant's errors that were silent.
-      n = 150 per variant. Colour encodes model size, not severity.</figcaption>
+      n = 150 per variant. Colour encodes the model, not severity.</figcaption>
   </figure>
 
   <p>
     Broken out by question difficulty rather than by variant, <b>82% of errors on complex
     questions were silent, 95% on simple, and 97% on the middle tier.</b> The strongest
-    model also reported 95% average confidence on the answers it got wrong, so nothing in
-    its own output flags the problem.
+    model also reported 95% average confidence on the answers it got wrong, against 99% on the ones it got right, so its confidence barely moves when it is wrong.
   </p>
 
   <h3>Exhibit: one real failure</h3>
@@ -535,7 +525,7 @@ WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
 
 <!-- ================= 04 ================= -->
 <section id="modelsize">
-  <h2><span class="n">04</span><span class="t">Result: prompting did nothing, model size did</span></h2>
+  <h2><span class="n">04</span><span class="t">Result: prompting made no significant difference, the larger model did</span></h2>
 
   <figure class="plate">
     <div class="ph">
@@ -546,7 +536,7 @@ WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
         <path d="M960 780 C820 828, 700 852, 610 862"/>
         <path d="M640 848 L602 863 L638 878"/>
       </svg>
-      <span class="mknote" style="left:28%;top:63.2%">only one clearing zero</span>
+      <span class="mknote" style="left:28%;top:63.2%">+28, well clear of zero</span>
     </div>
     <figcaption><b>PLATE 2</b> &nbsp; Accuracy differences in percentage points, 95%
       bootstrap intervals. Upper block is the pre-registered primary comparison, Benjamini
@@ -556,8 +546,7 @@ WHERE <span class="d">MAX_SALARY</span> &gt; 9000</code>
   <p>
     Every prompt-effect interval crosses zero. A ten-question pilot had suggested few-shot
     nearly doubled accuracy on complex queries. At the full sample it collapsed to a
-    non-significant eight points. The pre-registration is the reason this appears as a null
-    result rather than a discovery.
+    non-significant eight points. Fixing the sample size and the test in advance is what kept the pilot's effect from being reported as a finding.
   </p>
 
   <figure class="term">
@@ -599,8 +588,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 
   <p>
     The 8B to 70B upgrade gave <b>+28 points on complex queries</b> (95% CI [+14, +42],
-    p = 0.0013) zero-shot and +16 points (p = 0.039) few-shot. Those are the only
-    significant effects in the study. On the moderate tier the same upgrade gave exactly
+    p = 0.0013) zero-shot and +16 points (p = 0.039) few-shot. Those are the only significant effects in the study before correction. After a Benjamini Hochberg correction across the six model comparisons, only the zero-shot one remains. On the moderate tier the same upgrade gave exactly
     zero: every variant landed between 0.82 and 0.84, which suggests whatever limits
     accuracy there is not something this design manipulates.
   </p>
@@ -616,20 +604,19 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 
 <!-- ================= 05 ================= -->
 <section id="confidence">
-  <h2><span class="n">05</span><span class="t">Result: confidence is useless, agreement is not</span></h2>
+  <h2><span class="n">05</span><span class="t">Result: confidence is a weak signal, agreement a strong one</span></h2>
 
   <figure class="plate">
     <img src="figures/fig3_calibration.png"
          alt="Dumbbell chart of stated confidence against measured accuracy. Gaps run from 22 points down to 6, all overconfident.">
     <figcaption><b>PLATE 4</b> &nbsp; Stated confidence against measured accuracy, sorted
-      by gap. Every variant is overconfident. The gap narrows as models improve but never
-      closes.</figcaption>
+      by gap. Every variant is overconfident. The gap is smaller for the larger model but never closes.</figcaption>
   </figure>
 
   <p>
     The weakest variant reported 98.6% average confidence while being correct 76.7% of the
     time. All four stay between 87% and 96% confident on the answers they get wrong, so
-    confidence carries almost no information about whether any specific query is right.
+    confidence carries little information about whether any specific query is right (AUC 0.647, where 0.5 is a coin flip).
   </p>
 
   <div class="tw">
@@ -660,13 +647,13 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
 
 <!-- ================= 06 ================= -->
 <section id="routing">
-  <h2><span class="n">06</span><span class="t">Result: difficulty routing did not beat random</span></h2>
+  <h2><span class="n">06</span><span class="t">Result: difficulty routing did not reliably beat random</span></h2>
 
   <figure class="plate">
     <img src="figures/fig4_routing.png"
-         alt="Cost against accuracy for six routing policies. Difficulty routing and random both reach 78.3 percent.">
+         alt="Cost against accuracy for six routing policies. Difficulty routing and one random draw both reach 78.3 percent.">
     <figcaption><b>PLATE 5</b> &nbsp; Six routing policies on the held-out test split.
-      Difficulty routing is cheaper than random but no more accurate. The oracle is both
+      Difficulty routing is cheaper than this random draw and no more accurate; averaged over 100,000 draws, random scores 75.5%. The oracle is both
       cheaper and more accurate than always using the expensive model.</figcaption>
   </figure>
 
@@ -682,9 +669,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
     Two findings here matter more than the routing number. The oracle reached 0.900
     accuracy at 37% of the always-expensive cost, beating always-expensive on both axes, so
     real headroom exists and these features could not reach it. And <b>cost and difficulty
-    are driven by different things</b>: question length predicts difficulty but not cost,
-    while schema size predicts cost almost perfectly (r = 0.95) and difficulty not at all.
-    Input tokens are 95% of spend because the schema is pasted into every prompt.
+    are driven by different things</b>: question length tracks difficulty (r = 0.30 with the small model failing) but barely tracks cost (r = 0.25), while schema size tracks cost closely (r = 0.93) and difficulty not at all (r = 0.03). Input is 95% of tokens and 93% of spend because the schema is pasted into every prompt.
   </p>
 </section>
 
@@ -695,15 +680,13 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
     <li><b>Spend on the model, not the prompt, and only where it pays.</b> The upgrade
       bought 28 points on complex queries and nothing on moderate ones.</li>
     <li><b>Never gate on self-reported confidence.</b> A model claiming 99% certainty was
-      wrong 23% of the time and stayed roughly 95% confident on its own mistakes.</li>
+      wrong 23% of the time and stayed about 96% confident on its own mistakes.</li>
     <li><b>Gate on cross-model disagreement instead.</b> Run four model setups (two models,
       two prompts each), compare the executed results, route disagreements to review. 28%
       reviewed (168 of 600), 84% of errors caught (87 of 104).</li>
-    <li><b>Assume wrong answers will look right.</b> Between 82% and 97% of errors executed
-      cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
+    <li><b>Assume wrong answers will run without errors.</b> Depending on difficulty, between 82% and 97% of errors executed cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
       reconciliation against known totals.</li>
-    <li><b>Check a length-only baseline before building a difficulty router.</b> Mine lost
-      to it, and both lost to random.</li>
+    <li><b>Check a length-only baseline before building a difficulty router.</b> Mine lost to it on AUC, and neither beat random routing on accuracy.</li>
   </ol>
 </section>
 

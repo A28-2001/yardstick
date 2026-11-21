@@ -1,7 +1,6 @@
 # Results tables
 
-Every number in the top-level [README](../README.md) traces to a CSV here. All are
-regenerated from Supabase by `python scripts/export_results.py` (plus
+Most numbers in the top-level [README](../README.md) trace to a CSV here; the rest are listed with the script that computes them in [CLAIMS.md](../CLAIMS.md). The CSVs were generated from the results database by `python scripts/export_results.py` (plus
 `simulate_routing.py` and `analyze_calibration.py`, which write their own).
 
 | File | Contents |

@@ -54,9 +54,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0
 /* scrolly: a pinned graphic beside text steps that scroll past it */
 .scrolly{display:grid;grid-template-columns:1fr 1.15fr;gap:48px;align-items:start}
 .graphic{position:sticky;top:12vh;order:2}
-.steps{order:1;padding-bottom:30vh}
-.stp{min-height:62vh;display:flex;align-items:center}
-.stp:first-child{min-height:40vh}
+.steps{order:1;padding-bottom:16vh}
+.stp{min-height:44vh;display:flex;align-items:center}
+.stp:first-child{min-height:30vh}
 .stp .in{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);max-width:440px;opacity:.45;transition:opacity .3s}
 .stp.on .in{opacity:1}
 .stp .in p{margin:0} .stp .in p + p{margin-top:8px}
@@ -223,10 +223,10 @@ footer{border-top:1px solid var(--line);margin-top:56px;padding:28px 0 48px}
   .chead .num{font-size:110px;top:-50px}
   .scrolly{display:block}
   .graphic{position:sticky;top:0;z-index:3;background:var(--paper);padding:10px 0 12px;max-height:54vh;overflow:hidden;box-shadow:0 10px 12px -10px rgba(0,0,0,.25)}
-  .steps{position:relative;z-index:1;padding-bottom:30vh}
-  .stp{min-height:70vh;align-items:flex-start;padding-top:0}
+  .steps{position:relative;z-index:1;padding-bottom:18vh}
+  .stp{min-height:50vh;align-items:flex-start;padding-top:0}
   .qcard .row[data-show]:not(.cur){display:none}
-  .stp:first-child{min-height:60vh}
+  .stp:first-child{min-height:56vh}
   .stp .in{max-width:none}
   .qcard .row{padding:8px 14px}
   .four{gap:5px} .four div{padding:5px}

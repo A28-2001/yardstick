@@ -1,28 +1,41 @@
 # Yardstick
 
-**A pre-registered study of when LLM-generated SQL is safe to trust, and what actually
-improves it.**
+**In my test of AI looking up answers in a database, most of its mistakes came with no
+warning.**
 
-150 natural-language questions × 3 complexity tiers × 2 prompt strategies × 2 models.
-Every generated query executed against a real database and compared to a human-written
-gold answer. Statistics chosen in advance and committed to Git before the full run.
+[![In my test, most of the AI's mistakes came with no warning. 84 of 104 wrong answers had no error and 90%+ self-rated confidence; comparing four answers caught 77 of those 84.](docs/figures/card-v5.png)](https://a28-2001.github.io/yardstick/)
 
-> **Status: complete.** All **600/600** cells generated, executed, and scored. 0
-> extraction failures, 0 timeouts. Every number below is final.
+I gave two open models, Meta's Llama 3.1 8B and Llama 3.3 70B, 150 questions from Spider,
+a public text-to-SQL benchmark. Each model answered each question twice, once with a few
+solved examples in the prompt and once without: 600 answers. Every query was run against
+the real database and its rows compared with the human answer's.
 
-### 🔎 [Try it: can you tell which SQL is wrong?](https://a28-2001.github.io/yardstick/)
+- **84 of the 104 wrong answers came with no warning.** The query ran without an error and
+  the model rated its own confidence 90% or higher.
+- **Comparing the four answers to each question caught 77 of those 84.** When the answers
+  disagree, a person looks. The cost: 28% of answers (168 of 600) went to a person, and 81
+  of those were actually right.
 
-The live site puts six real generated queries in front of you and asks you to judge them,
-without showing the correct answer, because in production there is no correct answer to
-show. After that you can filter all 600 runs and query the
-results in SQL in the browser.
+**One real example.** Asked *which year had the most degrees awarded?*, the small model
+counted how many campuses reported each year instead of adding up the degrees. Its query
+ran with no error, returned 2002, and it said it was 90% sure. The right answer is 2004.
+The other three answers said 2004, so the check flagged the question.
 
-- **[Interactive site](https://a28-2001.github.io/yardstick/)**: the quiz, the run
-  explorer, and a SQL console over the results
+The hypotheses and statistical tests were committed to Git before the full run. Scoring is
+strict, and newer frontier models were not tested; both are covered below.
+
+- **[Live site](https://a28-2001.github.io/yardstick/)**: follow that one mistake step by
+  step, see all 600 answers, take a six-query quiz, and query the results in SQL
 - **[Full write-up](https://a28-2001.github.io/yardstick/report.html)**: the study as a
   report, with every figure and the statistics
 - **[Claims and sources](CLAIMS.md)**: every headline number and the file or script that
   produces it
+
+By Aakash Mehta, AI implementation engineer ·
+[LinkedIn](https://www.linkedin.com/in/aakash-mehta-4050491ba/)
+
+> **Status: complete.** All 600 answers generated, run and scored, with 0 extraction
+> failures and 0 timeouts. Every number below is final.
 
 ---
 
@@ -401,6 +414,13 @@ Stated plainly, because they bound every claim above.
 10. **The moderate tier is uninformative about everything tested here.** All four variants
     landed at 82 to 84%, so neither the prompt nor the model factor moves it. Whatever limits
     accuracy there is something this design does not manipulate.
+11. **Scoring is strict.** An answer counts as wrong when its rows differ from the human
+    answer's, even when the right information is there with an extra or missing column.
+    11 of the 84 no-warning mistakes are this kind; without them it is 73 of 93 (78%), so
+    the headline holds. The site's quiz leaves these cases out.
+12. **Newer frontier models were not tested.** Both models are open Llama models from
+    2024; whether larger or newer models make fewer silent mistakes, or the same share,
+    is not measured here.
 
 ---
 

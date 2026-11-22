@@ -34,6 +34,8 @@ export function computeFacts(runs) {
     flaggedQuestions: new Set(flagged.map((r) => r.qid)).size,
     caught: wrong.filter((r) => r.flagged).length,
     missed: wrong.filter((r) => !r.flagged).length,
+    missedLoud: wrong.filter((r) => !r.flagged && !r.ran).length,
+    missedSilent: wrong.filter((r) => !r.flagged && r.silent).length,
     falseAlarms: flagged.filter((r) => r.ok).length,
     projectionNoWarning: proj.length,
     strictNoWarning,
@@ -55,6 +57,7 @@ export const STATIC_FACTS = {
   routerAccuracy: "78.3%", //     "Difficulty routing accuracy"
   randomAverage: "75.5%", //      "Random routing at the same budget"
   listCost: "$0.17", //           "List-price cost of the 600 runs"
+  balancedAccuracy: "84%", //     "Judged correctly on a balanced mix", used by the quiz scoreboard
 };
 
 // The text each fact must appear as in CLAIMS.md (checked by tests/facts.test.mjs).
@@ -69,6 +72,7 @@ export const CLAIMS_TEXT = {
   flaggedQuestions: (f) => `${f.flaggedQuestions} of ${f.questions}`,
   caught: (f) => `${f.caught} of ${f.wrong}`,
   missed: (f) => `${f.missed} of ${f.wrong}`,
+  missedSilent: (f) => `${f.missedLoud} of them failed with an error; ${f.missedSilent} silent`,
   falseAlarms: (f) => `${f.falseAlarms} of ${f.flaggedRuns}`,
   projectionNoWarning: (f) => `${f.projectionNoWarning} of ${f.noWarning}`,
   strictNoWarning: (f) => `${f.strictNoWarning} of ${f.strictWrong} (${f.strictShare})`,
@@ -79,4 +83,5 @@ export const CLAIMS_TEXT = {
   routerAccuracy: () => `| ${STATIC_FACTS.routerAccuracy} at`,
   randomAverage: () => `average ${STATIC_FACTS.randomAverage}`,
   listCost: () => `| ${STATIC_FACTS.listCost} (`,
+  balancedAccuracy: () => `| ${STATIC_FACTS.balancedAccuracy} of all 600 |`,
 };

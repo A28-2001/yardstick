@@ -17,10 +17,10 @@
   --serif:"Source Serif 4",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   /* four text sizes */
-  --t1:clamp(1.45rem,1rem + 2.2vw,2.75rem);   /* headlines and big numbers */
-  --t2:clamp(1rem,.9rem + .5vw,1.2rem);       /* ledes, card questions */
-  --t3:clamp(.9rem,.85rem + .2vw,1rem);       /* body */
-  --t4:clamp(.75rem,.72rem + .12vw,.84rem);   /* labels, small print */
+  --t1:clamp(1.35rem,.8rem + 2.6vw,2.75rem);   /* headlines and big numbers */
+  --t2:clamp(.9rem,.8rem + .55vw,1.2rem);       /* ledes, card questions */
+  --t3:clamp(.85rem,.8rem + .25vw,1rem);       /* body */
+  --t4:clamp(.72rem,.68rem + .15vw,.84rem);   /* labels, small print */
   --radius:10px; --shadow:0 10px 28px -18px rgba(0,0,0,.22);
 }
 @media (prefers-color-scheme:dark){

@@ -14,15 +14,16 @@
 <meta property="og:description" content="A pre-registered study. Few-shot prompting gave no significant lift at any difficulty. 93 of the 104 wrong answers ran without any error, including all 17 from the most accurate setup.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://a28-2001.github.io/yardstick/report.html">
-<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
+<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-v5.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Yardstick study card: 100% of the most accurate setup's errors executed cleanly and returned wrong results.">
+<meta property="og:image:alt" content="Yardstick: in my test, 84 of the AI's 104 wrong answers came with no warning, and comparing four answers caught 77 of them.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="When is LLM-generated SQL safe to trust?">
 <meta name="twitter:description" content="Pre-registered study. 93 of the 104 wrong answers ran without any error.">
-<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
+<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-v5.png">
 
+<link rel="stylesheet" href="css/tokens.css">
 <style>
 /* ============================================================
    Yardstick. Presented as a working logbook rather than an article:
@@ -30,26 +31,29 @@
    captured terminal output, and pen markup over the plates.
    ============================================================ */
 :root{
-  --paper:#eceae3;        /* the desk the printout sits on */
-  --sheet:#fbfaf6;        /* fanfold stock */
-  --bar:#e3ebdd;          /* greenbar stripe */
-  --ink:#16181a;
-  --mid:#6a6960;
-  --rule:#c9c6bc;
-  --hair:#ddd9d0;
-  --red:#a8322c;          /* pen, and statistical significance */
-  --green:#2f6b45;
+  /* Shared tokens (css/tokens.css) supply --paper, --panel, --ink, --mid, --line,
+     --bad, --good, --mono, --serif and their dark values. These map the logbook's
+     own names onto them so the two pages read as one site. */
+  --sheet:var(--panel);
+  --bar:color-mix(in srgb,var(--good) 9%,var(--panel));   /* greenbar stripe */
+  --rule:var(--line);
+  --hair:color-mix(in srgb,var(--line) 60%,var(--panel));
+  --red:var(--bad);       /* pen, and statistical significance */
+  --green:var(--good);
   --amber:#8f6505;
   --steel:#38566d;
   --term-bg:#1b1e20;
   --term-fg:#d8d5cc;
-  --mono:ui-monospace,Menlo,"SF Mono","DejaVu Sans Mono",Consolas,monospace;
   /* Ends in the mono stack rather than generic `cursive`: on a machine with no script
      face, a clean monospace annotation reads as deliberate, whereas the browser default
      cursive looks broken. Mac gets Bradley Hand, Windows gets Segoe Print. */
   --hand:"Bradley Hand","Segoe Print","Segoe Script","Chalkboard SE",
          ui-monospace,Menlo,"SF Mono",monospace;
 }
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--amber:#e0b25a;--steel:#8fb3cf}}
+h1,h2{font-family:var(--serif)}
+.abs,.note,.exh{background:var(--panel)!important}
+.exh .d{background:color-mix(in srgb,var(--amber) 28%,var(--panel))!important}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -285,7 +289,7 @@ table.data .amb{color:var(--amber)}
 .fun .n{white-space:nowrap;font-variant-numeric:tabular-nums}
 .fun .out{color:var(--mid)} .fun .out .n{color:var(--red)}
 .fun .fin{border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
-  font-weight:700;background:#fff}
+  font-weight:700;background:var(--panel)}
 
 /* ---------- lists ---------- */
 ol.rec{counter-reset:r;list-style:none;padding:0;margin:1.3rem 0 0}
@@ -351,7 +355,7 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
 
   <p class="deck">
     A query that throws a syntax error is a visible failure. A query that runs cleanly and
-    returns wrong results is an invisible one. This study measures how often each happens across two prompting strategies and two models, and finds the invisible kind made up 93 of the 104 mistakes.
+    returns wrong results is an invisible one. This study measures how often each happens across two prompting strategies and two models, and finds the invisible kind made up <span data-fact="silent">93</span> of the <span data-fact="wrong">104</span> mistakes.
   </p>
 
   <p class="byline">
@@ -376,7 +380,7 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
     </p>
     <p>
       Cross-model result disagreement predicted incorrectness far better than any model's
-      own confidence (AUC 0.861 against 0.647), which is the basis for the deployment
+      own confidence (AUC <span data-fact="aucAgreement">0.861</span> against <span data-fact="aucConfidence">0.647</span>), which is the basis for the deployment
       recommendation in section 07.
     </p>
   </div>
@@ -387,7 +391,7 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
     <tr><td>Endpoint</td><td>Execution accuracy, binary per question, set comparison against gold</td></tr>
     <tr><td>Test</td><td>McNemar exact on paired outcomes, 10,000 resample bootstrap CI, Benjamini Hochberg</td></tr>
     <tr><td>Stack</td><td>Python, SQLite, Postgres, statsmodels, scikit-learn, sqlglot, matplotlib</td></tr>
-    <tr><td>Cost</td><td>$0.00 actual, $0.19 at published list prices</td></tr>
+    <tr><td>Cost</td><td>$0.00 actual, <span data-fact="listCost">$0.17</span> at published list prices for the 600 runs</td></tr>
   </table>
 
   <div class="keys">
@@ -395,8 +399,8 @@ a:focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:1p
     <div class="k2"><span class="n">0</span><span class="l">tiers where few-shot prompting
       gave a significant gain</span></div>
     <div class="k3"><span class="n">+28</span><span class="l">points from the larger, newer model on complex queries, p = 0.0013 (exploratory)</span></div>
-    <div class="k4"><span class="n">84%</span><span class="l">of errors caught (87 of 104) by reviewing
-      the 28% (168 of 600) where the four setups disagree</span></div>
+    <div class="k4"><span class="n">84%</span><span class="l">of errors caught (<span data-fact="caught">87</span> of <span data-fact="wrong">104</span>) by reviewing
+      the <span data-fact="flaggedShare">28%</span> (<span data-fact="flaggedRuns">168</span> of <span data-fact="total">600</span>) where the four setups disagree</span></div>
   </div>
 </header>
 
@@ -616,7 +620,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
   <p>
     The weakest variant reported 98.6% average confidence while being correct 76.7% of the
     time. All four stay between 87% and 96% confident on the answers they get wrong, so
-    confidence carries little information about whether any specific query is right (AUC 0.647, where 0.5 is a coin flip).
+    confidence carries little information about whether any specific query is right (AUC <span data-fact="aucConfidence">0.647</span>, where 0.5 is a coin flip).
   </p>
 
   <div class="tw">
@@ -638,9 +642,9 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
   <div class="note">
     <p>
       None of these signals requires the correct answer, so all three are available in
-      production. Reviewing only the 28% of queries (168 of 600) where four model setups (two models,
-      two prompts each) disagree on the executed result catches 84% of all errors (87 of 104), at a 16%
-      false-alarm rate (81 of 496 correct queries flagged). The price is running every question through all four setups.
+      production. Reviewing only the <span data-fact="flaggedShare">28%</span> of queries (<span data-fact="flaggedRuns">168</span> of <span data-fact="total">600</span>) where four model setups (two models,
+      two prompts each) disagree on the executed result catches 84% of all errors (<span data-fact="caught">87</span> of <span data-fact="wrong">104</span>), at a 16%
+      false-alarm rate (<span data-fact="falseAlarms">81</span> of 496 correct queries flagged). The price is running every question through all four setups.
     </p>
   </div>
 </section>
@@ -653,7 +657,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
     <img src="figures/fig4_routing.png"
          alt="Cost against accuracy for six routing policies. Difficulty routing and one random draw both reach 78.3 percent.">
     <figcaption><b>PLATE 5</b> &nbsp; Six routing policies on the held-out test split.
-      Difficulty routing is cheaper than this random draw and no more accurate; averaged over 100,000 draws, random scores 75.5%. The oracle is both
+      Difficulty routing is cheaper than this random draw and no more accurate; averaged over 100,000 draws, random scores <span data-fact="randomAverage">75.5%</span>. The oracle is both
       cheaper and more accurate than always using the expensive model.</figcaption>
   </figure>
 
@@ -683,7 +687,7 @@ Benjamini-Hochberg FDR across the primary comparisons (α=0.05):
       wrong 23% of the time and stayed about 96% confident on its own mistakes.</li>
     <li><b>Gate on cross-model disagreement instead.</b> Run four model setups (two models,
       two prompts each), compare the executed results, route disagreements to review. 28%
-      reviewed (168 of 600), 84% of errors caught (87 of 104).</li>
+      reviewed (<span data-fact="flaggedRuns">168</span> of <span data-fact="total">600</span>), 84% of errors caught (<span data-fact="caught">87</span> of <span data-fact="wrong">104</span>).</li>
     <li><b>Assume wrong answers will run without errors.</b> Depending on difficulty, between 82% and 97% of errors executed cleanly, so guardrails belong on results: row-count sanity, join fan-out checks,
       reconciliation against known totals.</li>
     <li><b>Check a length-only baseline before building a difficulty router.</b> Mine lost to it on AUC, and neither beat random routing on accuracy.</li>

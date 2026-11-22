@@ -29,20 +29,38 @@ RESULTS = REPO / "results"
 FIGDIR = REPO / "docs" / "figures"
 
 # ---- design tokens -------------------------------------------------------------
-INK      = "#191919"
-MID      = "#6f6a63"
-RULE     = "#d9d4cc"
-FAINT    = "#efebe4"
+# Same palette as docs/css/tokens.css: red marks wrong answers and overstatement,
+# neutral greys carry everything else. Plates stay white so they read on light and
+# dark pages alike.
+INK      = "#17191c"
+MID      = "#4a4f56"
+RULE     = "#dcd9d1"
+FAINT    = "#efede8"
 PAPER    = "#ffffff"
-SIGNAL   = "#a81f24"   # deep clinical red, the signal colour, used sparingly
-SLATE    = "#33566b"   # secondary encoding only
+SIGNAL   = "#c0392b"   # the site's red
+SLATE    = "#4a4f56"   # secondary encoding: dark neutral
+LIGHT    = "#c9c6bc"   # the lighter neutral, paired with SLATE
 
-SERIF = ["Charter", "Iowan Old Style", "Palatino", "Georgia", "serif"]
-MONO  = ["Menlo", "DejaVu Sans Mono", "monospace"]
+# The site's own fonts (docs/fonts, SIL OFL), converted from woff2 once per run so the
+# figures and the pages share one set of files.
+from matplotlib import font_manager
+from fontTools.ttLib import TTFont
+import tempfile
+
+_FONTDIR = Path(tempfile.mkdtemp(prefix="yardstick-fonts-"))
+for _w in ["source-serif-4-600", "ibm-plex-mono-400", "ibm-plex-mono-500", "ibm-plex-sans-400"]:
+    _f = TTFont(REPO / "docs" / "fonts" / f"{_w}.woff2")
+    _f.flavor = None
+    _f.save(_FONTDIR / f"{_w}.ttf")
+    font_manager.fontManager.addfont(str(_FONTDIR / f"{_w}.ttf"))
+
+SERIF = ["Source Serif 4", "Georgia", "serif"]
+MONO  = ["IBM Plex Mono", "Menlo", "monospace"]
+SANSF = ["IBM Plex Sans", "Helvetica", "sans-serif"]
 
 plt.rcParams.update({
     "figure.facecolor": PAPER, "axes.facecolor": PAPER, "savefig.facecolor": PAPER,
-    "font.family": "serif", "font.serif": SERIF, "font.size": 11,
+    "font.family": "sans-serif", "font.sans-serif": SANSF, "font.serif": SERIF, "font.size": 11,
     "text.color": INK, "axes.labelcolor": INK,
     "axes.edgecolor": RULE, "axes.linewidth": 0.8,
     "xtick.color": MID, "ytick.color": MID,
@@ -79,8 +97,8 @@ def plainbox(ax, text: str, y: float = -0.28):
     """One boxed sentence in everyday language: what a non-specialist should take away.
     Sits between the chart and the technical note so the figure reads without the paper."""
     ax.text(0, y, text, transform=ax.transAxes, ha="left", va="top",
-            fontsize=10, color=INK, fontfamily=SERIF, linespacing=1.45,
-            bbox=dict(boxstyle="round,pad=0.55", facecolor="#f7f4ee",
+            fontsize=10, color=INK, fontfamily=SANSF, linespacing=1.45,
+            bbox=dict(boxstyle="round,pad=0.55", facecolor="#f7f6f2",
                       edgecolor=RULE, linewidth=0.8))
 
 
@@ -98,9 +116,10 @@ def fig_silent():
     # so painting them red would imply the opposite of the finding.
     fam = {"V1": "8B", "V2": "8B", "V3": "70B", "V4": "70B"}
     ax.barh(list(y), share, height=0.52,
-            color=[SLATE if fam[v] == "70B" else "#c9c2b6" for v in order], zorder=3)
+            color=[SLATE if fam[v] == "70B" else LIGHT for v in order], zorder=3)
     for i, (s, a, ne) in enumerate(zip(share, acc, nerr)):
-        ax.text(s - 1.6, i, f"{s:.0f}%", va="center", ha="right", color=PAPER,
+        ax.text(s - 1.6, i, f"{s:.0f}%", va="center", ha="right",
+                color=PAPER if fam[order[i]] == "70B" else INK,
                 fontsize=11.5, fontfamily=MONO, zorder=4)
         ax.text(101.5, i, f"{a:.0f}% accurate · {ne} errors", va="center", ha="left",
                 fontsize=9.5, color=MID, fontfamily=MONO)
@@ -116,10 +135,10 @@ def fig_silent():
     ax.spines["left"].set_color(RULE)
     ax.tick_params(length=0)
     ax.invert_yaxis()
-    ax.set_title("Most mistakes ran without any error", loc="left", fontsize=15.5,
+    ax.set_title(fontfamily=SERIF, label="Most mistakes ran without any error", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     ax.legend(handles=[
-        Line2D([], [], marker="s", ls="none", ms=9, color="#c9c2b6", label="8B (cheap model)"),
+        Line2D([], [], marker="s", ls="none", ms=9, color=LIGHT, label="8B (cheap model)"),
         Line2D([], [], marker="s", ls="none", ms=9, color=SLATE, label="70B (strong model)")],
         loc="upper left", bbox_to_anchor=(0.0, -0.22), ncol=2, frameon=False,
         fontsize=9, handletextpad=.5, columnspacing=2.2)
@@ -185,7 +204,7 @@ def fig_forest():
                        (ypos[3] + .72, "EXPLORATORY   70B − 8B (zero-shot) · uncorrected")):
         ax.text(-34, slot, text, fontsize=9, color=INK, fontfamily=MONO, va="center")
 
-    ax.set_title("Only the larger model moved the needle, on hard questions", loc="left", fontsize=15.5,
+    ax.set_title(fontfamily=SERIF, label="Only the larger model moved the needle, on hard questions", loc="left", fontsize=15.5,
                  color=INK, pad=18)
     ax.legend(handles=[
         Line2D([], [], marker="s", ls="none", ms=8, mfc=SIGNAL, mec=SIGNAL, label="CI excludes 0"),
@@ -229,7 +248,7 @@ def fig_calibration():
     ax.tick_params(length=0)
     ax.spines["left"].set_color(RULE)
     ax.set_xlabel("percent", fontsize=10, color=MID, labelpad=9)
-    ax.set_title("Every variant is overconfident", loc="left", fontsize=15.5,
+    ax.set_title(fontfamily=SERIF, label="Every variant is overconfident", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     ax.legend(handles=[
         Line2D([], [], marker="o", ls="none", ms=9, color=SLATE, label="measured accuracy"),
@@ -277,7 +296,7 @@ def fig_routing():
     ax.set_yticks([70, 75, 80, 85, 90])
     ax.set_yticklabels(["70", "75", "80", "85", "90"], fontfamily=MONO)
     ax.set_ylim(68, 92)
-    ax.set_title("Difficulty routing did not reliably beat random", loc="left", fontsize=15.5,
+    ax.set_title(fontfamily=SERIF, label="Difficulty routing did not reliably beat random", loc="left", fontsize=15.5,
                  color=INK, pad=14)
     plainbox(ax, "In plain terms: our way of guessing which questions need the expensive model tied one random\n" "draw at the same budget, and beat random by only about 3 points on average.", y=-0.22)
     caption(ax, "One random draw also scored 78.3%; over 100,000 draws random averages 75.5%. The oracle (perfect foresight) beats\n"
@@ -306,7 +325,7 @@ def fig_taxonomy():
     b70 = ax.barh([y - h/2 for y in ys], [counts["70B"][t] for t in types], height=h,
                   color=SLATE, label="70B (strong model)", zorder=3)
     b8 = ax.barh([y + h/2 for y in ys], [counts["8B"][t] for t in types], height=h,
-                 color="#c9c2b6", label="8B (cheap model)", zorder=3)
+                 color=LIGHT, label="8B (cheap model)", zorder=3)
     for i, t in enumerate(types):
         ax.text(counts["8B"][t] + .6, i + h/2, str(counts["8B"][t]), va="center",
                 fontsize=9.5, color=MID, fontfamily=MONO)
@@ -324,7 +343,7 @@ def fig_taxonomy():
     ax.spines["left"].set_color(RULE)
     ax.legend(handles=[b70, b8], loc="upper left", bbox_to_anchor=(0.0, -0.18),
               ncol=2, frameon=False, fontsize=9, handletextpad=.6, columnspacing=2.2)
-    ax.set_title("Where the model upgrade actually pays: joins", loc="left",
+    ax.set_title(fontfamily=SERIF, label="Where the model upgrade actually pays: joins", loc="left",
                  fontsize=15.5, color=INK, pad=14)
     plainbox(ax, "In plain terms: the most common mistake is joining the wrong tables (46 of 104).\n" "The larger model made it less often: 13 times against 33.", y=-0.34)
     caption(ax, "Wrong joins fall from 33 to 13 with the larger model. Invented tables or columns, 10 to 1.\n"
@@ -335,63 +354,56 @@ def fig_taxonomy():
 
 # ---- Share card: what link previews actually show ------------------------------
 def fig_sharecard():
-    """1200x630 open-graph card. Link scrapers crop to roughly 1.91:1 and render at
-    thumbnail size, so a chart pasted in is unreadable. This is built for that size:
-    one question, one number, nothing else.
+    """1200x630 open-graph card, matched to the first screen of the page: same headline,
+    same two numbers, same fonts and colours. Link scrapers render it at thumbnail
+    size, so only big type is on it.
 
-    The filename is versioned on purpose: link scrapers cache og:image by URL and
-    will keep serving a stale card long after the file behind it changed. Renaming
-    is the only reliable way to force a refetch. Bump it if the card changes again.
+    The filename is versioned on purpose: scrapers cache og:image by URL and keep
+    serving a stale card long after the file changed. Bump it if the card changes.
 
-    Deliberately matched to the landing page rather than the report: same greys, the same
-    instrument blue, sans for display and mono for labels. A card promising one look and
-    delivering another is a small broken promise at the worst possible moment."""
-    rows = {r["variant"]: r for r in read("variant_summary.csv")}
-    share = float(rows["V3"]["silent_share_of_errors"]) * 100
+    The numbers are counted from docs/data/runs.json with the same rules as
+    docs/js/facts.js, so the card cannot drift from the page."""
+    import json
+    runs = json.loads((REPO / "docs" / "data" / "runs.json").read_text())["runs"]
+    wrong = [r for r in runs if not r["ok"]]
+    nowarn = [r for r in wrong if r["ran"] and r["conf"] is not None and r["conf"] >= 0.9]
+    caught = [r for r in nowarn if r["flagged"]]
 
-    # landing-page palette
-    BG, PANEL = "#eef0f2", "#ffffff"
-    C_INK, C_MID, C_SOFT = "#111417", "#6b7176", "#8d9398"
-    C_ACC, C_BAD, C_LINE = "#0b5fa5", "#b0342c", "#d3d8dc"
-    UI = ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans", "sans-serif"]
+    BG, PANEL, LINE = "#f7f6f2", "#ffffff", "#dcd9d1"
+    C_INK, C_MID, C_ACC, C_BAD, C_GOOD = "#17191c", "#4a4f56", "#1d5ea8", "#c0392b", "#1f7a4d"
+    SANS = ["IBM Plex Sans", "Helvetica", "sans-serif"]
 
-    # Rendered at 2x (2400x1260) because scrapers downscale hard and thin text turns
-    # to mush. Everything is also fewer words and larger: at preview size only big type
-    # survives, so anything that needs reading small should not be on the card at all.
+    # Rendered at 2x (2400x1260): scrapers downscale hard and thin text turns to mush.
     fig = plt.figure(figsize=(12.0, 6.3), dpi=200)
     fig.patch.set_facecolor(BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.axis("off")
     ax.set_xlim(0, 1200); ax.set_ylim(0, 630)
+    ax.add_patch(plt.Rectangle((40, 40), 1120, 550, facecolor=PANEL, edgecolor=LINE, lw=2, zorder=1))
 
-    ax.add_patch(plt.Rectangle((40, 40), 1120, 550, facecolor=PANEL,
-                               edgecolor=C_LINE, lw=2, zorder=1))
-    ax.add_patch(plt.Rectangle((40, 528), 1120, 62, facecolor=C_ACC,
-                               edgecolor=C_ACC, lw=2, zorder=2))
-    ax.text(74, 549, "YARDSTICK   ·   600 SQL QUERIES WRITTEN BY AI, ALL RUN FOR REAL",
-            fontsize=15, color="#ffffff", fontfamily=MONO, va="baseline", zorder=3)
+    ax.text(84, 536, "YARDSTICK  ·  AAKASH MEHTA", fontsize=15, color=C_MID,
+            fontfamily=MONO, va="baseline", zorder=3)
+    ax.text(84, 452, "In my test, most of the AI's", fontsize=46, color=C_INK,
+            fontfamily=SERIF, va="baseline", zorder=3)
+    ax.text(84, 388, "mistakes came with no warning.", fontsize=46, color=C_INK,
+            fontfamily=SERIF, va="baseline", zorder=3)
 
-    ax.text(74, 440, "Can you tell which", fontsize=54, color=C_INK,
-            fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
-    ax.text(74, 366, "SQL is wrong?", fontsize=54, color=C_INK,
-            fontweight="bold", fontfamily=UI, va="baseline", zorder=3)
+    ax.plot([84, 1116], [330, 330], color=LINE, lw=2, zorder=2)
+    ax.text(84, 230, f"{len(nowarn)} of {len(wrong)}", fontsize=58, color=C_BAD,
+            fontfamily=SERIF, va="baseline", zorder=3)
+    ax.text(84, 186, "wrong answers: no error,", fontsize=20, color=C_INK, fontfamily=SANS, va="baseline", zorder=3)
+    ax.text(84, 156, "and 90%+ self-rated confidence", fontsize=20, color=C_INK, fontfamily=SANS, va="baseline", zorder=3)
+    ax.text(620, 230, f"{len(caught)} of {len(nowarn)}", fontsize=58, color=C_GOOD,
+            fontfamily=SERIF, va="baseline", zorder=3)
+    ax.text(620, 186, "of those caught by comparing", fontsize=20, color=C_INK, fontfamily=SANS, va="baseline", zorder=3)
+    ax.text(620, 156, "four answers to each question", fontsize=20, color=C_INK, fontfamily=SANS, va="baseline", zorder=3)
 
-    ax.text(74, 186, f"{share:.0f}%", fontsize=104, color=C_BAD, fontweight="bold",
-            fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 246, "of the best setup's", fontsize=27, color=C_INK,
-            fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 202, "mistakes ran with no error", fontsize=27, color=C_INK,
-            fontfamily=UI, va="baseline", zorder=3)
-    ax.text(516, 158, "and returned wrong results", fontsize=27, color=C_INK,
-            fontfamily=UI, va="baseline", zorder=3)
-
-    ax.text(74, 88, "Aakash Mehta   ·   a28-2001.github.io/yardstick", fontsize=19,
-            color=C_ACC, fontfamily=MONO, va="baseline", zorder=3)
+    ax.text(84, 78, "a28-2001.github.io/yardstick", fontsize=19, color=C_ACC,
+            fontfamily=MONO, va="baseline", zorder=3)
 
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIGDIR / "card-quiz-v4.png", dpi=200, facecolor=BG,
-                bbox_inches=None, pad_inches=0)
+    fig.savefig(FIGDIR / "card-v5.png", dpi=200, facecolor=BG, bbox_inches=None, pad_inches=0)
     plt.close(fig)
-    print("  card-quiz-v4.png")
+    print("  card-v5.png")
 
 
 if __name__ == "__main__":

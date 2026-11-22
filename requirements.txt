@@ -19,6 +19,7 @@ scikit-learn==1.5.2
 
 # --- Figures for the report page (custom style, no default matplotlib look) ---
 matplotlib==3.9.2
+brotli==1.2.1          # lets fontTools read the site's woff2 fonts so figures use the same faces
 
 # --- SQL parsing / AST analysis & error taxonomy ---
 sqlglot==25.24.0

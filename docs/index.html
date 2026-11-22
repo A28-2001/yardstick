@@ -3,1554 +3,236 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Can you tell which SQL is wrong? | Yardstick</title>
-<meta name="description" content="600 AI-generated SQL queries, every one executed against a real database. Judge them yourself, then filter and query all 600 results. A pre-registered study of whether AI's SQL mistakes are catchable.">
+<title>Most of the AI's mistakes came with no warning | Yardstick</title>
+<meta name="description" content="A pre-registered test of AI writing database queries: 600 answers, 104 wrong, and 84 of those came with no error and 90% or higher confidence. Comparing four answers per question caught 77 of the 84.">
 <link rel="canonical" href="https://a28-2001.github.io/yardstick/">
 <meta property="og:site_name" content="Yardstick">
-<meta property="og:title" content="Can you tell which SQL is wrong?">
-<meta property="og:description" content="Six real AI-generated queries. Guess which returned the wrong rows. 93 of the 104 wrong answers ran with no error at all.">
+<meta property="og:title" content="In my test, most of the AI's mistakes came with no warning">
+<meta property="og:description" content="84 of 104 wrong answers ran without an error and the AI rated its own confidence 90% or higher. Comparing four answers per question caught 77 of them.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://a28-2001.github.io/yardstick/">
-<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
+<meta property="og:image" content="https://a28-2001.github.io/yardstick/figures/card-v5.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Yardstick: 100% of the most accurate setup's errors executed cleanly and returned wrong results.">
+<meta property="og:image:alt" content="Yardstick: in my test, 84 of the AI's 104 wrong answers came with no warning, and comparing four answers caught 77 of them.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Can you tell which SQL is wrong?">
-<meta name="twitter:description" content="Six real AI-generated queries. Guess which returned the wrong rows. 93 of the 104 wrong answers ran with no error at all.">
-<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-quiz-v4.png">
-<style>
-:root{
-  --bg:#eef0f2; --panel:#ffffff; --ink:#111417; --mid:#6b7176; --soft:#8d9398;
-  --line:#d3d8dc; --hair:#e6eaed;
-  --acc:#0b5fa5;        /* instrument blue, interactive things only */
-  --bad:#b0342c; --good:#1d6b45; --warn:#9a6800;
-  --mono:ui-monospace,Menlo,"SF Mono","DejaVu Sans Mono",Consolas,monospace;
-  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);
-  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.w{max-width:1120px;margin:0 auto;padding:0 clamp(14px,3vw,28px)}
-button{font-family:inherit;font-size:inherit;cursor:pointer}
-
-/* ---------- masthead ---------- */
-header{padding:2.6rem 0 1.6rem}
-/* Wordmark sits above the headline and outweighs it in colour, not in size,
-   so the reader learns the project's name without it competing with the hook. */
-.mark{display:flex;align-items:baseline;flex-wrap:wrap;gap:.2rem .8rem;margin:0 0 1rem}
-.mark .nm{font-family:var(--mono);font-size:clamp(1.35rem,3vw,1.85rem);font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--acc);line-height:1}
-.mark .tag{font-family:var(--mono);font-size:11px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--soft)}
-h1{font-size:clamp(1.5rem,3.4vw,2.15rem);line-height:1.15;font-weight:650;
-  letter-spacing:-.02em;margin:0 0 .7rem;max-width:20ch}
-.sub{color:var(--mid);max-width:56ch;margin:0 0 1.2rem}
-.who{font-family:var(--mono);font-size:11.5px;color:var(--soft);display:flex;
-  flex-wrap:wrap;gap:.3rem 1.2rem}
-.who b{color:var(--ink)} .who a{color:var(--acc);text-decoration:none}
-.who a:hover{text-decoration:underline}
-
-/* ---------- panels ---------- */
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;
-  margin:0 0 1.5rem;overflow:hidden}
-.pbar{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;
-  border-bottom:1px solid var(--line);background:#f7f9fa}
-.pbar h2{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;
-  margin:0;color:var(--ink)}
-.pbar .note{font-family:var(--mono);font-size:11px;color:var(--soft);margin-left:auto}
-.pbody{padding:1.1rem}
-
-/* ---------- quiz ---------- */
-.qmeta{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem}
-.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:.2rem .5rem;
-  border:1px solid var(--line);border-radius:3px;color:var(--mid);background:#fbfcfd}
-.ask{font-size:1.06rem;margin:0 0 1rem;max-width:62ch}
-.ask span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--soft);margin-bottom:.35rem}
-pre.sql{margin:0 0 1.1rem;background:#f6f8f9;border:1px solid var(--hair);border-left:3px solid var(--acc);
-  padding:.8rem .9rem;font-family:var(--mono);font-size:13px;line-height:1.7;
-  overflow-x:auto;white-space:pre-wrap;word-break:break-word}
-.choices{display:flex;gap:.6rem;flex-wrap:wrap}
-.choices button{padding:.55rem 1.1rem;border:1px solid var(--ink);background:var(--panel);
-  border-radius:3px;font-weight:600;transition:background .12s,color .12s}
-.choices button:hover{background:var(--ink);color:var(--panel)}
-.choices button:disabled{opacity:.4;cursor:default}
-.choices button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-
-.reveal{margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--hair)}
-.verdict{font-weight:650;margin:0 0 .7rem}
-.verdict.rt{color:var(--good)} .verdict.wr{color:var(--bad)}
-.side{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:.7rem 0}
-.side>div{border:1px solid var(--hair);border-radius:3px;padding:.7rem .8rem}
-.side .lb{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-  margin-bottom:.45rem;color:var(--soft)}
-.side code{font-family:var(--mono);font-size:12.5px;line-height:1.65;display:block;
-  white-space:pre-wrap;word-break:break-word}
-.side .n{font-family:var(--mono);font-size:11px;color:var(--mid);margin-top:.5rem;
-  padding-top:.45rem;border-top:1px solid var(--hair)}
-@media(max-width:640px){.side{grid-template-columns:1fr}}
-
-.score{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
-  font-family:var(--mono);font-size:12px;color:var(--mid)}
-.dots{display:flex;gap:.3rem}
-.dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line);background:var(--panel)}
-.dot.rt{background:var(--good);border-color:var(--good)}
-.dot.wr{background:var(--bad);border-color:var(--bad)}
-.final{background:#f6f8f9;border:1px solid var(--line);border-left:3px solid var(--bad);
-  padding:1rem 1.1rem;margin-top:1.1rem;border-radius:3px}
-.final b{font-weight:650}
-
-/* ---------- findings strip ---------- */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
-  background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;
-  margin:0 0 1.5rem}
-.facts div{background:var(--panel);padding:.9rem 1rem}
-.facts .n{font-size:1.6rem;font-weight:650;line-height:1;display:block;margin-bottom:.4rem;
-  font-variant-numeric:tabular-nums}
-.facts .l{font-size:12px;line-height:1.5;color:var(--mid);display:block}
-.facts .a .n{color:var(--bad)} .facts .b .n{color:var(--mid)}
-.facts .c .n{color:var(--good)} .facts .d .n{color:var(--acc)}
-
-/* ---------- controls ---------- */
-.filters{display:flex;flex-wrap:wrap;gap:.4rem;padding:.75rem .9rem;
-  border-bottom:1px solid var(--line);background:#f7f9fa}
-.fg{display:flex;gap:.25rem;align-items:center;margin-right:.8rem}
-.fg .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--soft);margin-right:.3rem}
-.tog{font-family:var(--mono);font-size:11.5px;padding:.25rem .55rem;border:1px solid var(--line);
-  background:var(--panel);border-radius:3px;color:var(--mid)}
-.tog[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-.tog:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
-
-/* ---------- tables ---------- */
-.scroll{overflow:auto;max-height:460px}
-table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12px;
-  font-variant-numeric:tabular-nums}
-thead th{position:sticky;top:0;background:#f7f9fa;text-align:left;font-weight:600;
-  font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--mid);
-  padding:.5rem .7rem;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
-thead th.s{cursor:pointer;user-select:none}
-thead th.s:hover{color:var(--ink)}
-tbody td{padding:.4rem .7rem;border-bottom:1px solid var(--hair);white-space:nowrap;
-  max-width:340px;overflow:hidden;text-overflow:ellipsis}
-tbody tr:hover td{background:#f4f7f9}
-tbody tr.open td{background:#eef4f8}
-td.num{text-align:right}
-.tag{display:inline-block;padding:.05rem .4rem;border-radius:2px;font-size:10.5px}
-.tag.ok{background:#dcefe4;color:var(--good)}
-.tag.si{background:#f7e2e0;color:var(--bad)}
-.tag.lo{background:#f6ebd4;color:var(--warn)}
-.detail td{white-space:normal;background:#f9fbfc}
-.detail .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;padding:.5rem 0}
-.detail .dgrid>div{min-width:0}
-.detail .lb{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--soft);
-  margin-bottom:.3rem}
-.detail code{display:block;white-space:pre-wrap;word-break:break-word;font-size:12px;
-  line-height:1.6}
-@media(max-width:700px){.detail .dgrid{grid-template-columns:1fr}}
-.empty{padding:2rem 1rem;text-align:center;color:var(--soft);font-family:var(--mono);
-  font-size:12px}
-
-/* ---------- console ---------- */
-.console textarea{width:100%;min-height:82px;resize:vertical;font-family:var(--mono);
-  font-size:13px;line-height:1.6;padding:.8rem .9rem;border:1px solid var(--line);
-  border-radius:3px;background:#f6f8f9;color:var(--ink)}
-.console textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;background:var(--panel)}
-.crow{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.7rem}
-.run{padding:.5rem 1.2rem;background:var(--acc);color:#fff;border:1px solid var(--acc);
-  border-radius:3px;font-weight:600}
-.run:hover{background:#094c85}
-.hint{font-family:var(--mono);font-size:11px;color:var(--soft)}
-.examples{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem}
-.examples button{font-family:var(--mono);font-size:11px;padding:.25rem .55rem;
-  border:1px dashed var(--line);background:transparent;border-radius:3px;color:var(--acc)}
-.examples button:hover{border-style:solid;background:#f2f7fb}
-.err{margin-top:.8rem;padding:.7rem .9rem;background:#fbeeed;border:1px solid #e8c9c6;
-  border-left:3px solid var(--bad);border-radius:3px;font-family:var(--mono);
-  font-size:12px;color:var(--bad);white-space:pre-wrap}
-.okline{margin-top:.8rem;font-family:var(--mono);font-size:11.5px;color:var(--mid)}
-
-.prose{max-width:64ch;margin:0 0 1.5rem;color:var(--mid)}
-.prose b{color:var(--ink);font-weight:600}
-
-/* ---------- expandable jargon ----------
-   One explanation serving two audiences. A reader who knows the term skims past it;
-   a reader who does not hovers, taps or tabs to it and it explains itself in place.
-   Implemented as a real <button> so keyboard and touch both work. */
-.def{all:unset;cursor:help;color:var(--ink);font-weight:600;
-  border-bottom:1.5px dotted var(--acc);line-height:inherit}
-.def:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:2px}
-.def .x{display:inline-block;max-width:0;overflow:hidden;opacity:0;
-  vertical-align:bottom;white-space:nowrap;font-weight:400;color:var(--acc);
-  transition:max-width .42s cubic-bezier(.22,.7,.28,1),opacity .22s ease .06s}
-.def:hover .x,.def:focus .x,.def.open .x{max-width:46ch;opacity:1}
-@media(prefers-reduced-motion:reduce){.def .x{transition:none}}
-/* on a narrow screen a nowrap definition would run off the edge */
-@media(max-width:620px){
-  .def .x{white-space:normal;max-height:0;transition:max-height .35s ease,opacity .2s}
-  .def:hover .x,.def:focus .x,.def.open .x{max-width:100%;max-height:8em}
-}
-
-/* ---------- intro ---------- */
-.intro{background:var(--panel);border:1px solid var(--line);border-radius:4px;
-  padding:1.2rem 1.3rem;margin:0 0 1.5rem}
-.intro p{margin:0 0 .8rem;max-width:84ch}
-.intro p:last-child{margin-bottom:0}
-.intro .big{font-size:1.08rem;color:var(--ink)}
-.intro .who2{font-size:13.5px;color:var(--mid)}
-.spec{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;padding-top:.9rem;
-  border-top:1px solid var(--hair)}
-.spec span{font-family:var(--mono);font-size:11px;color:var(--mid);
-  border:1px solid var(--line);border-radius:3px;padding:.2rem .5rem;background:#fbfcfd}
-.howto{display:flex;gap:.7rem;align-items:flex-start;padding:.75rem .9rem;
-  background:#f2f7fb;border:1px solid #cfe0ee;border-radius:3px;margin:0 0 1.1rem;
-  font-size:13.5px;color:#1c3d57}
-.howto b{font-weight:650}
-.howto .keys{font-family:var(--mono);font-size:11px;opacity:.8}
-kbd{font-family:var(--mono);font-size:10.5px;border:1px solid #b9cfe0;border-bottom-width:2px;
-  border-radius:3px;padding:.05rem .3rem;background:#fff}
-
-/* ---------- step numbering ----------
-   The page is a sequence, not four equal panels. Numbering says so. */
-.step{display:flex;align-items:baseline;gap:.7rem;margin:2.2rem 0 .8rem}
-.step:first-of-type{margin-top:0}
-.step .no{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--panel);
-  background:var(--ink);border-radius:2px;padding:.14rem .42rem;flex:none}
-.step h2{font-size:13px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;
-  margin:0}
-.step .of{font-family:var(--mono);font-size:11px;color:var(--soft);margin-left:auto}
-.step.hot .no{background:var(--acc)}
-.step.hot h2{color:var(--acc)}
-
-/* ---------- handoff cue ---------- */
-/* An anchor, not a paragraph. The arrow was already animating like a control, so
-   readers tried to click it; now the whole strip is the target. */
-a.handoff{display:flex;align-items:center;gap:.7rem;margin:1.1rem 0 0;
-  font-size:14px;color:var(--acc);font-weight:600;text-decoration:none;
-  border:1px dashed #a9c8e0;border-radius:3px;padding:.6rem .8rem;
-  background:#f4f9fd;transition:background .15s,border-color .15s}
-a.handoff:hover{background:#e8f2fb;border-color:var(--acc);border-style:solid}
-a.handoff:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.handoff .arw{display:inline-block;animation:nudge 2.2s ease-in-out infinite}
-.handoff .t{font-weight:400;color:var(--mid);font-size:13px}
-.handoff .go{margin-left:auto;font-family:var(--mono);font-size:11px;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--acc)}
-@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-@media(prefers-reduced-motion:reduce){.handoff .arw{animation:none}}
-
-/* ---------- the quiz panel carries the page ---------- */
-.panel.hero{border:2px solid var(--acc);box-shadow:0 2px 4px rgba(11,95,165,.05),
-  0 10px 26px rgba(11,95,165,.09)}
-.panel.hero .pbar{background:var(--acc);border-bottom-color:var(--acc)}
-.panel.hero .pbar h2{color:#fff}
-.panel.hero .pbar .note{color:#bcd8ef}
-
-/* ---------- start state ---------- */
-.start{text-align:left;padding:.4rem 0 .2rem}
-.start p{max-width:56ch;margin:0 0 1.1rem;color:var(--mid)}
-.start p.lead{font-size:1.08rem;color:var(--ink)}
-.start .go{padding:.7rem 1.5rem;background:var(--acc);color:#fff;border:1px solid var(--acc);
-  border-radius:3px;font-weight:650;font-size:15px}
-.start .go:hover{background:#094c85}
-.start .go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.start .meta{font-family:var(--mono);font-size:11.5px;color:var(--soft);margin-top:.8rem}
-
-/* Shortcut strip, repeated under every question. Stated once on the start screen
-   it was read once and forgotten, so nobody used the keys. */
-.keys{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .7rem;margin-top:.9rem;
-  padding-top:.7rem;border-top:1px dashed var(--line);
-  font-family:var(--mono);font-size:11px;color:var(--soft)}
-.keys b{color:var(--mid);font-weight:400}
-.keys kbd{margin-right:.4rem}
-.keys span{white-space:nowrap}
-
-/* ---------- skip to quiz ---------- */
-/* A quiet bordered pill got missed in review, so this is a filled button with a
-   halo that breathes. The halo animates, the text does not: blinking text is hard
-   to read and reads as a banner ad, which is the thing people have trained
-   themselves to ignore. */
-.skip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);
-  font-size:12.5px;font-weight:700;letter-spacing:.04em;color:#fff;text-decoration:none;
-  background:var(--acc);border:1px solid var(--acc);border-radius:3px;
-  padding:.55rem 1rem;margin-top:1.1rem;animation:halo 2.4s ease-in-out infinite}
-.skip .ar{display:inline-block;animation:nudge 2.2s ease-in-out infinite}
-.skip:hover{background:#094c85;border-color:#094c85;animation:none}
-.skip:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-@keyframes halo{0%,100%{box-shadow:0 0 0 0 rgba(11,95,165,.42)}
-  70%{box-shadow:0 0 0 11px rgba(11,95,165,0)}}
-@media(prefers-reduced-motion:reduce){.skip,.skip .ar{animation:none}}
-
-/* ---------- sticky nudge ---------- */
-.nudge{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);
-  background:var(--ink);color:var(--panel);border-radius:4px;padding:.6rem .9rem;
-  display:flex;align-items:center;gap:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.22);
-  font-size:13.5px;z-index:40;transition:transform .3s cubic-bezier(.2,.8,.3,1);
-  max-width:calc(100vw - 28px)}
-.nudge.on{transform:translate(-50%,0)}
-.nudge a{color:#8ec2ee;text-decoration:none;font-weight:600;white-space:nowrap}
-.nudge button{all:unset;cursor:pointer;color:#8d9398;font-size:16px;line-height:1;
-  padding:0 .1rem}
-.nudge button:hover{color:#fff}
-@media(prefers-reduced-motion:reduce){.nudge{transition:none}}
-
-/* ---------- standalone definition ---------- */
-/* Silent failure is the whole study. It was previously reachable only by hovering
-   an inline term, which no phone can do, so it now gets stated once in the open. */
-.define{background:#fdf6ec;border:1px solid #e8d5b7;border-left:3px solid #c08a2e;
-  border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;margin:0 0 1.5rem}
-.define h3{margin:0 0 .5rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:#8a6117}
-.define p{margin:0 0 .6rem;max-width:66ch}
-.define p:last-child{margin:0}
-.define .term{font-weight:700;color:var(--ink)}
-.define .tally{font-family:var(--mono);font-size:12px;color:#8a6117;
-  display:inline-block;margin-top:.2rem}
-
-/* ---------- embedded figure ---------- */
-.exhibit{margin:0 0 1.5rem;padding:0;background:var(--panel);
-  border:1px solid var(--line);border-radius:4px;overflow:hidden}
-.exhibit .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.exhibit img{display:block;width:100%;height:auto}
-.exhibit figcaption{border-top:1px solid var(--line);background:#f7f9fa;
-  padding:.7rem .9rem;font-size:12.5px;line-height:1.5;color:var(--mid)}
-.exhibit figcaption b{color:var(--ink)}
-.exhibit .swipe{display:none}
-/* Below this width the chart would shrink until its labels are about 4px tall,
-   which is worse than not showing it. Hold it at a legible size and let the
-   reader pan instead. */
-@media(max-width:760px){
-  .exhibit img{width:740px;max-width:none}
-  .exhibit .swipe{display:block;padding:.5rem .9rem 0;font-family:var(--mono);
-    font-size:11px;color:var(--soft)}
-}
-
-/* ---------- variant picker ---------- */
-/* Sits directly above the filters. The codes were defined in a tooltip two
-   sections earlier, which is nowhere near where the reader has to use them.
-   The dropdown drives the same filter state as the chips below, so the two
-   controls can never disagree about what the table is showing. */
-.legend{padding:.8rem .9rem;border-bottom:1px solid var(--line);background:#fbfcfd}
-.legend .pick{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
-.legend .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--soft)}
-.legend select{font-family:var(--mono);font-size:12.5px;color:var(--ink);
-  background:var(--panel);border:1px solid #b9cfe0;border-radius:3px;
-  padding:.35rem 1.9rem .35rem .55rem;cursor:pointer;appearance:none;
-  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230b5fa5'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right .6rem center}
-.legend select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.vcard{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
-  gap:1px;margin-top:.75rem;background:var(--line);border:1px solid var(--line);
-  border-radius:3px;overflow:hidden}
-.vcard div{background:var(--panel);padding:.55rem .7rem}
-.vcard .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--soft);display:block;margin-bottom:.25rem}
-.vcard .v{font-size:1.05rem;font-weight:650;font-variant-numeric:tabular-nums;
-  display:block;line-height:1.2}
-.vcard .v small{font-size:11px;font-weight:400;color:var(--soft);margin-left:.3rem}
-.vcard .hot .v{color:var(--bad)}
-.vsay{margin:.6rem 0 0;font-size:12.5px;line-height:1.5;color:var(--mid)}
-.vsay b{color:var(--ink)}
-
-/* ---------- what to do ---------- */
-.todo{background:var(--ink);color:#e8ebed;border-radius:4px;padding:1.3rem 1.4rem;
-  margin:0 0 1.5rem}
-.todo h3{margin:0 0 .7rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:#8ec2ee}
-.todo p{margin:0 0 .7rem;max-width:70ch;color:#ccd2d7}
-.todo p:last-child{margin:0}
-.todo b{color:#fff;font-weight:650}
-.todo .num{font-size:1.5rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
-
-/* ---------- the point ---------- */
-.point{border-left:3px solid var(--acc);background:#f7fafc;border:1px solid var(--line);
-  border-left:3px solid var(--acc);border-radius:0 4px 4px 0;padding:1.1rem 1.3rem;
-  margin:0 0 1.5rem}
-.point h3{margin:0 0 .6rem;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--acc)}
-.point p{margin:0 0 .7rem;max-width:66ch}
-.point p:last-child{margin:0}
-.point b{font-weight:650;color:var(--ink)}
-
-/* ---------- count-up stats ---------- */
-.facts .n{transition:none}
-
-/* ---------- quiz dot pop ---------- */
-@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.55)}100%{transform:scale(1)}}
-.dot.fresh{animation:pop .34s cubic-bezier(.3,1.4,.5,1)}
-@media(prefers-reduced-motion:reduce){.dot.fresh{animation:none}}
-
-/* ---------- reveal slide ---------- */
-@keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.reveal{animation:slidein .3s cubic-bezier(.2,.7,.3,1)}
-@media(prefers-reduced-motion:reduce){.reveal{animation:none}}
-
-/* ---------- row hover preview ---------- */
-.peek{border-top:1px solid var(--line);background:#f7f9fa;padding:.5rem .75rem;
-  font-family:var(--mono);font-size:11.5px;color:var(--mid);min-height:2.3rem;
-  display:flex;gap:.6rem;align-items:baseline}
-.peek .pk{color:var(--soft);flex:none}
-.peek code{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.peek .idle{color:var(--soft);font-style:italic}
-
-/* ---------- scoreboard ---------- */
-.board{margin-top:1.1rem}
-.brow{display:grid;grid-template-columns:minmax(140px,auto) 1fr 54px;gap:.7rem;
-  align-items:center;padding:.35rem 0}
-.brow .bl{font-size:12.5px}
-.brow .bl b{font-weight:650}
-.btrack{background:#e6eaed;border-radius:2px;height:16px;overflow:hidden}
-.bfill{height:100%;width:0;border-radius:2px;transition:width .8s cubic-bezier(.2,.8,.3,1)}
-.bfill.you{background:var(--acc)} .bfill.chance{background:#b9c0c5}
-.bfill.mech{background:var(--good)}
-.bval{font-family:var(--mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
-@media(prefers-reduced-motion:reduce){.bfill{transition:none}}
-.beat{margin-top:.9rem;padding:.7rem .9rem;border-radius:3px;font-size:13.5px;
-  background:#e9f4ee;border:1px solid #bcdcc9;color:#14512f}
-.beat.no{background:#f9f0ef;border-color:#e2c6c2;color:#6d2b25}
-.shareRow{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.9rem}
-.shareRow button{padding:.42rem .9rem;border:1px solid var(--ink);background:var(--panel);
-  border-radius:3px;font-size:13px;font-weight:600}
-.shareRow button:hover{background:var(--ink);color:var(--panel)}
-.shareRow .said{font-family:var(--mono);font-size:11.5px;color:var(--good)}
-footer{border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 4rem;
-  font-family:var(--mono);font-size:11.5px;color:var(--soft);line-height:1.8}
-footer a{color:var(--acc);text-decoration:none}
-/* Footer links were plain text separated by dots and read as a colophon rather
-   than as places to go. Pills with an underline read as clickable at a glance. */
-.flinks{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.1rem;padding:0;list-style:none}
-.flinks a{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--mono);
-  font-size:12.5px;font-weight:600;color:var(--acc);text-decoration:none;
-  border:1px solid #b9cfe0;border-radius:3px;padding:.5rem .85rem;background:var(--panel);
-  transition:background .15s,color .15s,border-color .15s}
-.flinks a:hover,.flinks a:focus-visible{background:var(--acc);color:#fff;border-color:var(--acc)}
-.flinks a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.flinks .ic{font-size:13px;line-height:1}
-.fnote{max-width:78ch}
-.loading{padding:2rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--soft)}
-
-/* ---------- callout layout ----------
-   These boxes span the full column but their prose is capped at a readable
-   measure, which left roughly 400px of empty background on the right at desktop
-   width. Widening the text to fill it would push lines past 100 characters, so
-   instead the uppercase label moves into its own left column and the prose sits
-   beside it. The space gets used and the measure stays readable. */
-@media(min-width:880px){
-  .point,.define,.todo{display:grid;grid-template-columns:150px minmax(0,1fr);
-    column-gap:1.8rem;align-items:start}
-  .point h3,.define h3,.todo h3{grid-column:1;grid-row:1;margin:0;line-height:1.5}
-  .point p,.define p,.todo p{grid-column:2}
-  .point p,.define p,.todo p{max-width:86ch}
-}
-</style>
+<meta name="twitter:title" content="In my test, most of the AI's mistakes came with no warning">
+<meta name="twitter:description" content="84 of 104 wrong answers ran without an error and the AI rated its own confidence 90% or higher. Comparing four answers per question caught 77 of them.">
+<meta name="twitter:image" content="https://a28-2001.github.io/yardstick/figures/card-v5.png">
+<link rel="preload" href="fonts/source-serif-4-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/site.css">
+<script type="module" src="js/main.js"></script>
 </head>
 <body>
-<div class="w">
 
-<header>
-  <p class="mark"><span class="nm">Yardstick</span>
-    <span class="tag">600 generated SQL queries, all executed for real</span></p>
-  <h1>Can you tell which SQL is wrong?</h1>
-  <p class="who">
-    <b>Aakash Mehta</b>
-    <a href="mailto:aakashmehta893@gmail.com">Email</a>
-    <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a>
-    <a href="https://github.com/A28-2001/yardstick">Code and data</a>
-    <a href="report.html">Full write-up</a>
-  </p>
-  <a class="skip" href="#quiz-panel">Skip to the quiz <span class="ar">&darr;</span></a>
+<!-- ======================================================== first screen -->
+<header class="hero">
+  <div class="ghost" aria-hidden="true"></div>
+  <div class="tx">
+    <p class="mark">Yardstick</p>
+    <p class="by">By <b>Aakash Mehta</b>, AI implementation engineer <span class="dt">&middot; July 2026</span> &middot; <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a></p>
+    <p class="did">I built this test and the check it measures, and published the <a href="https://github.com/A28-2001/yardstick">code</a>.</p>
+    <h1>In my test of AI looking up answers in a database, most of its mistakes came with no warning.</h1>
+    <p class="why">If you use AI to answer questions about data, this is how it can mislead you. The check I tested: ask the same question four times (two AI models, each once with a few solved examples and once without). When the four answers disagree, a person looks.</p>
+    <div class="box res">
+      <div class="r r1"><span class="n" data-fact="noWarning">84</span><span class="k">of <span data-fact="wrong">104</span> wrong answers came with no warning</span><span class="d"><span data-fact="questions">150</span> questions, 4 answers each: <span data-fact="total">600</span> answers, <span data-fact="wrong">104</span> of them wrong. For <span data-fact="noWarning">84</span>, there was no error and the AI rated its own confidence 90% or higher.</span></div>
+      <div class="r r2"><span class="n" data-fact="caughtNoWarning">77</span><span class="k">of those <span data-fact="noWarning">84</span> were caught by the check</span><span class="d">The cost: <span data-fact="flaggedShare">28%</span> of answers went to a person, and about half of those were actually right.</span></div>
+    </div>
+    <div class="cta">
+      <a class="b1" href="#quiz-panel">Spot the wrong answer<small>6 real examples, 1 minute</small></a>
+      <a class="b2" href="#method">How it was tested<small>Method, data and code</small></a>
+    </div>
+  </div>
+  <div class="ev">
+    <div class="box card">
+      <div class="top"><span class="lbl">An example from the test, using a university's records</span><div class="q">Which year had the most degrees awarded?</div></div>
+      <div class="ans bad"><span class="v">2002</span><span class="t">One AI answer</span><span class="d">No error, and it rated its confidence 90%. Why it was wrong: it counted how many campuses reported each year, instead of adding up the degrees.</span></div>
+      <div class="ans good"><span class="v">2004</span><span class="t">The correct answer</span><span class="d">The other three answers said 2004.</span></div>
+      <div class="ans caught"><span class="v" aria-hidden="true">&#10003;</span><span class="t">Caught by the check</span><span class="d">The four answers disagreed, so this question went to a person.</span></div>
+    </div>
+  </div>
 </header>
 
-<div class="point">
-  <h3>Why this exists</h3>
-  <p>
-    Teams decide an AI is safe to put near their data using one number: how often it
-    gets the answer right. <b>That number cannot tell you whether anyone would notice
-    when it is wrong.</b> A model that fails loudly at 80 percent accuracy can be safer to use than one that fails silently at 90.
-  </p>
-  <p>
-    So this study measures the second thing, with the hypothesis and the statistics
-    committed to version control before any data was collected.
-  </p>
-</div>
-
-<div class="step hot"><span class="no">1</span><h2>What this is</h2>
-  <span class="of">step 1 of 3</span></div>
-
-<div class="intro">
-  <p class="big">
-    Some companies now let AI write
-    <button class="def" type="button">SQL<span class="x">: the code that pulls
-    numbers out of a company's database</span></button>. When it gets one wrong, it rarely breaks. The query usually runs fine and returns wrong results, and those results can end up in somebody's report.
-  </p>
-  <p>
-    So I had AI write 600 queries, ran every one against a real database, and checked
-    them against human answers. <b>Then I counted how many of the wrong ones ran without any error.</b>
-  </p>
-  <div class="spec">
-    <span>150 questions &middot; 4 configurations &middot; 600 runs</span>
-    <span>Llama 3.1 8B vs 3.3 70B</span>
-    <span>zero-shot vs few-shot</span>
-    <span>Spider corpus, 93 databases</span>
-    <span>pre-registered</span>
-    <span>McNemar exact + bootstrap CI</span>
+<main>
+<!-- ======================================================== chapter 1 -->
+<section class="chapter wrap" id="ch1" aria-labelledby="ch1h">
+  <div class="chead">
+    <span class="num" aria-hidden="true">1</span>
+    <span class="kicker">Chapter 1</span>
+    <h2 id="ch1h">Follow one mistake</h2>
+    <p>The same question, step by step.</p>
   </div>
-  <a class="handoff" href="#quiz-panel"><span class="arw">&darr;</span> Now try it yourself
-    <span class="t">&nbsp;six queries, about a minute</span>
-    <span class="go">Start &rarr;</span></a>
-</div>
-
-
-<div class="define">
-  <h3>One term you need before the quiz</h3>
-  <p>
-    A <span class="term">silent failure</span> is a query that runs, reports no error, and gives you the wrong results anyway. Nothing looks broken. There is no red text, no warning, no crash. The results can end up in somebody's report.
-  </p>
-  <p>
-    That is the kind of mistake this study is about, and it is the kind you are about to
-    try to catch by eye.
-    <span class="tally">93 of the 104 mistakes here were this kind.</span>
-  </p>
-</div>
-
-<!-- ============ 2. QUIZ ============ -->
-<div class="step hot"><span class="no">2</span><h2>Judge it yourself</h2>
-  <span class="of">step 2 of 3</span></div>
-
-<div class="panel hero" id="quiz-panel">
-  <div class="pbar"><h2>Six real queries</h2>
-    <span class="note" id="qprog">not started</span></div>
-  <div class="pbody" id="quiz"><div class="loading">loading 600 runs…</div></div>
-</div>
-
-<!-- ============ headline numbers ============ -->
-<div class="facts">
-  <div class="a"><span class="n" id="f1">100%</span><span class="l">of the best setup's mistakes (17 of 17) ran with no error and returned wrong results</span></div>
-  <div class="b"><span class="n">0</span><span class="l">difficulty levels where showing the AI worked examples gave a significant gain</span></div>
-  <div class="c"><span class="n">+28</span><span class="l">points from the larger, newer model on the hardest questions (60% to 88%, p = 0.0013, an exploratory comparison)</span></div>
-  <div class="d"><span class="n">84%</span><span class="l">of all mistakes (87 of 104) caught by running
-    four model setups (two models, two prompts each) and checking only where they disagree</span></div>
-</div>
-
-<figure class="exhibit">
-  <p class="swipe">swipe the chart sideways &rarr;</p>
-  <div class="scrollx"><img src="figures/fig1_silent_failures.svg" width="771" height="427"
-       alt="Bar chart. Share of each setup's errors that were silent: the 8B model
-            with no examples 89 percent, 8B with examples 81 percent, 70B with
-            examples 95 percent, 70B with no examples 100 percent. Accuracy rises
-            from 77 to 89 percent across the same four rows."></div>
-  <figcaption><b>Read the bars, then read the numbers on the right.</b>
-    Accuracy climbs as you go down, from 77 percent to 89 percent. The bars measure the share of each setup's mistakes that ran without any error: 89, 81, 95 and 100 percent, so they do not rise steadily, but both large-model setups sit above both small ones. The most accurate setup made the fewest mistakes, and all 17 ran without an error and returned wrong results.</figcaption>
-</figure>
-
-<p class="prose">
-  That is the whole finding. <b>A query that crashes gets investigated. A query that runs and returns wrong results can go into a dashboard.</b> The second kind is a
-  <button class="def" type="button">silent failure<span class="x">: it ran without any
-  error at all and still gave the wrong answer</span></button>, and it accounted for 93 of the 104 mistakes in this study: 82 to 97 percent depending on difficulty, 81 to 100 percent depending on setup. The larger model's mistakes were silent even more often (36 of 37, against 57 of 67 for the smaller one), though with this few mistakes that gap could be chance (p = 0.09).
-</p>
-<p class="prose">
-  Everything below is the raw evidence. Filter all 600 runs by
-  <button class="def" type="button">variant<span class="x">: which of the four
-  AI setups produced it</span></button>, difficulty or outcome, click any row to see the
-  human answer next to the machine one, or write your own SQL against the results.
-</p>
-
-<div class="step"><span class="no">3</span><h2>Dig through the data yourself</h2>
-  <span class="of">step 3 of 3</span></div>
-
-<!-- ============ 3. EXPLORER ============ -->
-<div class="panel">
-  <div class="pbar"><h2>Every run</h2><span class="note" id="xcount">n/a</span></div>
-  <div class="legend">
-    <div class="pick">
-      <span class="lab">Setup</span>
-      <select id="vpick" aria-label="Choose which AI setup to look at">
-        <option value="">All four setups</option>
-        <option value="V1">V1 &nbsp;8B model, no examples</option>
-        <option value="V2">V2 &nbsp;8B model, shown examples</option>
-        <option value="V3">V3 &nbsp;70B model, no examples</option>
-        <option value="V4">V4 &nbsp;70B model, shown examples</option>
-      </select>
+  <div class="scrolly" data-story="one">
+    <div class="graphic">
+      <div class="box qcard" id="qcard">
+        <div class="row"><span class="lb">The question, asked of a university's records</span><div class="q" style="font:600 var(--t2)/1.3 var(--serif)">Which year has the most degrees conferred?</div></div>
+        <div class="row" data-show="2"><span class="lb">What the AI wrote (small model, with solved examples)</span><pre id="ex-sql">SELECT Year FROM degrees GROUP BY Year ORDER BY COUNT(Degrees) DESC LIMIT 1</pre></div>
+        <div class="row" data-show="3"><span class="lb">What it returned</span><span class="big bad">2002</span> <span class="note">&nbsp;no error</span></div>
+        <div class="row" data-show="4"><span class="lb">The correct query and answer</span><pre id="ex-gold">SELECT YEAR FROM degrees GROUP BY YEAR ORDER BY sum(degrees) DESC LIMIT 1</pre><span class="big good">2004</span></div>
+        <div class="row" data-show="5"><span class="lb">Asked how sure it was</span><span class="big">90%</span></div>
+        <div class="row" data-show="6"><span class="lb">The four answers to this question</span>
+          <div class="four"><div class="c"><b>2004</b>small, no examples</div><div class="w"><b>2002</b>small, examples</div><div class="c"><b>2004</b>large, no examples</div><div class="c"><b>2004</b>large, examples</div></div>
+          <div class="flagline">&#10003; They disagree, so the check sends it to a person.</div></div>
+      </div>
     </div>
-    <div class="vcard" id="vcard"></div>
-    <p class="vsay" id="vsay"></p>
-  </div>
-  <div class="filters" id="filters"></div>
-  <div class="scroll"><table id="xtable">
-    <thead><tr>
-      <th class="s" data-k="v">Variant</th>
-      <th class="s" data-k="t">Tier</th>
-      <th class="s" data-k="db">Database</th>
-      <th>Question</th>
-      <th class="s" data-k="outcome">Outcome</th>
-      <th class="s num" data-k="conf">Conf</th>
-      <th class="s num" data-k="prows">Rows</th>
-    </tr></thead>
-    <tbody id="xbody"></tbody>
-  </table></div>
-  <div class="peek" id="peek"><span class="idle">Hover a row to preview the generated SQL.
-    Click to open it against the human answer.</span></div>
-</div>
-
-<!-- ============ 4. CONSOLE ============ -->
-<div class="panel console">
-  <div class="pbar"><h2>Query the results</h2>
-    <span class="note">table: runs &nbsp;·&nbsp; 600 rows</span></div>
-  <div class="pbody">
-    <p class="prose" style="margin-bottom:.8rem">
-      A study about writing SQL ought to let you write some. This runs a small SQL engine in your browser, hand-written for this page, over all 600 runs.
-    </p>
-    <textarea id="sqlbox" spellcheck="false">SELECT v, t, conf, q FROM runs WHERE silent = true AND conf = 1 ORDER BY t LIMIT 20</textarea>
-    <div class="crow">
-      <button class="run" id="runbtn">Run query</button>
-      <span class="hint">Ctrl or Cmd + Enter</span>
+    <div class="steps">
+      <div class="stp" data-step="1"><div class="in"><p>Someone asks a university's database: <b>which year had the most degrees awarded?</b></p></div></div>
+      <div class="stp" data-step="2"><div class="in"><p>The smaller model writes a query that <b>counts</b> rows per year: campuses reporting, not degrees.</p></div></div>
+      <div class="stp" data-step="3"><div class="in"><p>It runs with <b>no error</b> and returns <span class="k-bad">2002</span>. Three years tie on campuses reporting; 2002 comes first.</p></div></div>
+      <div class="stp" data-step="4"><div class="in"><p>The right query <b>adds up</b> the degrees: <span class="k-good">2004</span>.</p></div></div>
+      <div class="stp" data-step="5"><div class="in"><p>Asked how sure it was, the AI said <b>90%</b>. Nothing on the surface says to check it.</p></div></div>
+      <div class="stp" data-step="6"><div class="in"><p>The other three answers all said 2004. <b>They disagree, so the question goes to a person.</b> That is the whole check.</p></div></div>
     </div>
-    <div class="examples" id="examples"></div>
-    <div id="cerr"></div>
-    <div id="cout"></div>
   </div>
-</div>
+</section>
 
-<div class="todo">
-  <h3>So what do you do about it</h3>
-  <p>
-    An accuracy score tells you how often the AI is wrong. It does not tell you which answers are wrong. For that you need a check that runs on every query.
-  </p>
-  <p>
-    <b>Send the same question to more than one model setup and compare the rows they come
-    back with.</b> When they all agree, move on. When they disagree, have a person look.
-  </p>
-  <p>
-    This study used four model setups (two models, two prompts each). They disagreed on
-    <b>28 percent</b> of questions (42 of 150), and that 28 percent contained
-    <span class="num">84%</span> <b>of every mistake made</b> (87 of 104). Four calls per question instead of one, still about a tenth of a cent at list prices. The other 108 questions were not flagged, and they still held 17 of the 104 mistakes, so this narrows review rather than replacing it.
-  </p>
-  <p>
-    The honest caveat: this was measured on one benchmark, at one point in time, and it
-    was never deployed anywhere. A cheaper version with only two setups was not measured
-    separately. Test it on your own queries before you trust it.
-  </p>
-</div>
+<!-- ======================================================== chapter 2 -->
+<section class="chapter wrap" id="ch2" aria-labelledby="ch2h">
+  <div class="chead">
+    <span class="num" aria-hidden="true">2</span>
+    <span class="kicker">Chapter 2</span>
+    <h2 id="ch2h">Now all <span data-fact="total">600</span> answers</h2>
+    <p>One dot per answer.</p>
+  </div>
+  <div class="scrolly" data-story="dots">
+    <div class="graphic dots" id="dotfield">
+      <div class="nodata" hidden id="dots-nodata">Couldn't load the data, so the dots can't be drawn. The numbers in the text still hold.</div>
+      <div class="legend" id="dotlegend"></div>
+    </div>
+    <div class="steps">
+      <div class="stp" data-step="1"><div class="in"><p>The outlined dots are that question: two red (wrong), two grey (right). One red answer said 2004 but added an extra column, and scoring is strict.</p></div></div>
+      <div class="stp" data-step="2"><div class="in"><p><span class="k-bad"><span data-fact="wrong">104</span></span> of the <span data-fact="total">600</span> answers were wrong.</p></div></div>
+      <div class="stp" data-step="3"><div class="in"><p><span class="k-bad"><span data-fact="silent">93</span></span> of them ran without any error. Only <span data-fact="loud">11</span> failed loudly (hollow dots).</p></div></div>
+      <div class="stp" data-step="4"><div class="in"><p>Confidence did not help: <b><span data-fact="confidentAll">581</span> of all <span data-fact="total">600</span></b> answers, right or wrong, came with 90% or more. The faded dots are the rest.</p></div></div>
+      <div class="stp" data-step="5"><div class="in"><p>The check flagged <span data-fact="flaggedQuestions">42</span> questions: <span data-fact="flaggedRuns">168</span> answers (<span data-fact="flaggedShare">28%</span>), the top block.</p></div></div>
+      <div class="stp" data-step="6"><div class="in"><p>It caught <span class="k-good"><span data-fact="caught">87</span></span> of the <span data-fact="wrong">104</span> mistakes (green), with <span data-fact="falseAlarms">81</span> false alarms. <span class="k-bad"><span data-fact="missedSilent">8</span></span> silent mistakes got through; <span data-fact="missedLoud">9</span> more were missed but failed with an error.</p></div></div>
+    </div>
+  </div>
+</section>
 
-<footer>
-  <ul class="flinks">
-    <li><a href="report.html"><span class="ic">&#9635;</span>Read the full write-up</a></li>
-    <li><a href="https://github.com/A28-2001/yardstick"><span class="ic">&#9670;</span>Code and data on GitHub</a></li>
-    <li><a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/"><span class="ic">&#9679;</span>LinkedIn</a></li>
-    <li><a href="mailto:aakashmehta893@gmail.com"><span class="ic">&#9993;</span>aakashmehta893@gmail.com</a></li>
+<!-- ======================================================== chapter 3 -->
+<section class="chapter wrap" id="ch3" aria-labelledby="ch3h">
+  <div class="chead">
+    <span class="num" aria-hidden="true">3</span>
+    <span class="kicker">Chapter 3</span>
+    <h2 id="ch3h">Your turn: spot the wrong answer</h2>
+    <p>Six real queries, three right and three wrong. You get the question and the query, not the answer.</p>
+  </div>
+  <div class="panel" id="quiz-panel">
+    <div class="pbar"><h3>Six real queries</h3><span class="note" id="qprog">not started</span></div>
+    <div class="pbody" id="quiz"><div class="loading">Loading the 600 answers&hellip;</div></div>
+  </div>
+</section>
+
+<!-- ======================================================== chapter 4 -->
+<div class="band">
+<section class="chapter wrap" id="ch4" aria-labelledby="ch4h">
+  <div class="chead">
+    <span class="num" aria-hidden="true">4</span>
+    <span class="kicker">Chapter 4</span>
+    <h2 id="ch4h">What to do about it</h2>
+    <p>An accuracy score says how often the AI is wrong, not which answers are.</p>
+  </div>
+  <p class="rule">Ask the same question more than one way and compare the rows that come back. When they all agree, move on. When they disagree, have a person look.</p>
+  <ul class="costs">
+    <li><b><span data-fact="caught">87</span> of <span data-fact="wrong">104</span></b>mistakes caught, reviewing <span data-fact="flaggedShare">28%</span> of answers</li>
+    <li><b><span data-fact="falseAlarms">81</span></b>right answers flagged for nothing</li>
+    <li><b><span data-fact="missedSilent">8</span></b>silent mistakes got through</li>
+    <li><b>About a tenth of a cent</b>per question at list prices</li>
   </ul>
-  <p class="fnote">
-  Pre-registered before the run. 150 questions, 93 databases, Spider corpus, CC BY-SA 4.0.
-  McNemar exact, bootstrap intervals, Benjamini Hochberg. Scorer agrees with the official Spider evaluator on 18 of the 19 queries the official tool could score. Total cost $0 on a free tier (about $0.17 at list prices).
-  </p>
-</footer>
-
+  <p class="mid prose" style="margin-top:24px">Limits: one public benchmark, two open Llama models (newer frontier models not tested), never deployed. A two-setup version was not measured.</p>
+</section>
 </div>
 
-<script>
-/* ============================================================================
-   Yardstick lab. Three pieces over one dataset: a judgement quiz, a run
-   explorer, and a small SQL engine. No libraries, no build step.
-   ============================================================================ */
-(function(){
-"use strict";
-
-var RUNS = [], ready = false;
-
-/* ---------------------------------------------------------------- utilities */
-function el(t, cls, txt){ var e=document.createElement(t); if(cls)e.className=cls;
-  if(txt!=null)e.textContent=txt; return e; }
-function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
-  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-function outcome(r){ return r.ok ? "correct" : (r.silent ? "silent" : "loud"); }
-
-/* ================================================================= 1. QUIZ */
-var QN = 6, qi = 0, qscore = [], qpool = [], answered = false;
-
-function buildPool(){
-  // Readable examples only, and a deliberate mix: if every round were a failure
-  // the honest answer would just be "no" every time.
-  var short = RUNS.filter(function(r){
-    return r.sql && r.gold && r.sql.length < 190 && r.gold.length < 190 &&
-           r.q.length < 120 && r.ran;
-  });
-  var bad = shuffle(short.filter(function(r){ return r.silent; }));
-  var good = shuffle(short.filter(function(r){ return r.ok; }));
-    // Three of each, then shuffled. A fixed alternating order could be learned and
-  // scored perfectly without reading any SQL.
-  var half = QN >> 1;
-  return shuffle(bad.slice(0, half).concat(good.slice(0, QN - half)));
-}
-function shuffle(a){ a=a.slice();
-  for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));
-    var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
-
-/* An explicit start screen rather than dropping the reader straight into round 1. It
-   makes the quiz feel chosen rather than stumbled into, and gives the rules somewhere
-   to live now that the separate instructions block is gone. */
-var started = false;
-function renderStart(){
-  var host = document.getElementById("quiz");
-  host.innerHTML = "";
-  document.getElementById("qprog").textContent = "not started";
-  var w = el("div","start");
-  var p1 = el("p","lead");
-  p1.innerHTML = "Six queries an AI wrote, one at a time, each with the question it was " +
-    "meant to answer. Say whether it gave the right rows.";
-  var p2 = el("p");
-  p2.innerHTML = "<b>You do not see the answer until you commit</b>, because a real " +
-    "reviewer does not have it either.";
-  w.appendChild(p1); w.appendChild(p2);
-  var go = el("button","go","Start the quiz");
-  go.onclick = function(){ started = true; qi = 0; qscore = []; renderQuiz(); };
-  w.appendChild(go);
-  var m = el("div","meta");
-  m.innerHTML = "6 questions &middot; about a minute &middot; keyboard: " +
-    "<kbd>Y</kbd> right, <kbd>N</kbd> wrong, <kbd>Enter</kbd> next";
-  w.appendChild(m);
-  host.appendChild(w);
-}
-
-function renderQuiz(){
-  var host = document.getElementById("quiz");
-  host.innerHTML = "";
-  document.getElementById("qprog").textContent = "round " + Math.min(qi+1,QN) + " of " + QN;
-
-  if(qi >= qpool.length){ return renderFinal(host); }
-  var r = qpool[qi];
-  answered = false;
-
-  var meta = el("div","qmeta");
-  [r.t + " query", "database: " + r.db, r.m + " model", r.p].forEach(function(t){
-    meta.appendChild(el("span","chip",t)); });
-  host.appendChild(meta);
-
-  var ask = el("div","ask");
-  ask.appendChild(el("span",null,"The question the user asked"));
-  ask.appendChild(document.createTextNode(r.q));
-  host.appendChild(ask);
-
-  var pre = el("pre","sql"); pre.textContent = r.sql; host.appendChild(pre);
-
-  var ch = el("div","choices");
-  var yes = el("button",null,"Returns the right rows");
-  var no  = el("button",null,"Returns the wrong rows");
-  yes.onclick = function(){ answer(true); };
-  no.onclick  = function(){ answer(false); };
-  ch.appendChild(yes); ch.appendChild(no);
-  host.appendChild(ch);
-  host.appendChild(keyHint("answer"));
-
-  host.appendChild(scoreStrip());
-}
-
-/* Repeated under every question rather than stated once up front. The keys only get
-   used if the reminder is present at the moment the reader is deciding. */
-function keyHint(stage){
-  var k = el("div","keys");
-  k.innerHTML = stage === "next"
-    ? "<b>Keyboard</b> <span><kbd>Enter</kbd>next query</span>"
-    : "<b>Keyboard</b> <span><kbd>Y</kbd>right rows</span> " +
-      "<span><kbd>N</kbd>wrong rows</span> <span><kbd>Enter</kbd>next</span>";
-  return k;
-}
-
-function scoreStrip(fresh){
-  var s = el("div","score");
-  s.style.marginTop = "1rem";
-  var dots = el("div","dots");
-  for(var i=0;i<QN;i++){
-    var d = el("span","dot" + (qscore[i]===true?" rt":qscore[i]===false?" wr":"") +
-                       (fresh===i ? " fresh" : ""));
-    dots.appendChild(d);
-  }
-  s.appendChild(dots);
-  var n = qscore.filter(function(x){return x===true;}).length;
-  s.appendChild(el("span",null, n + " of " + qscore.length + " right so far"));
-  return s;
-}
-
-function answer(saidCorrect){
-  if(answered) return; answered = true;
-  var r = qpool[qi];
-  var right = (saidCorrect === r.ok);
-  qscore[qi] = right;
-
-  var host = document.getElementById("quiz");
-  [].forEach.call(host.querySelectorAll(".choices button"), function(b){ b.disabled = true; });
-
-  var rev = el("div","reveal");
-  var v = el("p","verdict " + (right?"rt":"wr"));
-  v.textContent = right
-    ? (r.ok ? "Correct. That query does return the right rows."
-            : "Correct. That query is wrong.")
-    : (r.ok ? "Wrong. That query was actually right."
-            : "Wrong. That query returned the wrong rows, with no error.");
-  rev.appendChild(v);
-
-  var side = el("div","side");
-  var a = el("div"); a.appendChild(el("div","lb","What the human wrote"));
-  var ac = el("code"); ac.textContent = r.gold; a.appendChild(ac);
-  a.appendChild(el("div","n", r.grows + " rows"));
-  var b = el("div"); b.appendChild(el("div","lb","What the model wrote"));
-  var bc = el("code"); bc.textContent = r.sql; b.appendChild(bc);
-  b.appendChild(el("div","n", (r.prows==null?"n/a":r.prows) + " rows"
-      + (r.conf!=null ? "  ·  stated confidence " + r.conf.toFixed(2) : "")));
-  side.appendChild(a); side.appendChild(b);
-  rev.appendChild(side);
-
-  var nx = el("div","choices");
-  var btn = el("button",null, (qi+1 >= qpool.length) ? "See the result" : "Next query");
-  btn.onclick = function(){ qi++; renderQuiz(); };
-  nx.appendChild(btn);
-  rev.appendChild(nx);
-  rev.appendChild(keyHint("next"));
-
-  host.appendChild(rev);
-  host.appendChild(scoreStrip(qi));
-  btn.focus();
-}
-
-function renderFinal(host){
-  document.getElementById("qprog").textContent = "done";
-  var n = qscore.filter(function(x){return x===true;}).length;
-  var pct = Math.round(100*n/qscore.length);
-
-  var box = el("div","final");
-  var h = el("p"); h.style.margin="0 0 .6rem";
-  h.innerHTML = "<b>You scored " + n + " out of " + qscore.length +
-                ", so " + pct + " percent.</b>";
-  box.appendChild(h);
-  var p = el("p"); p.style.margin="0";
-  p.innerHTML = "The set was balanced, half right and half wrong, so guessing scores 50. " +
-    "Judging SQL against a schema you have never seen, with no correct answer to compare " +
-    "against, is roughly the position a reviewer is in on a real team. <b>93 of the 104 " +
-    "errors in this study ran without any error at all</b> and returned results that did not match the human " + "answer.";
-  box.appendChild(p);
-
-  /* Comparing your score to a model's accuracy would be dishonest: you are detecting
-     errors, the models are writing SQL. Two different jobs. These three are all the same
-     job, judging the same balanced set, so they can sit on one axis. */
-  var board = el("div","board");
-  [
-    ["you",    "<b>You</b>, by eye",                       pct,  "you"],
-    ["chance", "Guessing at random",                        50,   "chance"],
-    ["mech",   "<b>Four model setups</b> compared",         84,   "mech"]
-  ].forEach(function(row){
-    var r = el("div","brow");
-    var lab = el("div","bl"); lab.innerHTML = row[1];
-    var track = el("div","btrack");
-    var fill = el("div","bfill " + row[3]);
-    track.appendChild(fill);
-    var val = el("div","bval", row[2] + "%");
-    r.appendChild(lab); r.appendChild(track); r.appendChild(val);
-    board.appendChild(r);
-    setTimeout(function(){ fill.style.width = row[2] + "%"; }, 60);
-  });
-  var note = el("p","hint");
-  note.style.marginTop = ".5rem";
-  note.innerHTML = "All three judge whether a query is right on a balanced mix of right and wrong. " + "The last one needs no human, and judges 84% of all 600 queries correctly on that basis. It runs the question through four " +
-    "model setups (two models, two prompts each) and flags it when they do not all return " +
-    "the same rows. That catches 87 of the 104 mistakes and wrongly flags 81 of the 496 " +
-    "correct answers.";
-  board.appendChild(note);
-  box.appendChild(board);
-
-  var beat = el("div","beat" + (pct > 50 ? "" : " no"));
-  beat.innerHTML = pct >= 84
-    ? "You matched the automated check, which runs on every query for about a tenth of a cent per question."
-    : pct > 50
-      ? "Better than chance, and below a check that runs four setups on every question."
-      : "At or below chance. You saw what a reviewer sees: SQL that runs, with no correct answer to compare it to.";
-  box.appendChild(beat);
-
-  var share = el("div","shareRow");
-  var sb = el("button",null,"Copy my result");
-  sb.onclick = function(){
-    var txt = "I scored " + n + "/" + qscore.length + " (" + pct + "%) spotting broken " +
-      "AI-generated SQL by eye. An automatic check comparing four model setups (two models, two prompts each) gets " +
-      "84% (87 of 104 errors caught). From Yardstick, a pre-registered study of 600 generated queries: " +
-      location.href;
-    var done = function(){
-      var s = share.querySelector(".said");
-      if(!s){ s = el("span","said","copied"); share.appendChild(s); }
-      s.textContent = "copied";
-      setTimeout(function(){ if(s) s.textContent = ""; }, 2200);
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(done, function(){ fallbackCopy(txt, done); });
-    } else fallbackCopy(txt, done);
-  };
-  var again = el("button",null,"Try six more");
-  again.onclick = function(){ qpool=buildPool(); renderStart(); };
-  share.appendChild(sb); share.appendChild(again);
-  box.appendChild(share);
-
-  host.appendChild(box);
-  host.appendChild(scoreStrip());
-}
-
-function fallbackCopy(text, done){
-  var ta = document.createElement("textarea");
-  ta.value = text; ta.setAttribute("readonly","");
-  ta.style.position="fixed"; ta.style.opacity="0";
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand("copy"); done(); } catch(e){}
-  document.body.removeChild(ta);
-}
-
-/* ============================================================= 2. EXPLORER */
-var F = { v:new Set(), t:new Set(), o:new Set() };
-var sortK = null, sortDir = 1, openRow = null;
-
-/* ---------------------------------------------------------- variant picker */
-var VMETA = {
-  V1:{m:"8B",  p:"no examples"},     V2:{m:"8B",  p:"shown examples"},
-  V3:{m:"70B", p:"no examples"},     V4:{m:"70B", p:"shown examples"}
-};
-
-/* Every number here is counted from the loaded runs rather than hard coded, so it
-   cannot drift away from the data the table is showing. */
-function variantStats(v){
-  var rows = RUNS.filter(function(r){ return r.v === v; });
-  var ok   = rows.filter(function(r){ return r.ok; }).length;
-  var wrong = rows.length - ok;
-  var silent = rows.filter(function(r){ return r.silent; }).length;
-  return { n:rows.length, ok:ok, wrong:wrong, silent:silent,
-           acc: rows.length ? ok/rows.length : 0,
-           hidden: wrong ? silent/wrong : 0 };
-}
-
-function renderVCard(v){
-  var card = document.getElementById("vcard"), say = document.getElementById("vsay");
-  card.innerHTML = ""; say.innerHTML = "";
-
-  if(!v){
-    /* the all-setups view: the comparison is the point, so show the spread */
-    var best = variantStats("V3"), worst = variantStats("V1");
-    say.innerHTML = "Showing all 600 runs. Pick a setup above to see how it did on its " +
-      "own. The most accurate setup (V3, " + Math.round(best.acc*100) + " percent correct) had " + best.silent + " of its " + best.wrong + " mistakes run without any error. The least accurate " + "(V1, " + Math.round(worst.acc*100) + " percent correct) had " + worst.silent + " of " + worst.wrong + ".";
-    return;
-  }
-
-  var s = variantStats(v), meta = VMETA[v];
-  [["Model", meta.m, ""],
-   ["Prompt", meta.p, ""],
-   ["Accuracy", Math.round(s.acc*100) + "%", s.ok + " of " + s.n],
-   ["Got it wrong", String(s.wrong), "queries"],
-   ["Ran clean but wrong", Math.round(s.hidden*100) + "%", s.silent + " of " + s.wrong]
-  ].forEach(function(row, i){
-    var d = el("div", i === 4 ? "hot" : null);
-    d.appendChild(el("span","k",row[0]));
-    var val = el("span","v", row[1]);
-    if(row[2]) val.appendChild(el("small", null, row[2]));
-    d.appendChild(val);
-    card.appendChild(d);
-  });
-
-  say.innerHTML = "<b>" + v + "</b> is the " + meta.m + " model with " + meta.p +
-    ". It answered " + Math.round(s.acc*100) + " percent correctly. Of the " + s.wrong +
-    " it got wrong, <b>" + s.silent + " gave no error at all</b> and returned " + "wrong results. The table below is filtered to this setup.";
-}
-
-/* One source of truth. The dropdown and the chips both write F.v, then both get
-   redrawn from it, so they cannot end up describing different things. */
-function syncVariantUI(){
-  var sel = document.getElementById("vpick");
-  var only = F.v.size === 1 ? F.v.values().next().value : "";
-  if(sel.value !== only) sel.value = only;
-  [].forEach.call(document.querySelectorAll('#filters .tog[data-v]'), function(b){
-    b.setAttribute("aria-pressed", F.v.has(b.getAttribute("data-v")) ? "true" : "false");
-  });
-  renderVCard(only);
-}
-
-function buildFilters(){
-  var host = document.getElementById("filters");
-  host.innerHTML = "";
-  function group(label, key, vals, labels){
-    var g = el("div","fg");
-    g.appendChild(el("span","lab",label));
-    vals.forEach(function(val, i){
-      var b = el("button","tog", labels ? labels[i] : val);
-      b.setAttribute("aria-pressed","false");
-      if(key === "v") b.setAttribute("data-v", val);
-      b.onclick = function(){
-        var on = b.getAttribute("aria-pressed")==="true";
-        b.setAttribute("aria-pressed", on?"false":"true");
-        if(on) F[key].delete(val); else F[key].add(val);
-        if(key === "v") syncVariantUI();
-        drawTable();
-      };
-      g.appendChild(b);
-    });
-    host.appendChild(g);
-  }
-  group("Variant","v",["V1","V2","V3","V4"],
-        ["V1 8B zero","V2 8B few","V3 70B zero","V4 70B few"]);
-  group("Tier","t",["simple","moderate","complex"]);
-  group("Outcome","o",["correct","silent","loud"],
-        ["correct","silent failure","loud failure"]);
-  var clear = el("button","tog","reset");
-  clear.style.marginLeft="auto";
-  clear.onclick = function(){
-    F.v.clear(); F.t.clear(); F.o.clear();
-    [].forEach.call(host.querySelectorAll(".tog"),function(b){b.setAttribute("aria-pressed","false");});
-    syncVariantUI();
-    drawTable();
-  };
-  host.appendChild(clear);
-
-  var sel = document.getElementById("vpick");
-  sel.onchange = function(){
-    F.v.clear();
-    if(sel.value) F.v.add(sel.value);
-    syncVariantUI();
-    drawTable();
-  };
-  syncVariantUI();
-}
-
-function filtered(){
-  return RUNS.filter(function(r){
-    if(F.v.size && !F.v.has(r.v)) return false;
-    if(F.t.size && !F.t.has(r.t)) return false;
-    if(F.o.size && !F.o.has(outcome(r))) return false;
-    return true;
-  });
-}
-
-function drawTable(){
-  var rows = filtered();
-  if(sortK){
-    rows = rows.slice().sort(function(a,b){
-      var x = sortK==="outcome" ? outcome(a) : a[sortK];
-      var y = sortK==="outcome" ? outcome(b) : b[sortK];
-      if(x==null) x = -Infinity; if(y==null) y = -Infinity;
-      return (x<y?-1:x>y?1:0) * sortDir;
-    });
-  }
-  document.getElementById("xcount").textContent =
-    rows.length + " of " + RUNS.length + " runs";
-  var body = document.getElementById("xbody");
-  body.innerHTML = "";
-  if(!rows.length){
-    var tr = el("tr"); var td = el("td"); td.colSpan = 7;
-    td.appendChild(el("div","empty","No runs match those filters."));
-    tr.appendChild(td); body.appendChild(tr); return;
-  }
-  rows.slice(0,400).forEach(function(r){
-    var tr = el("tr");
-    tr.appendChild(el("td",null,r.v));
-    tr.appendChild(el("td",null,r.t));
-    tr.appendChild(el("td",null,r.db));
-    tr.appendChild(el("td",null,r.q));
-    var o = outcome(r);
-    var td = el("td");
-    var tag = el("span","tag " + (o==="correct"?"ok":o==="silent"?"si":"lo"),
-      o==="correct"?"correct":o==="silent"?"silent":"loud");
-    td.appendChild(tag); tr.appendChild(td);
-    tr.appendChild(el("td","num", r.conf==null?"n/a":r.conf.toFixed(2)));
-    tr.appendChild(el("td","num", r.prows==null?"n/a":String(r.prows)));
-    tr.onclick = function(){ toggleDetail(tr, r); };
-    tr.onmouseenter = function(){ peek(r); };
-    body.appendChild(tr);
-  });
-  if(rows.length > 400){
-    var tr2 = el("tr"); var td2 = el("td"); td2.colSpan = 7;
-    td2.appendChild(el("div","empty","Showing the first 400. Filter to narrow."));
-    tr2.appendChild(td2); body.appendChild(tr2);
-  }
-}
-
-/* Hovering a row shows the generated SQL in a fixed strip under the table rather than a
-   floating tooltip, so it never covers the row you are pointing at. */
-function peek(r){
-  var host = document.getElementById("peek");
-  host.innerHTML = "";
-  var o = outcome(r);
-  host.appendChild(el("span","pk",
-    o==="correct" ? "correct →" : o==="silent" ? "silent failure →" : "loud failure →"));
-  var c = el("code"); c.textContent = r.sql || "(no parseable SQL)";
-  host.appendChild(c);
-}
-
-function toggleDetail(tr, r){
-  var nxt = tr.nextSibling;
-  if(nxt && nxt.classList && nxt.classList.contains("detail")){
-    nxt.remove(); tr.classList.remove("open"); return;
-  }
-  var d = el("tr","detail"); var td = el("td"); td.colSpan = 7;
-  var g = el("div","dgrid");
-  var a = el("div"); a.appendChild(el("div","lb","Human answer  ·  " + r.grows + " rows"));
-  var ac = el("code"); ac.textContent = r.gold; a.appendChild(ac);
-  var b = el("div");
-  b.appendChild(el("div","lb","Model answer  ·  " +
-    (r.prows==null?"did not run":r.prows + " rows") +
-    (r.err? "  ·  " + r.err : "")));
-  var bc = el("code"); bc.textContent = r.sql || "(no parseable SQL)"; b.appendChild(bc);
-  g.appendChild(a); g.appendChild(b);
-  td.appendChild(g);
-  d.appendChild(td);
-  tr.parentNode.insertBefore(d, tr.nextSibling);
-  tr.classList.add("open");
-}
-
-function wireSort(){
-  [].forEach.call(document.querySelectorAll("#xtable th.s"), function(th){
-    th.onclick = function(){
-      var k = th.getAttribute("data-k");
-      if(sortK === k) sortDir = -sortDir; else { sortK = k; sortDir = 1; }
-      drawTable();
-    };
-  });
-}
-
-/* ============================================================== 3. SQL ENGINE
-   A deliberately small SELECT engine: enough to interrogate the data honestly,
-   small enough to read. Tokeniser, recursive-descent parser, evaluator.        */
-var COLS = ["v","m","p","t","db","q","gold","sql","ok","ran","silent","err",
-            "conf","grows","prows","tok","cost","ms"];
-
-function tokenize(s){
-  var out = [], i = 0;
-  var re = {
-    ws:/\s+/y, num:/-?\d+(\.\d+)?/y, str:/'([^']*)'/y,
-    op:/(>=|<=|!=|<>|=|>|<)/y, word:/[A-Za-z_][A-Za-z_0-9]*/y, punc:/[(),*]/y
-  };
-  while(i < s.length){
-    var m;
-    re.ws.lastIndex=i; if((m=re.ws.exec(s))){ i=re.ws.lastIndex; continue; }
-    re.str.lastIndex=i; if((m=re.str.exec(s))){ out.push({t:"str",v:m[1]}); i=re.str.lastIndex; continue; }
-    re.num.lastIndex=i; if((m=re.num.exec(s))){ out.push({t:"num",v:parseFloat(m[0])}); i=re.num.lastIndex; continue; }
-    re.op.lastIndex=i;  if((m=re.op.exec(s))){ out.push({t:"op",v:m[0]}); i=re.op.lastIndex; continue; }
-    re.word.lastIndex=i;if((m=re.word.exec(s))){ out.push({t:"word",v:m[0]}); i=re.word.lastIndex; continue; }
-    re.punc.lastIndex=i;if((m=re.punc.exec(s))){ out.push({t:"punc",v:m[0]}); i=re.punc.lastIndex; continue; }
-    throw new Error("Cannot read character " + JSON.stringify(s[i]) + " at position " + i);
-  }
-  return out;
-}
-
-function Parser(toks){ this.k = toks; this.i = 0; }
-Parser.prototype.peek = function(){ return this.k[this.i]; };
-Parser.prototype.next = function(){ return this.k[this.i++]; };
-Parser.prototype.isWord = function(w){ var t=this.peek();
-  return t && t.t==="word" && t.v.toUpperCase()===w; };
-Parser.prototype.eatWord = function(w){ if(this.isWord(w)){ this.i++; return true; } return false; };
-Parser.prototype.expectWord = function(w){
-  if(!this.eatWord(w)) throw new Error("Expected " + w +
-    (this.peek()? " but found '"+this.peek().v+"'" : " but the query ended")); };
-
-Parser.prototype.parse = function(){
-  this.expectWord("SELECT");
-  var sel = this.selectList();
-  this.expectWord("FROM");
-  var t = this.next();
-  if(!t || t.t!=="word") throw new Error("Expected a table name after FROM");
-  if(t.v.toLowerCase() !== "runs")
-    throw new Error("The only table here is 'runs'. You asked for '" + t.v + "'.");
-  var where = null, group = null, order = null, limit = null;
-  if(this.eatWord("WHERE")) where = this.orExpr();
-  if(this.eatWord("GROUP")){ this.expectWord("BY"); group = this.colName(); }
-  if(this.eatWord("ORDER")){ this.expectWord("BY");
-    var c = this.colName(); var dir = 1;
-    if(this.eatWord("DESC")) dir = -1; else this.eatWord("ASC");
-    order = {c:c, dir:dir}; }
-  if(this.eatWord("LIMIT")){ var n = this.next();
-    if(!n || n.t!=="num") throw new Error("LIMIT needs a number");
-    limit = n.v; }
-  if(this.i < this.k.length)
-    throw new Error("Unexpected '" + this.k[this.i].v + "' after the end of the query");
-  return {sel:sel, where:where, group:group, order:order, limit:limit};
-};
-Parser.prototype.colName = function(){
-  var t = this.next();
-  if(!t || t.t!=="word") throw new Error("Expected a column name");
-  var c = t.v.toLowerCase();
-  if(COLS.indexOf(c) < 0)
-    throw new Error("No column '" + t.v + "'. Available: " + COLS.join(", "));
-  return c;
-};
-Parser.prototype.selectList = function(){
-  var out = [];
-  do {
-    var t = this.peek();
-    if(t && t.t==="punc" && t.v==="*"){ this.i++; out.push({kind:"all"}); }
-    else if(t && t.t==="word" && this.k[this.i+1] &&
-            this.k[this.i+1].t==="punc" && this.k[this.i+1].v==="("){
-      var fn = this.next().v.toUpperCase(); this.i++;      // consume '('
-      var arg;
-      var p = this.peek();
-      if(p && p.t==="punc" && p.v==="*"){ this.i++; arg = "*"; }
-      else arg = this.colName();
-      var close = this.next();
-      if(!close || close.v !== ")") throw new Error("Expected ) after " + fn + "(");
-      if(["COUNT","AVG","SUM","MIN","MAX"].indexOf(fn) < 0)
-        throw new Error("Unknown function " + fn + "(). Try COUNT, AVG, SUM, MIN or MAX.");
-      out.push({kind:"agg", fn:fn, arg:arg});
-    } else out.push({kind:"col", c:this.colName()});
-  } while(this.eatPunc(","));
-  return out;
-};
-Parser.prototype.eatPunc = function(p){ var t=this.peek();
-  if(t && t.t==="punc" && t.v===p){ this.i++; return true; } return false; };
-
-Parser.prototype.orExpr = function(){
-  var l = this.andExpr();
-  while(this.eatWord("OR")) l = {op:"OR", l:l, r:this.andExpr()};
-  return l;
-};
-Parser.prototype.andExpr = function(){
-  var l = this.cmp();
-  while(this.eatWord("AND")) l = {op:"AND", l:l, r:this.cmp()};
-  return l;
-};
-// A leading NOT negates whatever comparison follows, including `IS NULL`. Handling it
-// as a prefix wrapper rather than a flag on each branch means it can never be parsed
-// and then quietly dropped, which is what an earlier version did.
-Parser.prototype.cmp = function(){
-  if(this.eatPunc("(")){ var e = this.orExpr();
-    if(!this.eatPunc(")")) throw new Error("Missing closing )"); return e; }
-  if(this.eatWord("NOT")) return {op:"NOT", e:this.cmp()};
-  return this.comparison();
-};
-Parser.prototype.comparison = function(){
-  var c = this.colName();
-  if(this.eatWord("IS")){
-    var isNot = this.eatWord("NOT");
-    this.expectWord("NULL");
-    var n = {op:"null", c:c};
-    return isNot ? {op:"NOT", e:n} : n;
-  }
-  var infixNot = this.eatWord("NOT");        // col NOT LIKE / col NOT IN
-  if(this.eatWord("LIKE")){
-    var lk = {op:"like", c:c, v:this.literal()};
-    return infixNot ? {op:"NOT", e:lk} : lk;
-  }
-  if(this.eatWord("IN")){
-    if(!this.eatPunc("(")) throw new Error("IN needs a ( list )");
-    var vals = [];
-    do { vals.push(this.literal()); } while(this.eatPunc(","));
-    if(!this.eatPunc(")")) throw new Error("Missing ) after IN list");
-    var inn = {op:"in", c:c, vals:vals};
-    return infixNot ? {op:"NOT", e:inn} : inn;
-  }
-  if(infixNot) throw new Error("NOT after '" + c + "' must be followed by LIKE or IN");
-  var t = this.next();
-  if(!t || t.t!=="op") throw new Error("Expected a comparison after '" + c + "'");
-  return {op:t.v, c:c, v:this.literal()};
-};
-Parser.prototype.literal = function(){
-  var t = this.next();
-  if(!t) throw new Error("Expected a value");
-  if(t.t==="num") return t.v;
-  if(t.t==="str") return t.v;
-  if(t.t==="word"){
-    var w = t.v.toLowerCase();
-    if(w==="true") return true;
-    if(w==="false") return false;
-    if(w==="null") return null;
-    return t.v;                       // bare word treated as a string
-  }
-  throw new Error("Expected a value but found '" + t.v + "'");
-};
-
-function truthy(node, row){
-  switch(node.op){
-    case "AND": return truthy(node.l,row) && truthy(node.r,row);
-    case "OR":  return truthy(node.l,row) || truthy(node.r,row);
-    case "NOT": return !truthy(node.e,row);
-    case "null": return row[node.c] == null;
-    case "like":{
-      var pat = new RegExp("^" + String(node.v).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")
-                  .replace(/%/g,".*").replace(/_/g,".") + "$","i");
-      return pat.test(String(row[node.c]==null?"":row[node.c]));
-    }
-    case "in": return node.vals.some(function(v){ return eq(row[node.c],v); });
-    case "=":  return eq(row[node.c], node.v);
-    case "!=": case "<>": return !eq(row[node.c], node.v);
-    case ">":  return row[node.c] >  node.v;
-    case "<":  return row[node.c] <  node.v;
-    case ">=": return row[node.c] >= node.v;
-    case "<=": return row[node.c] <= node.v;
-  }
-  return false;
-}
-function eq(a,b){
-  if(typeof b === "boolean") return Boolean(a) === b;
-  if(typeof a === "string" && typeof b === "string") return a.toLowerCase()===b.toLowerCase();
-  return a === b;
-}
-
-function aggregate(items, spec){
-  var vals = items.map(function(r){ return spec.arg==="*" ? 1 : r[spec.arg]; })
-                  .filter(function(x){ return x!=null; });
-  switch(spec.fn){
-    case "COUNT": return spec.arg==="*" ? items.length : vals.length;
-    case "SUM":   return round(vals.reduce(function(a,b){return a+b;},0));
-    case "AVG":   return vals.length? round(vals.reduce(function(a,b){return a+b;},0)/vals.length) : null;
-    case "MIN":   return vals.length? vals.reduce(function(a,b){return a<b?a:b;}) : null;
-    case "MAX":   return vals.length? vals.reduce(function(a,b){return a>b?a:b;}) : null;
-  }
-}
-function round(x){ return typeof x === "number" ? Math.round(x*10000)/10000 : x; }
-function label(s){ return s.kind==="all" ? "*"
-  : s.kind==="col" ? s.c : s.fn.toLowerCase()+"("+s.arg+")"; }
-
-function runQuery(text){
-  var ast = new Parser(tokenize(text)).parse();
-  var rows = RUNS;
-  if(ast.where) rows = rows.filter(function(r){ return truthy(ast.where, r); });
-
-  var hasAgg = ast.sel.some(function(s){ return s.kind==="agg"; });
-  var cols, out;
-
-  if(ast.group || hasAgg){
-    var groups = new Map();
-    if(ast.group){
-      rows.forEach(function(r){
-        var k = String(r[ast.group]);
-        if(!groups.has(k)) groups.set(k, []);
-        groups.get(k).push(r);
-      });
-    } else groups.set("__all__", rows);
-
-    cols = ast.sel.map(label);
-    out = [];
-    groups.forEach(function(items, key){
-      out.push(ast.sel.map(function(s){
-        if(s.kind==="agg") return aggregate(items, s);
-        if(s.kind==="col") return ast.group===s.c ? items[0][s.c] : items[0][s.c];
-        return "*";
-      }));
-    });
-  } else {
-    var expand = ast.sel.some(function(s){ return s.kind==="all"; });
-    cols = expand ? COLS : ast.sel.map(label);
-    out = rows.map(function(r){ return cols.map(function(c){ return r[c]; }); });
-  }
-
-  if(ast.order){
-    var idx = cols.indexOf(ast.order.c);
-    if(idx < 0) throw new Error("ORDER BY '" + ast.order.c + "' is not in the SELECT list");
-    out.sort(function(a,b){
-      var x=a[idx], y=b[idx];
-      if(x==null) x=-Infinity; if(y==null) y=-Infinity;
-      return (x<y?-1:x>y?1:0) * ast.order.dir;
-    });
-  }
-  var total = out.length;
-  if(ast.limit != null) out = out.slice(0, ast.limit);
-  return {cols:cols, rows:out, total:total};
-}
-
-function showResult(res){
-  var host = document.getElementById("cout");
-  host.innerHTML = "";
-  var line = el("div","okline",
-    res.total + (res.total===1?" row":" rows") +
-    (res.rows.length < res.total ? "  ·  showing " + res.rows.length : ""));
-  host.appendChild(line);
-  if(!res.rows.length) return;
-  var wrap = el("div","scroll"); wrap.style.marginTop=".6rem";
-  wrap.style.border="1px solid var(--line)"; wrap.style.borderRadius="3px";
-  var tb = el("table");
-  var th = el("thead"); var htr = el("tr");
-  res.cols.forEach(function(c){ htr.appendChild(el("th",null,c)); });
-  th.appendChild(htr); tb.appendChild(th);
-  var bd = el("tbody");
-  res.rows.forEach(function(r){
-    var tr = el("tr");
-    r.forEach(function(v){
-      var td = el("td", typeof v === "number" ? "num" : null,
-        v==null ? "n/a" : typeof v==="boolean" ? (v?"true":"false") : String(v));
-      tr.appendChild(td);
-    });
-    bd.appendChild(tr);
-  });
-  tb.appendChild(bd); wrap.appendChild(tb); host.appendChild(wrap);
-}
-
-function execute(){
-  var errHost = document.getElementById("cerr");
-  errHost.innerHTML = ""; document.getElementById("cout").innerHTML = "";
-  var text = document.getElementById("sqlbox").value.trim().replace(/;+\s*$/,"");
-  if(!text) return;
-  try { showResult(runQuery(text)); }
-  catch(e){
-    var d = el("div","err", e.message);
-    errHost.appendChild(d);
-  }
-}
-
-var EXAMPLES = [
-  ["Silent failures the model was certain about",
-   "SELECT v, t, db, conf, q FROM runs WHERE silent = true AND conf = 1 LIMIT 25"],
-  ["Accuracy by variant",
-   "SELECT v, COUNT(*), AVG(ok) FROM runs GROUP BY v"],
-  ["Silent-failure rate by tier",
-   "SELECT t, COUNT(*), AVG(silent) FROM runs GROUP BY t"],
-  ["Which errors were loud",
-   "SELECT v, t, err, db FROM runs WHERE ran = false LIMIT 25"],
-  ["Wrong joins only",
-   "SELECT v, t, db, q FROM runs WHERE err LIKE 'wrong_join' LIMIT 25"],
-  ["Where the 70B model still failed",
-   "SELECT t, db, q, err FROM runs WHERE m = '70B' AND ok = false LIMIT 25"],
-  ["Most expensive calls",
-   "SELECT v, t, tok, cost FROM runs ORDER BY tok DESC LIMIT 15"]
-];
-function buildExamples(){
-  var host = document.getElementById("examples");
-  EXAMPLES.forEach(function(pair){
-    var b = el("button",null,pair[0]);
-    b.onclick = function(){
-      document.getElementById("sqlbox").value = pair[1];
-      execute();
-      document.getElementById("cout").scrollIntoView({block:"nearest",behavior:"smooth"});
-    };
-    host.appendChild(b);
-  });
-}
-
-/* ==================================================================== boot */
-fetch("data/runs.json")
-  .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-  .then(function(d){
-    RUNS = d.runs; ready = true;
-
-    // headline number, computed rather than typed, so it cannot drift from the data
-    var v3 = RUNS.filter(function(r){ return r.v==="V3"; });
-    var v3err = v3.filter(function(r){ return !r.ok; });
-    var v3sil = v3err.filter(function(r){ return r.silent; });
-    document.getElementById("f1").textContent =
-      v3err.length ? Math.round(100*v3sil.length/v3err.length) + "%" : "n/a";
-
-    qpool = buildPool();
-    renderStart();
-    buildFilters(); wireSort(); drawTable();
-    buildExamples(); execute();
-    countUp(); armNudge();
-  })
-  .catch(function(e){
-    document.getElementById("quiz").innerHTML =
-      '<div class="loading">Could not load the run data (' + esc(e.message) + ').</div>';
-  });
-
-/* A single, dismissable nudge for someone who scrolled past the quiz without starting it.
-   Fires once, never returns after being dismissed or once the quiz begins, and stays out
-   of the way otherwise: a nag that reappears is worse than no nag. */
-function armNudge(){
-  var bar = null, shown = false, dead = false;
-  function kill(){
-    dead = true;
-    if(bar) bar.classList.remove("on");
-  }
-  function show(){
-    if(shown || dead || started) return;
-    shown = true;
-    bar = el("div","nudge");
-    var t = el("span",null,"Scrolled past the quiz?");
-    var a = el("a",null,"Take it, one minute");
-    a.href = "#quiz-panel";
-    a.onclick = function(){ kill(); };
-    var x = el("button",null,"×");
-    x.setAttribute("aria-label","Dismiss");
-    x.onclick = kill;
-    bar.appendChild(t); bar.appendChild(a); bar.appendChild(x);
-    document.body.appendChild(bar);
-    requestAnimationFrame(function(){ bar.classList.add("on"); });
-    setTimeout(function(){ if(bar && !dead) bar.classList.remove("on"); }, 12000);
-  }
-  addEventListener("scroll", function(){
-    if(shown || dead || started) return;
-    var panel = document.getElementById("quiz-panel");
-    if(!panel) return;
-    // only once its bottom edge is well above the viewport
-    if(panel.getBoundingClientRect().bottom < -120) show();
-  }, {passive:true});
-}
-
-/* Count the headline numbers up when they scroll into view. The real value is stashed
-   in data-final and restored by a guaranteed timer, so a throttled frame callback can
-   never strand a wrong number on screen where a right one belongs. */
-function countUp(){
-  var nodes = [].slice.call(document.querySelectorAll(".facts .n"));
-  var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  nodes.forEach(function(n){ n.setAttribute("data-final", n.textContent.trim()); });
-  if(still || !("IntersectionObserver" in window)) return;
-
-  function run(n){
-    if(n.getAttribute("data-done")) return;
-    n.setAttribute("data-done","1");
-    var raw = n.getAttribute("data-final");
-    var m = raw.match(/^([+]?)(\d+)(%?)$/);
-    if(!m) return;
-    var sign=m[1], target=parseInt(m[2],10), suffix=m[3], t0=null;
-    var settle = setTimeout(function(){ n.textContent = raw; }, 1400);
-    function step(ts){
-      if(!t0) t0 = ts;
-      var p = Math.min((ts-t0)/900, 1);
-      n.textContent = sign + Math.round(target*(1-Math.pow(1-p,3))) + suffix;
-      if(p < 1) requestAnimationFrame(step);
-      else { clearTimeout(settle); n.textContent = raw; }
-    }
-    n.textContent = sign + "0" + suffix;
-    requestAnimationFrame(step);
-  }
-  var io = new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ run(e.target); io.unobserve(e.target); } });
-  }, {threshold:0.4});
-  nodes.forEach(function(n){ io.observe(n); });
-  setTimeout(function(){ nodes.forEach(run); }, 3000);   // failsafe
-}
-
-/* Keyboard: Y and N answer, Enter or the right arrow advances. Ignored while the reader
-   is typing in the SQL box. */
-document.addEventListener("keydown", function(e){
-  var t = e.target;
-  if(t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT")) return;
-  if(e.metaKey || e.ctrlKey || e.altKey) return;
-  var host = document.getElementById("quiz");
-  if(!host) return;
-  var k = e.key.toLowerCase();
-
-  if(!started) return;
-  if(!answered){
-    var btns = host.querySelectorAll(".choices button");
-    if(btns.length === 2){
-      if(k === "y"){ e.preventDefault(); btns[0].click(); return; }
-      if(k === "n"){ e.preventDefault(); btns[1].click(); return; }
-    }
-  }
-  if(k === "enter" || k === "arrowright"){
-    var nxt = host.querySelector(".reveal .choices button");
-    if(nxt){ e.preventDefault(); nxt.click(); }
-  }
-});
-
-/* Jargon: hover covers a mouse, but a touch screen has no hover and a keyboard needs
-   focus, so the same control also toggles on click. Clicking anywhere else closes it. */
-[].forEach.call(document.querySelectorAll(".def"), function(b){
-  b.setAttribute("aria-expanded","false");
-  b.addEventListener("click", function(e){
-    e.stopPropagation();
-    var open = b.classList.toggle("open");
-    b.setAttribute("aria-expanded", open ? "true" : "false");
-  });
-});
-document.addEventListener("click", function(){
-  [].forEach.call(document.querySelectorAll(".def.open"), function(b){
-    b.classList.remove("open"); b.setAttribute("aria-expanded","false");
-  });
-});
-
-document.getElementById("runbtn").onclick = execute;
-document.getElementById("sqlbox").addEventListener("keydown", function(e){
-  if((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); execute(); }
-});
-
-})();
-</script>
+<!-- ======================================================== chapter 5 -->
+<section class="chapter wrap" id="ch5" aria-labelledby="ch5h">
+  <div class="chead">
+    <span class="num" aria-hidden="true">5</span>
+    <span class="kicker">Chapter 5</span>
+    <h2 id="ch5h">What did not work</h2>
+    <p>Three things I expected to help.</p>
+  </div>
+  <div class="cards3">
+    <div class="box"><span class="big"><span data-fact="fewshotComplexPts">+8</span> pts</span><h3>Solved examples in the prompt</h3><p>No significant gain at any difficulty (largest on complex, p = <span data-fact="fewshotComplexP">0.42</span>).</p></div>
+    <div class="box"><span class="big"><span data-fact="aucConfidence">0.647</span></span><h3>The AI's own confidence</h3><p>AUC, where 0.5 is a coin flip. Agreement between answers scores <span data-fact="aucAgreement">0.861</span>.</p></div>
+    <div class="box"><span class="big"><span data-fact="routerAccuracy">78.3%</span></span><h3>Routing hard questions to the big model</h3><p>Random routing at the same budget averaged <span data-fact="randomAverage">75.5%</span>.</p></div>
+  </div>
+</section>
+
+<!-- ======================================================== appendix -->
+<section class="chapter wrap" id="method" aria-labelledby="mh">
+  <div class="chead">
+    <span class="kicker">Appendix</span>
+    <h2 id="mh">How it was tested, and the raw data</h2>
+  </div>
+  <div class="method">
+    <div>
+      <h3>Method</h3>
+      <p><span data-fact="questions">150</span> questions from Spider, a public text-to-SQL benchmark (50 per difficulty level, 93 databases), each answered by Meta's open Llama 3.1 8B and 3.3 70B, with and without three solved examples: <span data-fact="total">600</span> answers. Every query ran against the real database and its rows were compared with the human answer's. The hypotheses and tests (McNemar exact, bootstrap intervals, Benjamini Hochberg) were committed before any data was collected.</p>
+    </div>
+    <div>
+      <h3>Strict scoring</h3>
+      <p>Right information with an extra or missing column counts as wrong. That is <span data-fact="projectionNoWarning">11</span> of the <span data-fact="noWarning">84</span> no-warning mistakes; without them it is <span data-fact="strictNoWarning">73</span> of <span data-fact="strictWrong">93</span> (<span data-fact="strictShare">78%</span>). The quiz leaves these out. Sources for every number: <a href="https://github.com/A28-2001/yardstick/blob/main/CLAIMS.md">CLAIMS.md</a>. Full write-up: <a href="report.html">the report</a>.</p>
+    </div>
+  </div>
+
+
+    <div class="pbar"><h3>Every answer</h3><span class="note" id="xcount">loading</span></div>
+    <div class="legend">
+      <div class="pick">
+        <label class="lab" for="vpick">Setup</label>
+        <select id="vpick">
+          <option value="">All four setups</option>
+          <option value="V1">V1: 8B model, no examples</option>
+          <option value="V2">V2: 8B model, solved examples</option>
+          <option value="V3">V3: 70B model, no examples</option>
+          <option value="V4">V4: 70B model, solved examples</option>
+        </select>
+      </div>
+      <div class="vcard" id="vcard"></div>
+      <p class="vsay" id="vsay"></p>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="scroll"><table id="xtable">
+      <thead><tr>
+        <th class="s" data-k="v">Setup</th>
+        <th class="s" data-k="t">Difficulty</th>
+        <th class="s" data-k="db">Database</th>
+        <th>Question</th>
+        <th class="s" data-k="outcome">Outcome</th>
+        <th class="s num" data-k="conf">Confidence</th>
+        <th class="s num" data-k="prows">Rows</th>
+      </tr></thead>
+      <tbody id="xbody"></tbody>
+    </table></div>
+    <div class="peek" id="peek"><span class="idle">Hover a row to preview the generated query. Click it to compare with the human answer.</span></div>
+  </div>
+
+  <div class="panel console">
+    <div class="pbar"><h3>Query the results yourself</h3><span class="note">table: runs, 600 rows</span></div>
+    <div class="pbody">
+      <p class="hint" style="margin:0 0 10px">A small SQL engine, hand-written for this page, runs in your browser over all 600 answers.</p>
+      <label class="sr" for="sqlbox">SQL query</label>
+      <textarea id="sqlbox" spellcheck="false">SELECT v, t, conf, q FROM runs WHERE silent = true AND conf = 1 ORDER BY t LIMIT 20</textarea>
+      <div class="crow"><button class="run" id="runbtn" type="button">Run query</button><span class="hint">Ctrl or Cmd + Enter</span></div>
+      <div class="examples" id="examples"></div>
+      <div id="cerr"></div>
+      <div id="cout"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <ul class="flinks">
+    <li><a href="report.html">Read the full write-up</a></li>
+    <li><a href="https://github.com/A28-2001/yardstick">Code and data on GitHub</a></li>
+    <li><a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a></li>
+    <li><a href="mailto:aakashmehta893@gmail.com">aakashmehta893@gmail.com</a></li>
+  </ul>
+  <p class="fnote">Pre-registered before the run. 150 questions, 93 databases, Spider corpus (CC BY-SA 4.0). Total cost $0 on a free tier (about <span data-fact="listCost">$0.17</span> at list prices). Fonts: IBM Plex and Source Serif 4, SIL Open Font License.</p>
+</footer>
 </body>
 </html>

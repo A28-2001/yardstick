@@ -1,0 +1,33 @@
+/* Shared design tokens for index.html and report.html.
+   Colour rule: red = a wrong answer, green = a correct answer or a mistake the check
+   caught, blue = something to click. Everything else is paper, ink and greys.
+   Fonts are self-hosted (SIL Open Font License, see docs/fonts/OFL-*.txt). */
+
+@font-face{font-family:"IBM Plex Sans";font-weight:400;font-style:normal;font-display:swap;src:url("../fonts/ibm-plex-sans-400.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:500;font-style:normal;font-display:swap;src:url("../fonts/ibm-plex-sans-500.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:600;font-style:normal;font-display:swap;src:url("../fonts/ibm-plex-sans-600.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-weight:400;font-style:normal;font-display:swap;src:url("../fonts/ibm-plex-mono-400.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-weight:500;font-style:normal;font-display:swap;src:url("../fonts/ibm-plex-mono-500.woff2") format("woff2")}
+@font-face{font-family:"Source Serif 4";font-weight:600;font-style:normal;font-display:swap;src:url("../fonts/source-serif-4-600.woff2") format("woff2")}
+
+:root{
+  --paper:#f7f6f2; --panel:#ffffff; --ink:#17191c; --mid:#4a4f56; --soft:#5f646b; --line:#dcd9d1;
+  --acc:#1d5ea8; --on-acc:#ffffff; --bad:#c0392b; --good:#1f7a4d; --dot:#b9b6ad;
+  --band:#17191c; --band-ink:#eeede8; --band-mid:#b9bcc0;
+  --serif:"Source Serif 4",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  /* four text sizes */
+  --t1:clamp(1.35rem,.8rem + 2.6vw,2.75rem);   /* headlines and big numbers */
+  --t2:clamp(.9rem,.8rem + .55vw,1.2rem);       /* ledes, card questions */
+  --t3:clamp(.85rem,.8rem + .25vw,1rem);       /* body */
+  --t4:clamp(.72rem,.68rem + .15vw,.84rem);   /* labels, small print */
+  --radius:10px; --shadow:0 10px 28px -18px rgba(0,0,0,.22);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121416; --panel:#1b1e21; --ink:#eeede8; --mid:#b9bcc0; --soft:#9a9ea3; --line:#30343a;
+    --acc:#7ab0ee; --on-acc:#121416; --bad:#f07a6b; --good:#5cc48d; --dot:#4a4f56;
+    --band:#0a0b0c; --band-ink:#eeede8; --band-mid:#b9bcc0;
+    --shadow:0 10px 28px -18px rgba(0,0,0,.6);
+  }
+}

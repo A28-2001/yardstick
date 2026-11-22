@@ -1,0 +1,21 @@
+name: tests
+
+# Runs the site's checks on every push and pull request: the SQL engine, the quiz,
+# every number against runs.json and CLAIMS.md, and the wording rules. No
+# dependencies to install; Node's built-in test runner is enough.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm test

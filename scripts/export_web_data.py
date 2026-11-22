@@ -6,6 +6,10 @@ dependency once it is built.
 
 Keys are short because this ships over the wire on every page load.
 
+`flagged` uses the same rule as scripts/analyze_calibration.py (practical check): a
+question is flagged when the result sets of its executed answers do not all agree
+(pairwise agreement < 1). Every answer to a flagged question carries flagged = true.
+
 Run:  python scripts/export_web_data.py
 """
 from __future__ import annotations
@@ -13,8 +17,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from collections import defaultdict
+
 import psycopg
 
+from yardstick import calibration as cal
 from yardstick.envtools import require
 
 REPO = Path(__file__).resolve().parents[1]
@@ -28,7 +35,7 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     with psycopg.connect(require("DATABASE_URL")) as conn, conn.cursor() as cur:
         cur.execute("""
-            SELECT r.variant_id, q.tier, q.db_id, q.question_text, q.gold_sql,
+            SELECT q.question_id, e.result_hash, r.variant_id, q.tier, q.db_id, q.question_text, q.gold_sql,
                    r.extracted_sql, e.set_match, e.executed, e.error_type,
                    r.self_confidence, q.gold_row_count, e.result_row_count,
                    -- rows rebuilt by rebuild_db.py keep only the token total, with the
@@ -39,14 +46,22 @@ def main() -> int:
             JOIN questions q  ON q.question_id = r.question_id
             JOIN executions e ON e.run_id = r.run_id
             WHERE r.replicate = 1 AND r.error_message IS NULL
-            ORDER BY q.tier, q.db_id, r.variant_id""")
+            ORDER BY q.tier, q.db_id, q.question_id, r.variant_id""")
         rows = cur.fetchall()
 
+    hashes = defaultdict(list)
+    for qid, rh, _vid, *_rest in rows:
+        ex = _rest[6]   # tier, db, question, gold, pred, set_match, executed
+        if ex:
+            hashes[qid].append(rh)
+    flagged_q = {qid for qid, hs in hashes.items() if cal.pairwise_agreement(hs) < 1.0}
+
     runs = []
-    for (vid, tier, db, question, gold, pred, sm, ex, etype, conf,
+    for (qid, rh, vid, tier, db, question, gold, pred, sm, ex, etype, conf,
          grows, prows, itok, otok, cost, lat) in rows:
         correct = bool(sm)
         runs.append({
+            "qid": qid,
             "v": vid,
             "m": MODEL[vid],
             "p": PROMPT[vid],
@@ -66,13 +81,14 @@ def main() -> int:
             "tok": (itok or 0) + (otok or 0),
             "cost": round(float(cost or 0), 6),
             "ms": lat,
+            "flagged": qid in flagged_q,
         })
 
     payload = {
         "generated": "2026-07",
         "n": len(runs),
-        "columns": ["v", "m", "p", "t", "db", "q", "gold", "sql", "ok", "ran",
-                    "silent", "err", "conf", "grows", "prows", "tok", "cost", "ms"],
+        "columns": ["qid", "v", "m", "p", "t", "db", "q", "gold", "sql", "ok", "ran",
+                    "silent", "err", "conf", "grows", "prows", "tok", "cost", "ms", "flagged"],
         "runs": runs,
     }
     path = OUT / "runs.json"

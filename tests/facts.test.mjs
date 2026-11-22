@@ -14,7 +14,7 @@ test("facts computed from runs.json equal the verified values", () => {
     total: 600, questions: 150, wrong: 104, silent: 93, loud: 11, confidentAll: 581,
     noWarning: 84, noWarningShare: "81%", caughtNoWarning: 77,
     flaggedRuns: 168, flaggedShare: "28%", flaggedQuestions: 42,
-    caught: 87, missed: 17, falseAlarms: 81,
+    caught: 87, missed: 17, missedLoud: 9, missedSilent: 8, falseAlarms: 81,
     projectionNoWarning: 11, strictNoWarning: 73, strictWrong: 93, strictShare: "78%",
   });
 });

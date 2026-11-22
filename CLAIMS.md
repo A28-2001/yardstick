@@ -45,7 +45,7 @@ return the same rows.
 | Questions flagged | 42 of 150 (168 of 600 outputs, 28%) | `analyze_supplementary.py` §2 |
 | Mistakes caught | 87 of 104 (84%) | `analyze_supplementary.py` §2 |
 | Correct outputs flagged (false alarms) | 81 of 496 (16%) | `analyze_supplementary.py` §2 |
-| Mistakes in unflagged questions | 17 of 104 | `analyze_supplementary.py` §2 |
+| Mistakes in unflagged questions | 17 of 104 (9 of them failed with an error; 8 silent) | `analyze_supplementary.py` §2, `docs/js/facts.js` |
 | No-warning mistakes caught | 77 of 84 (92%, "about 9 in 10") | `runs.json` (`flagged`), `docs/js/facts.js` |
 | Flagged outputs that were actually correct | 81 of 168 (48%, "about half") | `runs.json` (`flagged`), `docs/js/facts.js` |
 | Judged correctly on a balanced mix | 84% of all 600 | `analyze_supplementary.py` §2 |

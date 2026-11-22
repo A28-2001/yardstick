@@ -12,7 +12,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0
 
 /* ------------------------------------------------------------ first screen */
 .hero{position:relative;min-height:100svh;max-width:1180px;margin:0 auto;padding:40px 28px 48px;display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-content:center;align-items:start}
-.ghost{position:absolute;right:-1%;top:16%;width:440px;height:380px;border:1px solid var(--line);border-radius:var(--radius);opacity:.5;pointer-events:none;z-index:-1;will-change:transform}
+.ghost{position:absolute;right:0;top:16%;width:440px;height:380px;border:1px solid var(--line);border-radius:var(--radius);opacity:.5;pointer-events:none;z-index:-1;will-change:transform}
 .ghost::before{content:"";position:absolute;inset:22px;background:repeating-linear-gradient(var(--line) 0 1px,transparent 1px 44px)}
 .mark{font:600 var(--t2)/1 var(--serif);color:var(--acc);letter-spacing:.01em;margin:0 0 12px}
 .by{font-size:var(--t4);color:var(--mid);margin:0 0 4px} .by b{color:var(--ink);font-weight:600} .by a{text-decoration:none;font-weight:500}

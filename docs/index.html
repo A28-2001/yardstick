@@ -31,6 +31,7 @@
 <header class="hero">
   <div class="ghost" aria-hidden="true"></div>
   <div class="tx">
+    <p class="mark">Yardstick</p>
     <p class="by">By <b>Aakash Mehta</b>, AI implementation engineer <span class="dt">&middot; July 2026</span> &middot; <a href="https://www.linkedin.com/in/aakash-mehta-4050491ba/">LinkedIn</a></p>
     <p class="did">I built this test and the check it measures, and published the <a href="https://github.com/A28-2001/yardstick">code</a>.</p>
     <h1>In my test of AI looking up answers in a database, most of its mistakes came with no warning.</h1>
@@ -51,7 +52,6 @@
       <div class="ans good"><span class="v">2004</span><span class="t">The correct answer</span><span class="d">The other three answers said 2004.</span></div>
       <div class="ans caught"><span class="v" aria-hidden="true">&#10003;</span><span class="t">Caught by the check</span><span class="d">The four answers disagreed, so this question went to a person.</span></div>
     </div>
-    <p class="tech"><b>For technical readers:</b> text-to-SQL on the public Spider benchmark, 150 questions. Meta's open Llama 3.1 8B and 3.3 70B, each prompted with and without solved examples (600 answers). Confidence is the figure the AI gave when asked. Pre-registered. Not tested on newer frontier models.</p>
   </div>
 </header>
 
@@ -62,7 +62,7 @@
     <span class="num" aria-hidden="true">1</span>
     <span class="kicker">Chapter 1</span>
     <h2 id="ch1h">Follow one mistake</h2>
-    <p>The same question as above, step by step: what the AI wrote, why nothing looked wrong, and how the check caught it.</p>
+    <p>The same question, step by step.</p>
   </div>
   <div class="scrolly" data-story="one">
     <div class="graphic">
@@ -78,12 +78,12 @@
       </div>
     </div>
     <div class="steps">
-      <div class="stp" data-step="1"><div class="in"><p>Someone asks a university's database a plain question: <b>which year had the most degrees awarded?</b></p><p>The AI has to turn that into a database query, run it, and report the answer.</p></div></div>
-      <div class="stp" data-step="2"><div class="in"><p>The smaller model, given a few solved examples to learn from, writes this query.</p><p>Look at <b>COUNT</b>: it counts how many rows each year has, which here means how many campuses reported that year.</p></div></div>
-      <div class="stp" data-step="3"><div class="in"><p>The query runs. <b>No error, no warning.</b> It returns <span class="k-bad">2002</span>.</p><p>Three years tie on the number of campuses reporting, and 2002 happens to come out first.</p></div></div>
-      <div class="stp" data-step="4"><div class="in"><p>The question asked for degrees, so the right query <b>adds up</b> the degrees column. That gives <span class="k-good">2004</span>.</p></div></div>
-      <div class="stp" data-step="5"><div class="in"><p>Asked to rate its own confidence, the AI said <b>90%</b>.</p><p>So the wrong answer came with no error and high confidence: nothing on the surface says to check it.</p></div></div>
-      <div class="stp" data-step="6"><div class="in"><p>The check asks the same question three more ways: the small model without examples, and the larger model with and without. <b>All three said 2004.</b></p><p>The answers disagree, so the question is flagged for a person. That is the whole check.</p></div></div>
+      <div class="stp" data-step="1"><div class="in"><p>Someone asks a university's database: <b>which year had the most degrees awarded?</b></p></div></div>
+      <div class="stp" data-step="2"><div class="in"><p>The smaller model writes a query that <b>counts</b> rows per year: campuses reporting, not degrees.</p></div></div>
+      <div class="stp" data-step="3"><div class="in"><p>It runs with <b>no error</b> and returns <span class="k-bad">2002</span>. Three years tie on campuses reporting; 2002 comes first.</p></div></div>
+      <div class="stp" data-step="4"><div class="in"><p>The right query <b>adds up</b> the degrees: <span class="k-good">2004</span>.</p></div></div>
+      <div class="stp" data-step="5"><div class="in"><p>Asked how sure it was, the AI said <b>90%</b>. Nothing on the surface says to check it.</p></div></div>
+      <div class="stp" data-step="6"><div class="in"><p>The other three answers all said 2004. <b>They disagree, so the question goes to a person.</b> That is the whole check.</p></div></div>
     </div>
   </div>
 </section>
@@ -94,7 +94,7 @@
     <span class="num" aria-hidden="true">2</span>
     <span class="kicker">Chapter 2</span>
     <h2 id="ch2h">Now all <span data-fact="total">600</span> answers</h2>
-    <p>One dot per answer: <span data-fact="questions">150</span> questions, each answered by the four setups.</p>
+    <p>One dot per answer.</p>
   </div>
   <div class="scrolly" data-story="dots">
     <div class="graphic dots" id="dotfield">
@@ -102,12 +102,12 @@
       <div class="legend" id="dotlegend"></div>
     </div>
     <div class="steps">
-      <div class="stp" data-step="1"><div class="in"><p>The four outlined dots are the question you just watched: two red (wrong) and two grey (right).</p><p>The first small-model answer said 2004 too, but it is counted as wrong because it also returned an extra column. Answers are scored strictly.</p></div></div>
+      <div class="stp" data-step="1"><div class="in"><p>The outlined dots are that question: two red (wrong), two grey (right). One red answer said 2004 but added an extra column, and scoring is strict.</p></div></div>
       <div class="stp" data-step="2"><div class="in"><p><span class="k-bad"><span data-fact="wrong">104</span></span> of the <span data-fact="total">600</span> answers were wrong.</p></div></div>
-      <div class="stp" data-step="3"><div class="in"><p><span class="k-bad"><span data-fact="silent">93</span></span> of those <span data-fact="wrong">104</span> ran without any error. Only <span data-fact="loud">11</span> failed loudly (hollow dots), by referring to tables or columns that do not exist.</p></div></div>
-      <div class="stp" data-step="4"><div class="in"><p>And confidence did not help: <b><span data-fact="confidentAll">581</span> of all <span data-fact="total">600</span></b> answers, right or wrong, came with a stated confidence of 90% or more. The faded dots are the few that did not.</p></div></div>
-      <div class="stp" data-step="5"><div class="in"><p>The check flagged <b><span data-fact="flaggedQuestions">42</span> questions</b>, which is <span data-fact="flaggedRuns">168</span> answers (<span data-fact="flaggedShare">28%</span>), shown in the top block.</p></div></div>
-      <div class="stp" data-step="6"><div class="in"><p>Inside the flagged block, <span class="k-good"><span data-fact="caught">87</span></span> of the <span data-fact="wrong">104</span> mistakes were caught (green). The other <span data-fact="falseAlarms">81</span> flagged answers were right: false alarms.</p><p>Outside it, <span class="k-bad"><span data-fact="missed">17</span></span> mistakes were not flagged. <span data-fact="missedLoud">9</span> of those failed with an error anyway, so <span data-fact="missedSilent">8</span> silent mistakes got through.</p></div></div>
+      <div class="stp" data-step="3"><div class="in"><p><span class="k-bad"><span data-fact="silent">93</span></span> of them ran without any error. Only <span data-fact="loud">11</span> failed loudly (hollow dots).</p></div></div>
+      <div class="stp" data-step="4"><div class="in"><p>Confidence did not help: <b><span data-fact="confidentAll">581</span> of all <span data-fact="total">600</span></b> answers, right or wrong, came with 90% or more. The faded dots are the rest.</p></div></div>
+      <div class="stp" data-step="5"><div class="in"><p>The check flagged <span data-fact="flaggedQuestions">42</span> questions: <span data-fact="flaggedRuns">168</span> answers (<span data-fact="flaggedShare">28%</span>), the top block.</p></div></div>
+      <div class="stp" data-step="6"><div class="in"><p>It caught <span class="k-good"><span data-fact="caught">87</span></span> of the <span data-fact="wrong">104</span> mistakes (green), with <span data-fact="falseAlarms">81</span> false alarms. <span class="k-bad"><span data-fact="missedSilent">8</span></span> silent mistakes got through; <span data-fact="missedLoud">9</span> more were missed but failed with an error.</p></div></div>
     </div>
   </div>
 </section>
@@ -118,7 +118,7 @@
     <span class="num" aria-hidden="true">3</span>
     <span class="kicker">Chapter 3</span>
     <h2 id="ch3h">Your turn: spot the wrong answer</h2>
-    <p>Six real queries from the test, three right and three wrong, in random order. You see the question and the query, as a reviewer would, without the correct answer.</p>
+    <p>Six real queries, three right and three wrong. You get the question and the query, not the answer.</p>
   </div>
   <div class="panel" id="quiz-panel">
     <div class="pbar"><h3>Six real queries</h3><span class="note" id="qprog">not started</span></div>
@@ -133,16 +133,16 @@
     <span class="num" aria-hidden="true">4</span>
     <span class="kicker">Chapter 4</span>
     <h2 id="ch4h">What to do about it</h2>
-    <p>An accuracy score tells you how often the AI is wrong. It does not tell you which answers are wrong. For that you need a check that runs on every question.</p>
+    <p>An accuracy score says how often the AI is wrong, not which answers are.</p>
   </div>
   <p class="rule">Ask the same question more than one way and compare the rows that come back. When they all agree, move on. When they disagree, have a person look.</p>
   <ul class="costs">
-    <li><b><span data-fact="caught">87</span> of <span data-fact="wrong">104</span></b>mistakes caught, by reviewing <span data-fact="flaggedShare">28%</span> of answers</li>
-    <li><b><span data-fact="falseAlarms">81</span></b>right answers flagged for nothing along the way</li>
-    <li><b><span data-fact="missedSilent">8</span></b>silent mistakes got through unflagged (another <span data-fact="missedLoud">9</span> were missed but failed with an error)</li>
-    <li><b>About a tenth of a cent</b>per question for four answers at list prices (<span data-fact="listCost">$0.17</span> for all 600)</li>
+    <li><b><span data-fact="caught">87</span> of <span data-fact="wrong">104</span></b>mistakes caught, reviewing <span data-fact="flaggedShare">28%</span> of answers</li>
+    <li><b><span data-fact="falseAlarms">81</span></b>right answers flagged for nothing</li>
+    <li><b><span data-fact="missedSilent">8</span></b>silent mistakes got through</li>
+    <li><b>About a tenth of a cent</b>per question at list prices</li>
   </ul>
-  <p class="mid prose" style="margin-top:24px">The honest limits: this was measured on one public benchmark, at one point in time, and never deployed anywhere. A cheaper version with only two setups was not measured. Test it on your own questions before you trust it.</p>
+  <p class="mid prose" style="margin-top:24px">Limits: one public benchmark, two open Llama models (newer frontier models not tested), never deployed. A two-setup version was not measured.</p>
 </section>
 </div>
 
@@ -152,12 +152,12 @@
     <span class="num" aria-hidden="true">5</span>
     <span class="kicker">Chapter 5</span>
     <h2 id="ch5h">What did not work</h2>
-    <p>Three things I expected to help, and what the data said.</p>
+    <p>Three things I expected to help.</p>
   </div>
   <div class="cards3">
-    <div class="box"><span class="big"><span data-fact="fewshotComplexPts">+8</span> pts</span><h3>Showing the AI solved examples</h3><p>No significant gain at any difficulty level. The largest was +8 points on complex questions (p = <span data-fact="fewshotComplexP">0.42</span>). This was the pre-registered question.</p></div>
-    <div class="box"><span class="big"><span data-fact="aucConfidence">0.647</span></span><h3>Trusting the AI's own confidence</h3><p>As a predictor of a right answer it scores 0.647 AUC, where 0.5 is a coin flip. Agreement between the four answers scores <span data-fact="aucAgreement">0.861</span>.</p></div>
-    <div class="box"><span class="big"><span data-fact="routerAccuracy">78.3%</span></span><h3>Sending hard questions to the bigger model</h3><p>Routing by predicted difficulty reached 78.3% accuracy. Random routing at the same budget averaged <span data-fact="randomAverage">75.5%</span>, and 21.6% of random draws tied or beat it.</p></div>
+    <div class="box"><span class="big"><span data-fact="fewshotComplexPts">+8</span> pts</span><h3>Solved examples in the prompt</h3><p>No significant gain at any difficulty (largest on complex, p = <span data-fact="fewshotComplexP">0.42</span>).</p></div>
+    <div class="box"><span class="big"><span data-fact="aucConfidence">0.647</span></span><h3>The AI's own confidence</h3><p>AUC, where 0.5 is a coin flip. Agreement between answers scores <span data-fact="aucAgreement">0.861</span>.</p></div>
+    <div class="box"><span class="big"><span data-fact="routerAccuracy">78.3%</span></span><h3>Routing hard questions to the big model</h3><p>Random routing at the same budget averaged <span data-fact="randomAverage">75.5%</span>.</p></div>
   </div>
 </section>
 
@@ -170,17 +170,15 @@
   <div class="method">
     <div>
       <h3>Method</h3>
-      <p><span data-fact="questions">150</span> questions from Spider, a public text-to-SQL benchmark (50 each at three difficulty levels, 93 databases). Each was answered by four setups: Meta's open Llama 3.1 8B and Llama 3.3 70B, each prompted with and without three solved examples, for <span data-fact="total">600</span> answers. Every query was run against the real database and its rows compared with the human answer's rows.</p>
-      <p>The hypotheses and statistical tests (McNemar exact, bootstrap confidence intervals, Benjamini Hochberg correction) were committed to version control before any data was collected. Confidence is the number the AI gave when asked how sure it was.</p>
+      <p><span data-fact="questions">150</span> questions from Spider, a public text-to-SQL benchmark (50 per difficulty level, 93 databases), each answered by Meta's open Llama 3.1 8B and 3.3 70B, with and without three solved examples: <span data-fact="total">600</span> answers. Every query ran against the real database and its rows were compared with the human answer's. The hypotheses and tests (McNemar exact, bootstrap intervals, Benjamini Hochberg) were committed before any data was collected.</p>
     </div>
     <div>
-      <h3>How strictly "wrong" is counted</h3>
-      <p>An answer is wrong when its rows differ from the human answer's rows, even if the right information is there with an extra or missing column. <span data-fact="projectionNoWarning">11</span> of the <span data-fact="noWarning">84</span> no-warning mistakes are this kind. Without them it is <span data-fact="strictNoWarning">73</span> of <span data-fact="strictWrong">93</span> (<span data-fact="strictShare">78%</span>), so the headline holds. The quiz leaves these cases out.</p>
-      <p>The scorer agrees with the official Spider evaluator on 18 of the 19 queries that tool could score. Every number on this page is listed with its source in <a href="https://github.com/A28-2001/yardstick/blob/main/CLAIMS.md">CLAIMS.md</a>. Full write-up: <a href="report.html">the report</a>.</p>
+      <h3>Strict scoring</h3>
+      <p>Right information with an extra or missing column counts as wrong. That is <span data-fact="projectionNoWarning">11</span> of the <span data-fact="noWarning">84</span> no-warning mistakes; without them it is <span data-fact="strictNoWarning">73</span> of <span data-fact="strictWrong">93</span> (<span data-fact="strictShare">78%</span>). The quiz leaves these out. Sources for every number: <a href="https://github.com/A28-2001/yardstick/blob/main/CLAIMS.md">CLAIMS.md</a>. Full write-up: <a href="report.html">the report</a>.</p>
     </div>
   </div>
 
-  <div class="panel">
+
     <div class="pbar"><h3>Every answer</h3><span class="note" id="xcount">loading</span></div>
     <div class="legend">
       <div class="pick">
